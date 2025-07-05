@@ -7,13 +7,8 @@ import {
   CssBaseline,
   Drawer,
   IconButton,
-  MenuItem,
-  Modal,
-  Select,
-  Snackbar,
   Tab,
   Tabs,
-  TextField,
   Toolbar,
   Typography,
   Table,
@@ -24,30 +19,19 @@ import {
   TableRow,
   Paper,
 } from '@mui/material';
-import type { SelectChangeEvent } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 
-interface Toast {
-  title: string;
-  message: string;
-}
+
 
 const DashBoard: React.FC = () => {
   const [tabIndex, setTabIndex] = useState<number>(0);
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
-  const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
-  const [toast, setToast] = useState<Toast | null>(null);
-  const [category, setCategory] = useState<string>('');
 
   const handleTabChange = (_event: SyntheticEvent, newValue: number) => {
     setTabIndex(newValue);
   };
 
-  const handleCategoryChange = (event: SelectChangeEvent) => {
-    setCategory(event.target.value);
-  };
-
+ 
   return (
     <>
       <CssBaseline />
