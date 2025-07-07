@@ -2,9 +2,12 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
+import { db } from "../firebase";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { useState } from "react";
 
 interface FormValues {
-    username: string;
+    adminName: string;
     password: string;
 }
 
@@ -14,9 +17,8 @@ const theme = {
     primaryColor: "#0F3460",
 };
 
-// Yup validation schema
 const schema = yup.object({
-    username: yup.string().required("Username is required").min(4, "Minimum 4 characters"),
+    adminName: yup.string().required("adminName is required").min(4, "Minimum 4 characters"),
     password: yup
         .string()
         .required("Password is required")
@@ -27,20 +29,38 @@ const schema = yup.object({
         .matches(/[\W_]/, "Must include a special character"),
 });
 
+
+
 const LoginForm = () => {
     const navigate = useNavigate();
+    const [firebaseError, setFirebaseError] = useState<string | null>(null);
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<FormValues>({
+    const { register, handleSubmit, formState: { errors }, } = useForm<FormValues>({
         resolver: yupResolver(schema),
     });
 
-    const onSubmit = (data: FormValues) => {
-        console.log("Login Success", data);
-        navigate("/dashboard");
+    // Form submission logic
+    const onSubmit = async (data: FormValues) => {
+        setFirebaseError(null);
+
+        try {
+            const adminRef = collection(db, "admins");
+            const q = query(
+                adminRef,
+                where("adminName", "==", data.adminName),
+                where("password", "==", data.password)
+            );
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+                localStorage.setItem("isAdmin", "true");
+                navigate("/dashboard");
+            } else {
+                setFirebaseError("Invalid admin credentials");
+            }
+        } catch (err:any) {
+            setFirebaseError("Login failed. Please try again.");
+        }
     };
 
     return (
@@ -60,8 +80,8 @@ const LoginForm = () => {
                         top: 0,
                         left: 0,
                         transform: "translate(-45%, -45%)",
-                    }}
-                />
+                    }} />
+
 
                 <div
                     className="relative z-10 p-8 rounded-lg"
@@ -69,28 +89,27 @@ const LoginForm = () => {
                         border: "1px solid hsla(0, 0%, 65%, 0.158)",
                         boxShadow: "0 0 36px 1px rgba(0, 0, 0, 0.2)",
                         backdropFilter: "blur(20px)",
-                    }}
-                >
+                    }}>
                     <h1 className="text-4xl text-center mb-8 opacity-60">LOGIN</h1>
 
                     <form onSubmit={handleSubmit(onSubmit)}>
                         <input
-                            {...register("username")}
-                            placeholder="USERNAME"
+                            {...register("adminName")}
+                            placeholder="User Name"
                             className="block w-full p-3.5 my-4 rounded-md outline-none font-medium"
                             style={{
                                 color: theme.color,
                                 backgroundColor: "#9191911f",
                             }}
                         />
-                        {errors.username && (
-                            <p className="text-sm text-red-400">{errors.username.message}</p>
+                        {errors.adminName && (
+                            <p className="text-sm text-red-400">{errors.adminName.message}</p>
                         )}
 
                         <input
                             {...register("password")}
                             type="password"
-                            placeholder="PASSWORD"
+                            placeholder="Password"
                             className="block w-full p-3.5 my-4 rounded-md outline-none font-medium"
                             style={{
                                 color: theme.color,
@@ -99,6 +118,11 @@ const LoginForm = () => {
                         />
                         {errors.password && (
                             <p className="text-sm text-red-400">{errors.password.message}</p>
+                        )}
+
+                        {/* Firebase Error */}
+                        {firebaseError && (
+                            <p className="text-lg text-red-400 text-center">{firebaseError}</p>
                         )}
 
                         <button
@@ -120,7 +144,7 @@ const LoginForm = () => {
                             style={{ color: theme.color }}
                             onClick={() => console.log("Forgot password clicked")}
                         >
-                            FORGOT PASSWORD
+                            Forget Password
                         </button>
                     </div>
                 </div>
@@ -132,8 +156,7 @@ const LoginForm = () => {
                         bottom: 0,
                         right: 0,
                         transform: "translate(45%, 45%)",
-                    }}
-                />
+                    }} />
             </div>
         </div>
     );
