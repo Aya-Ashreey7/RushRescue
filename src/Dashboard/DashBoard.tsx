@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
 import type { SyntheticEvent } from 'react';
+
 import {
-  AppBar,
   Box,
   Button,
   CssBaseline,
   Drawer,
-  IconButton,
   Tab,
   Tabs,
-  Toolbar,
   Typography,
   Table,
   TableBody,
@@ -19,45 +17,29 @@ import {
   TableRow,
   Paper,
 } from '@mui/material';
- import MenuIcon from '@mui/icons-material/Menu';
-
+import NavBar from '../components/navBar';
 
 
 const DashBoard: React.FC = () => {
   const [tabIndex, setTabIndex] = useState<number>(0);
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
 
+
+
   const handleTabChange = (_event: SyntheticEvent, newValue: number) => {
     setTabIndex(newValue);
   };
 
- 
+
+
+
   return (
     <>
       <CssBaseline />
-      <AppBar
-        position="fixed"
-        sx={{
-          zIndex: 1201,
-          bgcolor: '#1A1A2E',
-          color: '#FFFFFF',
-        }}
-      >
-        <Toolbar sx={{ justifyContent: 'space-between' }}>
-          <Box display="flex" alignItems="center">
-            <IconButton color="inherit" onClick={() => setDrawerOpen(true)}>
-              <MenuIcon />
-            </IconButton>
-            <Typography variant="h6" ml={1}>RushRescue</Typography>
-          </Box>
-          <Box display="flex" alignItems="center" gap={2}>
-            <Typography>Admin</Typography>
-            <Button variant="outlined" sx={{ color: '#FFFFFF', borderColor: '#FFFFFF' }}>
-              Logout
-            </Button>
-          </Box>
-        </Toolbar>
-      </AppBar>
+      
+      <NavBar />
+
+
 
       <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
         <Box sx={{ width: 250, p: 2 }}>
@@ -145,7 +127,7 @@ const DashBoard: React.FC = () => {
                         <Button variant="contained" color="error" size="small">Reject</Button>
                       </TableCell>
                     </TableRow>
-                    
+
                   ))}
                 </TableBody>
               </Table>

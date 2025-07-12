@@ -4,6 +4,7 @@ import LoginForm from './login/LoginForm'
 import DashBoard from './Dashboard/DashBoard'
 import NotFound from './notFound/NotFound'
 import { Route, Routes } from 'react-router-dom'
+import ProtectedRoute from './components/ProtectedRoute'
 // import Test from './login/test'
 
 function App() {
@@ -12,7 +13,9 @@ function App() {
     <>
       <Routes>
         <Route path="/" element={<LoginForm />} />
-        <Route path="/dashboard" element={<DashBoard />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<DashBoard />} />
+        </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
 
