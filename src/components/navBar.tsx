@@ -1,5 +1,5 @@
 import {
-    AppBar, Box, Button, Drawer, IconButton,
+    AppBar, Box, Button, IconButton,
     Toolbar, Typography
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -8,8 +8,11 @@ import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 
-const NavBar: React.FC = () => {
-    const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+interface NavBarProps {
+    onMenuToggle: () => void;
+}
+
+const NavBar: React.FC<NavBarProps> = ({ onMenuToggle  }) => {
     const [userEmail, setUserEmail] = useState<string>('Loading...');
 
     const navigate = useNavigate();
@@ -32,19 +35,15 @@ const NavBar: React.FC = () => {
         navigate('/');
     };
 
-    const handleNavigateDashboard = () => {
-        navigate('/dashboard');
-        setDrawerOpen(false);
-    };
-    const toggleDrawer = () => setDrawerOpen(prev => !prev);
+
 
 
     return (
         <>
-            <AppBar position="fixed" sx={{ zIndex: 1201, bgcolor: "#1A1A2E", color: "#FFFFFF" }}>
+            <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, bgcolor: "#1A1A2E", color: "#FFFFFF" }}>
                 <Toolbar sx={{ justifyContent: "space-between" }}>
                     <Box display="flex" alignItems="center">
-                        <IconButton color="inherit" onClick={toggleDrawer}>
+                        <IconButton color="inherit" onClick={onMenuToggle}>
                             <MenuIcon />
                         </IconButton>
                         <Typography variant="h6" ml={1}>RushRescue</Typography>
@@ -68,12 +67,7 @@ const NavBar: React.FC = () => {
                 </Toolbar>
             </AppBar>
 
-            <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
-                <Box sx={{ width: 250, p: 2 }}>
-                    <Typography variant="h6" mb={2}>Menu</Typography>
-                    <Button fullWidth onClick={handleNavigateDashboard}>Dashboard</Button>
-                </Box>
-            </Drawer>
+
         </>
     );
 };
