@@ -5,6 +5,8 @@ import DashBoard from './Dashboard/DashBoard'
 import NotFound from './notFound/NotFound'
 import { Route, Routes } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
+import Drivers from './Drivers/drivers'
+import Rescures from './Rescuers/rescures'
 // import Test from './login/test'
 
 function App() {
@@ -21,8 +23,8 @@ function App() {
             <Route path="" element={null} />
             <Route path="driver-requests" element={<div>Driver Requests</div>} />
             <Route path="rescuer-requests" element={<div>Rescuer Requests</div>} />
-            <Route path="drivers" element={<div>Drivers</div>} />
-            <Route path="rescuers" element={<div>Rescuers</div>} />
+            <Route path="drivers" element={<Drivers />} />
+            <Route path="rescuers" element={<Rescures/>} />
             <Route path="settings" element={<div>settings</div>} />
 
 

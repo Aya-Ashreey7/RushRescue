@@ -12,7 +12,7 @@ interface NavBarProps {
     onMenuToggle: () => void;
 }
 
-const NavBar: React.FC<NavBarProps> = ({ onMenuToggle  }) => {
+const NavBar: React.FC<NavBarProps> = ({ onMenuToggle }) => {
     const [userEmail, setUserEmail] = useState<string>('Loading...');
 
     const navigate = useNavigate();
@@ -40,19 +40,20 @@ const NavBar: React.FC<NavBarProps> = ({ onMenuToggle  }) => {
 
     return (
         <>
-            <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, bgcolor: "#1A1A2E", color: "#FFFFFF" }}>
+            <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, bgcolor: "#0F3460", color: "#FFFFFF" }}>
                 <Toolbar sx={{ justifyContent: "space-between" }}>
                     <Box display="flex" alignItems="center">
                         <IconButton color="inherit" onClick={onMenuToggle}>
                             <MenuIcon />
                         </IconButton>
-                        <Typography variant="h6" ml={1}>RushRescue</Typography>
                         {/* <Box
                             component="img"
                             src="./icon.png"
                             alt="RushRescue"
                             sx={{ height: 40, mr: 2 }}
                         /> */}
+                        <Typography variant="h6" ml={1}>RushRescue</Typography>
+
                     </Box>
                     <Box display="flex" alignItems="center" gap={2}>
                         <Typography>{userEmail}</Typography>
