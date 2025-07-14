@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
+import { useTheme } from '@mui/material/styles';
 
 interface NavBarProps {
     onMenuToggle: () => void;
@@ -14,6 +15,8 @@ interface NavBarProps {
 
 const NavBar: React.FC<NavBarProps> = ({ onMenuToggle }) => {
     const [userEmail, setUserEmail] = useState<string>('Loading...');
+    const theme = useTheme();
+    const isDark = theme.palette.mode === 'dark';
 
     const navigate = useNavigate();
 
@@ -40,10 +43,10 @@ const NavBar: React.FC<NavBarProps> = ({ onMenuToggle }) => {
 
     return (
         <>
-            <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, bgcolor: "#0F3460", color: "#FFFFFF" }}>
-                <Toolbar sx={{ justifyContent: "space-between" }}>
+            <AppBar position="fixed" elevation={isDark ? 4 : 1} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, bgcolor: isDark ? '#23243a' : '#0F3460', color: isDark ? '#fff' : '#FFFFFF', transition: 'background 0.3s' }}>
+                <Toolbar sx={{ justifyContent: "space-between", minHeight: 64 }}>
                     <Box display="flex" alignItems="center">
-                        <IconButton color="inherit" onClick={onMenuToggle}>
+                        <IconButton color="inherit" onClick={onMenuToggle} sx={{ color: isDark ? '#ffd700' : '#fff' }}>
                             <MenuIcon />
                         </IconButton>
                         {/* <Box
@@ -52,14 +55,14 @@ const NavBar: React.FC<NavBarProps> = ({ onMenuToggle }) => {
                             alt="RushRescue"
                             sx={{ height: 40, mr: 2 }}
                         /> */}
-                        <Typography variant="h6" ml={1}>RushRescue</Typography>
+                        <Typography variant="h6" ml={1} sx={{ color: isDark ? '#ffd700' : '#fff', fontWeight: 700, letterSpacing: 1 }}>RushRescue</Typography>
 
                     </Box>
                     <Box display="flex" alignItems="center" gap={2}>
-                        <Typography>{userEmail}</Typography>
+                        <Typography sx={{ color: isDark ? '#b0b8d1' : '#fff', fontWeight: 500 }}>{userEmail}</Typography>
                         <Button
                             variant="outlined"
-                            sx={{ color: "#FFFFFF", borderColor: "#FFFFFF" }}
+                            sx={{ color: isDark ? '#ffd700' : '#fff', borderColor: isDark ? '#ffd700' : '#fff', fontWeight: 600, transition: 'all 0.3s', '&:hover': { borderColor: isDark ? '#fff' : '#ffd700', color: isDark ? '#fff' : '#ffd700', background: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(255,215,0,0.04)' } }}
                             onClick={handleLogout}
                         >
                             Logout

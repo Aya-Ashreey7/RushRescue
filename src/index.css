@@ -22,7 +22,7 @@ select:-webkit-autofill:focus {
   transition: background-color 5000s ease-in-out 0s;
 }
 
-.css-5sspxz {
+.MuiBox-root .css-5sspxz {
     padding-top: 64px;
     padding-left: 0;
     padding-right: 0;

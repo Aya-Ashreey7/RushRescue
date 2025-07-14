@@ -7,12 +7,29 @@ import { Route, Routes } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
 import Drivers from './Drivers/drivers'
 import Rescures from './Rescuers/rescures'
-// import Test from './login/test'
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import React from 'react';
+import SettingsPage from './Settings/settings'
 
 function App() {
+  const [darkMode, setDarkMode] = React.useState(false);
+  const toggleDarkMode = () => setDarkMode((prev) => !prev);
+
+  const theme = React.useMemo(() => createTheme({
+    palette: {
+      mode: darkMode ? 'dark' : 'light',
+      primary: { main: '#0F3460' },
+      background: {
+        default: darkMode ? '#1A1A2E' : '#f2f6fc',
+        paper: darkMode ? '#23243a' : '#fff',
+      },
+    },
+  }), [darkMode]);
 
   return (
-    <>
+    <ThemeProvider  theme={theme}>
+      <CssBaseline />
       <Routes>
         <Route path="/" element={<LoginForm />} />
 
@@ -23,9 +40,9 @@ function App() {
             <Route path="" element={null} />
             <Route path="driver-requests" element={<div>Driver Requests</div>} />
             <Route path="rescuer-requests" element={<div>Rescuer Requests</div>} />
-            <Route path="drivers" element={<Drivers />} />
-            <Route path="rescuers" element={<Rescures/>} />
-            <Route path="settings" element={<div>settings</div>} />
+            <Route path="drivers" element={<Drivers darkMode={darkMode} toggleDarkMode={toggleDarkMode} />} />
+            <Route path="rescuers" element={<Rescures darkMode={darkMode} toggleDarkMode={toggleDarkMode}/>} />
+            <Route path="settings" element={<SettingsPage />} />
 
 
           </Route>
@@ -34,8 +51,7 @@ function App() {
         <Route path="*" element={<NotFound />} />
       </Routes>
 
-      {/* <Test /> */}
-    </>
+    </ThemeProvider>
   )
 }
 

@@ -14,11 +14,25 @@ import {
     Download as DownloadIcon,
 } from "@mui/icons-material";
 
+import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import Avatar from '@mui/material/Avatar';
+import { useLocation } from 'react-router-dom';
+import { useTheme } from '@mui/material/styles';
 
-export default function Rescures() {
+
+interface RescuresProps {
+  toggleDarkMode: () => void;
+}
+
+export default function Rescures({ toggleDarkMode }: RescuresProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const [filterDate, setFilterDate] = useState("");
     const [page, setPage] = useState(1);
+    const location = useLocation();
+    const pathSegments = location.pathname.split('/').filter(Boolean);
+    const breadcrumb = pathSegments.map(seg => seg.charAt(0).toUpperCase() + seg.slice(1)).join(' / ');
 
     const products = Array.from({ length: 10 }, (_, i) => ({
         id: i + 1,
@@ -29,29 +43,49 @@ export default function Rescures() {
         updateDate: "Jan 15, 2024",
     }));
 
-    return (
-        <Box sx={{  minHeight: "100vh", bgcolor: "grey.50", pt: 6}}>
-            <Box sx={{ maxWidth: 1300, mx: "auto" }}>
-                {/* Header */}
-                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 4 }}>
-                    <Typography variant="h4">Rescures Requests List</Typography>
-                    {/* <Button variant="contained" color="primary">
-                        Add Rescures Requests
-                    </Button> */}
-                </Box>
+    const theme = useTheme();
+    const isDark = theme.palette.mode === 'dark';
 
-                <Paper sx={{ p: 4, mb: 4 }}>
-                    <Typography variant="h6" sx={{ mb: 3 }}> Requests Status</Typography>
+    return (
+        <Box sx={{ minHeight: "100vh", bgcolor: isDark ? "#181c2a" : "#f2f6fc", pt: 6, transition: 'background 0.3s' }}>
+            <Box sx={{ maxWidth: 1300, mx: "auto" }}>
+                {/* Page Header */}
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 4 }}>
+                    <Box>
+                        <Typography variant="body2" color={isDark ? '#b0b8d1' : '#888'} sx={{ mb: 0.5 }}>{breadcrumb}</Typography>
+                        <Typography variant="h4" sx={{ fontWeight: 700, color: isDark ? '#fff' : '#1A1A2E' }}>Rescures</Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: isDark ? '#23243a' : '#fff', borderRadius: 8, boxShadow: isDark ? 3 : 1, px: 2, py: 0.5, gap: 1, transition: 'background 0.3s' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: isDark ? '#23243a' : '#f5f6fa', borderRadius: 8, px: 2, py: 0.5, mr: 1, boxShadow: isDark ? 1 : 0 }}>
+                            <SearchIcon sx={{ color: isDark ? '#b0b8d1' : '#888', mr: 1 }} />
+                            <TextField
+                                variant="standard"
+                                placeholder="Search"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                InputProps={{ disableUnderline: true, style: { background: 'transparent', color: isDark ? '#fff' : '#222' } }}
+                                sx={{ width: 120, bgcolor: 'transparent' }}
+                            />
+                        </Box>
+                        <IconButton><NotificationsNoneIcon sx={{ color: isDark ? '#b0b8d1' : '#888' }} /></IconButton>
+                        <IconButton onClick={toggleDarkMode}><DarkModeOutlinedIcon sx={{ color: isDark ? '#ffd700' : '#888' }} /></IconButton>
+                        <IconButton><InfoOutlinedIcon sx={{ color: isDark ? '#b0b8d1' : '#888' }} /></IconButton>
+                        <Avatar sx={{ width: 32, height: 32, ml: 1, boxShadow: isDark ? 2 : 0 }} src="https://randomuser.me/api/portraits/men/32.jpg" />
+                    </Box>
+                </Box>
+                {/* Header */}
+                <Paper sx={{ p: 4, mb: 4, bgcolor: isDark ? '#23243a' : '#fff', boxShadow: isDark ? 3 : 1, transition: 'background 0.3s' }}>
+                    <Typography variant="h6" sx={{ mb: 3, color: isDark ? '#b0b8d1' : 'inherit' }}> Requests Status</Typography>
 
                     {/* Filters */}
                     <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
                        <Box sx={{ display: "flex", gap: 2 }}>  
-                        <Button sx={{ backgroundColor: "#0F3460", color: "white" }}>All Rescures Requests</Button>
+                        <Button sx={{ backgroundColor: isDark ? '#22304a' : "#0F3460", color: "white", boxShadow: isDark ? 1 : 0 }}>All Rescures Requests</Button>
                         <Box sx={{
                             display: "flex",
                             alignItems: "center",
-                            backgroundColor: "#fff",
-                            border: "1px solid #ccc",
+                            backgroundColor: isDark ? '#23243a' : "#fff",
+                            border: `1px solid ${isDark ? '#444a5a' : '#ccc'}`,
                             borderRadius: 2,
                             overflow: "hidden",
                             height: 40,
@@ -65,20 +99,25 @@ export default function Rescures() {
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 InputProps={{
                                     disableUnderline: true,
+                                    style: {
+                                        color: isDark ? '#fff' : '#222',
+                                        background: 'transparent',
+                                    },
                                 }}
                                 sx={{
                                     flex: 1,
                                     pl: 2,
+                                    bgcolor: 'transparent',
                                 }}
                             />
                             <IconButton
                                 sx={{
                                     height: "100%",
                                     borderRadius: 0,
-                                    backgroundColor: "#0F3460",
+                                    backgroundColor: isDark ? '#22304a' : "#0F3460",
                                     color: "#fff",
                                     "&:hover": {
-                                        backgroundColor: "#0d2f50",
+                                        backgroundColor: isDark ? '#1a2233' : "#0d2f50",
                                     },
                                 }}
                             >
@@ -87,26 +126,27 @@ export default function Rescures() {
                         </Box>
                         </Box>
                        
-
                 <Box sx={{ display: "flex", gap: 2 }}>
                         <FormControl sx={{
                             minWidth: 160,
                             '& .MuiOutlinedInput-root': {
                                 '& fieldset': {
-                                    borderColor: '#0F3460',
+                                    borderColor: isDark ? '#444a5a' : '#0F3460',
                                 },
                                 '&:hover fieldset': {
-                                    borderColor: '#0d2f50',
+                                    borderColor: isDark ? '#5a6a8a' : '#0d2f50',
                                 },
                                 '&.Mui-focused fieldset': {
-                                    borderColor: '#0F3460',
+                                    borderColor: isDark ? '#b0b8d1' : '#0F3460',
                                 },
+                                backgroundColor: isDark ? '#23243a' : '#fff',
+                                color: isDark ? '#fff' : '#222',
                             },
                             '& .MuiInputLabel-root': {
-                                color: '#777',
+                                color: isDark ? '#b0b8d1' : '#777',
                             },
                             '& .MuiInputLabel-root.Mui-focused': {
-                                color: '#0F3460',
+                                color: isDark ? '#ffd700' : '#0F3460',
                                 fontWeight: 500,
                             },
                         }} size="small" >
@@ -116,6 +156,10 @@ export default function Rescures() {
                                 label="Create Date"
                                 value={filterDate}
                                 onChange={(e) => setFilterDate(e.target.value)}
+                                sx={{
+                                    color: isDark ? '#fff' : '#222',
+                                    backgroundColor: isDark ? '#23243a' : '#fff',
+                                }}
                             >
                                 <MenuItem value="7">Last 7 days</MenuItem>
                                 <MenuItem value="30">Last 30 days</MenuItem>
@@ -123,11 +167,11 @@ export default function Rescures() {
                             </Select>
                         </FormControl>
 
-                        <Button sx={{ borderColor: "#0F3460", color: "#0F3460",
-                            "&:hover": { borderColor: "#0d2f50",
-                                backgroundColor: "rgba(15, 52, 96, 0.05)",
+                        <Button sx={{ borderColor: isDark ? '#b0b8d1' : "#0F3460", color: isDark ? '#b0b8d1' : "#0F3460",
+                            "&:hover": { borderColor: isDark ? '#ffd700' : "#0d2f50",
+                                backgroundColor: isDark ? 'rgba(176,184,209,0.05)' : "rgba(15, 52, 96, 0.05)",
                             },
-                        }} variant="outlined" startIcon={<DownloadIcon sx={{ color: "#0F3460" }} />}>
+                        }} variant="outlined" startIcon={<DownloadIcon sx={{ color: isDark ? '#ffd700' : "#0F3460" }} />}>
                             Export Rescures
                         </Button>
                         </Box>
