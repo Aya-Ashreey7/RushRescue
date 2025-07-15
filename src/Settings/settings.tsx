@@ -140,7 +140,16 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ toggleDarkMode }) => {
           <Divider sx={{ mb: 3 }} />
 
           <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-            <Avatar sx={{ bgcolor: "primary.main", mr: 2 }}>
+            <Avatar
+              sx={{
+                bgcolor: "#0F3460",
+                color: "white",
+                mr: 2,
+                width: 56,
+                height: 56,
+                fontSize: 24,
+              }}
+            >
               {userEmail && userEmail[0] ? userEmail[0].toUpperCase() : "?"}
             </Avatar>
             <Box>
