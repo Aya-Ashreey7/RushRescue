@@ -28,7 +28,7 @@ function App() {
   }), [darkMode]);
 
   return (
-    <ThemeProvider  theme={theme}>
+    <ThemeProvider theme={theme}>
       <CssBaseline />
       <Routes>
         <Route path="/" element={<LoginForm />} />
@@ -40,9 +40,9 @@ function App() {
             <Route path="" element={null} />
             <Route path="driver-requests" element={<div>Driver Requests</div>} />
             <Route path="rescuer-requests" element={<div>Rescuer Requests</div>} />
-            <Route path="drivers" element={<Drivers darkMode={darkMode} toggleDarkMode={toggleDarkMode} />} />
-            <Route path="rescuers" element={<Rescures darkMode={darkMode} toggleDarkMode={toggleDarkMode}/>} />
-            <Route path="settings" element={<SettingsPage />} />
+            <Route path="drivers" element={<Drivers toggleDarkMode={toggleDarkMode} />} />
+            <Route path="rescuers" element={<Rescures toggleDarkMode={toggleDarkMode} />} />
+            <Route path="settings" element={<SettingsPage toggleDarkMode={toggleDarkMode} />} />
 
 
           </Route>
