@@ -1,64 +1,51 @@
 
-import {
-    Box,
-    List,
-    ListItem,
-    ListItemButton,
-    ListItemIcon,
-    ListItemText,
-    Drawer,
-} from "@mui/material"
-import {
-    Dashboard, AssignmentInd,
-    DriveEta,
-    HealthAndSafety, Settings, ReportProblem
-} from "@mui/icons-material"
+import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Drawer } from "@mui/material"
+import { Dashboard, AssignmentInd, DriveEta, HealthAndSafety, Settings, ReportProblem } from "@mui/icons-material"
 import { useTheme } from '@mui/material/styles';
+
+interface Props {
+    open: boolean;
+    onClose: () => void;
+    onNavigate: (path: string) => void;
+    currentPath: string;
+}
+
 
 const navigationItems = [
     {
         label: "Dashboard",
         icon: Dashboard,
-        active: true,
         path: "/dashboard"
     },
     {
         label: "Driver Requests",
         icon: AssignmentInd,
-        active: false,
         path: "/dashboard/driver-requests"
     },
     {
         label: "Rescuer Requests",
         icon: ReportProblem,
-        active: false,
         path: "/dashboard/rescuer-requests"
 
     },
     {
         label: "Drivers",
         icon: DriveEta,
-        active: false,
         path: "/dashboard/drivers"
     },
     {
         label: "Rescuers",
         icon: HealthAndSafety,
-        active: false,
         path: "/dashboard/rescuers"
     },
 
 ]
 
-interface Props {
-    open: boolean;
-    onClose: () => void;
-    onNavigate: (label: string) => void;
-}
-
-const Sidebar: React.FC<Props> = ({ open, onClose, onNavigate }) => {
+const Sidebar: React.FC<Props> = ({ open, onClose, onNavigate, currentPath }) => {
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
+
+
     return (
         <Drawer anchor="left"
             open={open}
@@ -76,28 +63,16 @@ const Sidebar: React.FC<Props> = ({ open, onClose, onNavigate }) => {
                 transition: 'background 0.3s',
                 justifyContent: 'space-between',
             }}>
-                {/*============================== Header ==============================*/}
-                {/* <Box sx={{ p: 3, borderBottom: "1px solid #e0e0e0" }}>
-                    <Typography
-                        variant="h5"
-                        sx={{
-                            fontWeight: "bold",
-                            color: "#1e293b",
-                            letterSpacing: "0.1em",
-                        }}
-                    >
-                        HORIZON
-                    </Typography>
-                </Box> */}
+
 
                 {/*============================== Navigation ==============================*/}
                 <List sx={{ p: 0 }}>
                     {navigationItems.map((item, index) => {
+                        const isActive = currentPath === item.path;
                         const IconComponent = item.icon
                         return (
                             <ListItem key={index} sx={{ p: 0, position: "relative" }}>
-                                {/* Active indicator */}
-                                {item.active && (
+                                {isActive && (
                                     <Box
                                         sx={{
                                             position: "absolute",
@@ -111,6 +86,7 @@ const Sidebar: React.FC<Props> = ({ open, onClose, onNavigate }) => {
                                         }}
                                     />
                                 )}
+
                                 <ListItemButton onClick={() => {
                                     onNavigate(item.path);
                                     onClose();
@@ -120,9 +96,9 @@ const Sidebar: React.FC<Props> = ({ open, onClose, onNavigate }) => {
                                         mx: 1,
                                         my: 0.5,
                                         py: 1.5,
-                                        backgroundColor: item.active ? (isDark ? 'rgba(255, 215, 0, 0.08)' : "rgba(37, 99, 235, 0.05)") : "transparent",
+                                        backgroundColor: isActive ? (isDark ? 'rgba(255, 215, 0, 0.08)' : "rgba(37, 99, 235, 0.05)") : "transparent",
                                         "&:hover": {
-                                            backgroundColor: item.active ? (isDark ? 'rgba(255, 215, 0, 0.12)' : "rgba(37, 99, 235, 0.08)") : (isDark ? 'rgba(255,255,255,0.04)' : "rgba(0, 0, 0, 0.04)"),
+                                            backgroundColor: isActive ? (isDark ? 'rgba(255, 215, 0, 0.12)' : "rgba(37, 99, 235, 0.08)") : (isDark ? 'rgba(255,255,255,0.04)' : "rgba(0, 0, 0, 0.04)"),
                                         },
                                         transition: 'background 0.3s',
                                     }}
@@ -131,16 +107,16 @@ const Sidebar: React.FC<Props> = ({ open, onClose, onNavigate }) => {
                                         <IconComponent
                                             sx={{
                                                 fontSize: 20,
-                                                color: item.active ? (isDark ? '#ffd700' : "#1e293b") : (isDark ? '#b0b8d1' : "#9ca3af"),
+                                                color: isActive ? (isDark ? '#ffd700' : "#1e293b") : (isDark ? '#b0b8d1' : "#9ca3af"),
                                             }}
                                         />
                                     </ListItemIcon>
                                     <ListItemText
                                         primary={item.label}
-                                        primaryTypographyProps={{
+                                        sx={{
                                             fontSize: 14,
-                                            fontWeight: item.active ? 500 : 400,
-                                            color: item.active ? (isDark ? '#ffd700' : "#1e293b") : (isDark ? '#b0b8d1' : "#9ca3af"),
+                                            fontWeight: isActive ? 500 : 400,
+                                            color: isActive ? (isDark ? '#ffd700' : "#1e293b") : (isDark ? '#b0b8d1' : "#9ca3af"),
                                         }}
                                     />
                                 </ListItemButton>
@@ -149,8 +125,24 @@ const Sidebar: React.FC<Props> = ({ open, onClose, onNavigate }) => {
                     })}
                 </List>
                 {/*=========================== setting ==============================*/}
+                {/*=========================== setting ==============================*/}
                 <Box sx={{ p: 2 }}>
-                    <ListItem sx={{ p: 0, px: 1, pb: 2 }}>
+                    <ListItem sx={{ p: 0, px: 1, position: "relative" }}>
+                        {currentPath === "/dashboard/settings" && (
+                            <Box
+                                sx={{
+                                    position: "absolute",
+                                    right: 0,
+                                    top: 0,
+                                    bottom: 0,
+                                    width: 4,
+                                    backgroundColor: isDark ? '#ffd700' : "#2563eb",
+                                    borderRadius: "4px 0 0 4px",
+                                    zIndex: 1,
+                                }}
+                            />
+                        )}
+
                         <ListItemButton
                             onClick={() => {
                                 onNavigate("/dashboard/settings");
@@ -159,28 +151,41 @@ const Sidebar: React.FC<Props> = ({ open, onClose, onNavigate }) => {
                             sx={{
                                 borderRadius: 2,
                                 py: 1.5,
-                                backgroundColor: "transparent",
+                                backgroundColor: currentPath === "/dashboard/settings"
+                                    ? (isDark ? 'rgba(255, 215, 0, 0.08)' : "rgba(37, 99, 235, 0.05)")
+                                    : "transparent",
                                 "&:hover": {
-                                    backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : "rgba(0, 0, 0, 0.04)",
+                                    backgroundColor: currentPath === "/dashboard/settings"
+                                        ? (isDark ? 'rgba(255, 215, 0, 0.12)' : "rgba(37, 99, 235, 0.08)")
+                                        : (isDark ? 'rgba(255,255,255,0.04)' : "rgba(0, 0, 0, 0.04)"),
                                 },
                                 transition: 'background 0.3s',
                             }}
                         >
                             <ListItemIcon sx={{ minWidth: 40 }}>
-                                <Settings sx={{ fontSize: 20, color: isDark ? '#ffd700' : "#9ca3af" }} />
+                                <Settings
+                                    sx={{
+                                        fontSize: 20,
+                                        color: currentPath === "/dashboard/settings"
+                                            ? (isDark ? '#ffd700' : "#1e293b")
+                                            : (isDark ? '#b0b8d1' : "#9ca3af"),
+                                    }}
+                                />
                             </ListItemIcon>
                             <ListItemText
                                 primary="Settings"
-                                primaryTypographyProps={{
+                                sx={{
                                     fontSize: 14,
-                                    fontWeight: 400,
-                                    color: isDark ? '#ffd700' : "#9ca3af",
+                                    fontWeight: currentPath === "/dashboard/settings" ? 500 : 400,
+                                    color: currentPath === "/dashboard/settings"
+                                        ? (isDark ? '#ffd700' : "#1e293b")
+                                        : (isDark ? '#b0b8d1' : "#9ca3af"),
                                 }}
                             />
                         </ListItemButton>
                     </ListItem>
-
                 </Box>
+
             </Box>
         </Drawer>
     )

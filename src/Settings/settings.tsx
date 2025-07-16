@@ -1,22 +1,7 @@
 import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Typography,
-  Paper,
-  Divider,
-  Avatar,
-  TextField,
-  Button,
-  Alert,
-  Stack,
-} from "@mui/material";
+import { Box, Typography, Paper, Divider, Avatar, TextField, Button, Alert, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import {
-  onAuthStateChanged,
-  updatePassword,
-  reauthenticateWithCredential,
-  EmailAuthProvider,
-} from "firebase/auth";
+import { onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
 import { auth } from "../firebase";
 import PageHeader from "../components/PageHeader";
 import { useLocation } from "react-router-dom";
@@ -133,7 +118,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ toggleDarkMode }) => {
         >
           <Typography
             variant="h4"
-            sx={{ mb: 2, color: "primary.main", fontWeight: 700 }}
+            sx={{ mb: 2, color: isDark ? "#fff" : "#0F3460", fontWeight: 700 }}
           >
             Settings
           </Typography>
