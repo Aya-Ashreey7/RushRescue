@@ -1,16 +1,18 @@
 import {
   Box, Paper, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Typography, IconButton, Tabs, Tab, Pagination, Snackbar, Alert
+  TableHead, TableRow, Typography, IconButton, Tabs, Tab, Pagination,
+  Snackbar, Alert
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
+import WarningIcon from '@mui/icons-material/Warning';
 import { useEffect, useState } from 'react';
 import { db } from '../../firebase';
-import { collection, getDocs, deleteDoc, updateDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 
-export const DriverRequests = () => {
+const DriverRequests = () => {
   const [drivers, setDrivers] = useState<any[]>([]);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const navigate = useNavigate();
@@ -23,31 +25,24 @@ export const DriverRequests = () => {
     setDrivers(filtered);
   };
 
-  useEffect(() => { fetchDrivers(); }, []);
+  useEffect(() => {
+    fetchDrivers();
+  }, []);
 
-  const handleAccept = async (id: string) => {
+  const handleStatusChange = async (id: string, status: number) => {
     try {
-      await updateDoc(doc(db, 'users', id), { status: 'approved' });
-      setMessage({ type: 'success', text: 'Driver approved successfully.' });
+      await updateDoc(doc(db, 'users', id), { status });
+      setMessage({ type: 'success', text: `Driver status updated.` });
       fetchDrivers();
-    } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to approve driver.' });
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteDoc(doc(db, 'users', id));
-      setMessage({ type: 'success', text: 'Driver deleted successfully.' });
-      fetchDrivers();
-    } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to delete driver.' });
+    } catch {
+      setMessage({ type: 'error', text: 'Failed to update status.' });
     }
   };
 
   return (
     <Box>
       <Typography variant="h5" gutterBottom>Driver Requests</Typography>
+
       <Box sx={{ display: 'flex', justifyContent: 'space-between', p: 2, bgcolor: '#f9fafe', borderRadius: 2, mb: 2 }}>
         <Tabs value={0}><Tab label="All Requests" /></Tabs>
       </Box>
@@ -78,10 +73,13 @@ export const DriverRequests = () => {
                   <IconButton color="primary" onClick={() => navigate(`/dashboard/driver/${driver.id}`)}>
                     <VisibilityIcon />
                   </IconButton>
-                  <IconButton color="success" onClick={() => handleAccept(driver.id)}>
+                  <IconButton color="success" onClick={() => handleStatusChange(driver.id, 1)}>
                     <CheckCircleIcon />
                   </IconButton>
-                  <IconButton color="error" onClick={() => handleDelete(driver.id)}>
+                  <IconButton color="warning" onClick={() => handleStatusChange(driver.id, -2)}>
+                    <WarningIcon />
+                  </IconButton>
+                  <IconButton color="error" onClick={() => handleStatusChange(driver.id, -1)}>
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>
