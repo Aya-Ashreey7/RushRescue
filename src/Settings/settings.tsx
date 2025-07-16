@@ -148,8 +148,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ toggleDarkMode }) => {
                 width: 56,
                 height: 56,
                 fontSize: 24,
-              }}
-            >
+              }}>
               {userEmail && userEmail[0] ? userEmail[0].toUpperCase() : "?"}
             </Avatar>
             <Box>
