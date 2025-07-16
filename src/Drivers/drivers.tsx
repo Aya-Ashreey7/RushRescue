@@ -1,63 +1,123 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  Box,
-  Button,
-  TextField,
-  Paper,
-  Typography,
-  IconButton,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Pagination,
-  Stack,
+  Box, Button, Paper, Typography, IconButton, MenuItem, Select, FormControl, InputLabel, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, Pagination, Stack,
 } from "@mui/material";
-
-import {
-  CheckCircle,
-  Search as SearchIcon,
-  Visibility as EyeIcon,
-  Delete as TrashIcon,
-  Download as DownloadIcon,
-} from "@mui/icons-material";
-
-import { useLocation } from "react-router-dom";
+import { Visibility, Delete, Download } from "@mui/icons-material";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import PageHeader from "../components/PageHeader";
 import HeaderActions from "../components/HeaderActions";
+import { db } from "../firebase";
+import { collection, deleteDoc, doc, getDocs, query, where } from "firebase/firestore";
+import { BeatLoader } from "react-spinners";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+
 
 interface DriversProps {
   toggleDarkMode: () => void;
+}
+
+interface User {
+  id: string;
+  fName: string;
+  lName: string;
+  email: string;
+  isDarker: boolean;
+  phone: string;
+  role: string;
+  status: number;
+  driverLicenceBackUrl: string;
+  driverLicenceFrontUrl: string;
+  vehicleLicenceBackUrl: string;
+  vehicleLicenceFrontUrl: string;
 }
 
 export default function Drivers({ toggleDarkMode }: DriversProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterDate, setFilterDate] = useState("");
   const [page, setPage] = useState(1);
+  const [drivers, setDrivers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
   const location = useLocation();
   const pathSegments = location.pathname.split("/").filter(Boolean);
-  const breadcrumb = pathSegments
-    .map((seg) => seg.charAt(0).toUpperCase() + seg.slice(1))
-    .join(" / ");
-
-  const products = Array.from({ length: 10 }, (_, i) => ({
-    id: i + 1,
-    productId: "#65432a",
-    productName: "Mandouka",
-    category: "Sport",
-    createName: "Jan 15, 2024",
-    updateDate: "Jan 15, 2024",
-  }));
-
+  const breadcrumb = pathSegments.map((seg) => seg.charAt(0).toUpperCase() + seg.slice(1)).join(" / ");
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const driversPerPage = 10;
+  const startIndex = (page - 1) * driversPerPage;
+  const endIndex = startIndex + driversPerPage;
+  const paginatedDrivers = drivers.slice(startIndex, endIndex);
+  const navigate = useNavigate();
+
+  const driverDetialsNavigate = (id: string) => {
+    navigate(`/dashboard/drivers/${id}`);
+  }
+
+  useEffect(() => {
+    const fetchDrivers = async () => {
+      setLoading(true);
+      try {
+        const usersRef = collection(db, "users");
+        const q = query(
+          usersRef,
+          where("role", "==", "driver"),
+          where("status", "==", 1)
+        );
+        const snapshot = await getDocs(q);
+        const usersList = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as User[];
+
+        setDrivers(usersList);
+      } catch (err) {
+        console.error(" Error fetching drivers", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDrivers();
+  }, []);
+
+  const deleteDriver = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, "users", id));
+      setDrivers((prev) => prev.filter((driver) => driver.id !== id));
+      console.log(" User deleted:", id);
+    } catch (error) {
+      console.error(" Error deleting user:", error);
+    }
+  };
+
+  const exportToExcel = () => {
+    const exportData = drivers.map((driver, index) => ({
+      "#": index + 1,
+      Name: `${driver.fName} ${driver.lName}`,
+      Email: driver.email,
+      Phone: driver.phone,
+    }));
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Drivers");
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    const fileData = new Blob([excelBuffer], {
+      type:
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+    });
+
+    saveAs(fileData, "Drivers.xlsx");
+  };
+
+
+
 
   return (
     <Box
@@ -107,59 +167,12 @@ export default function Drivers({ toggleDarkMode }: DriversProps) {
             sx={{ mb: 2 }}
           >
             <Box sx={{ display: "flex", gap: 2 }}>
-              <Button
+              <Typography className="px-3 py-2 rounded"
                 sx={{
-                  backgroundColor: isDark ? "#22304a" : "#0F3460",
-                  color: "white",
+                  backgroundColor: isDark ? "#e5e7eb" : "#0F3460",
+                  color: isDark ? "#0F3460" : "#e5e7eb",
                   boxShadow: isDark ? 1 : 0,
-                }}
-              >
-                All Drivers Requests
-              </Button>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  backgroundColor: isDark ? "#23243a" : "#fff",
-                  border: `1px solid ${isDark ? "#444a5a" : "#ccc"}`,
-                  borderRadius: 2,
-                  overflow: "hidden",
-                  height: 40,
-                  width: 300,
-                }}
-              >
-                <TextField
-                  variant="standard"
-                  placeholder="Search "
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  InputProps={{
-                    disableUnderline: true,
-                    style: {
-                      color: isDark ? "#fff" : "#222",
-                      background: "transparent",
-                    },
-                  }}
-                  sx={{
-                    flex: 1,
-                    pl: 2,
-                    bgcolor: "transparent",
-                  }}
-                />
-                <IconButton
-                  sx={{
-                    height: "100%",
-                    borderRadius: 0,
-                    backgroundColor: isDark ? "#22304a" : "#0F3460",
-                    color: "#fff",
-                    "&:hover": {
-                      backgroundColor: isDark ? "#1a2233" : "#0d2f50",
-                    },
-                  }}
-                >
-                  <SearchIcon />
-                </IconButton>
-              </Box>
+                }}> All Drivers Requests </Typography>
             </Box>
 
             <Box sx={{ display: "flex", gap: 2 }}>
@@ -206,7 +219,7 @@ export default function Drivers({ toggleDarkMode }: DriversProps) {
                 </Select>
               </FormControl>
 
-              <Button
+              <Button onClick={exportToExcel}
                 sx={{
                   borderColor: isDark ? "#b0b8d1" : "#0F3460",
                   color: isDark ? "#b0b8d1" : "#0F3460",
@@ -218,65 +231,65 @@ export default function Drivers({ toggleDarkMode }: DriversProps) {
                   },
                 }}
                 variant="outlined"
-                startIcon={
-                  <DownloadIcon
-                    sx={{ color: isDark ? "#ffd700" : "#0F3460" }}
-                  />
-                }
-              >
-                Export Drivers
+                startIcon={<Download sx={{ color: isDark ? "#ffd700" : "#0F3460" }} />} > Export Drivers
               </Button>
             </Box>
           </Stack>
 
           {/* Table */}
+
           <TableContainer component={Paper} variant="outlined">
             <Table size="small">
-              <TableHead>
-                <TableRow>
+              <TableHead >
+                <TableRow sx={{ bgcolor: isDark ? "#f2f6fc" : "#f2f6fc" }}>
                   {[
-                    "#",
-                    "Product ID",
+                    "",
                     "Name",
-                    "Category",
-                    "Created",
-                    "Updated",
+                    "Email",
+                    "Phone",
                     "Actions",
                   ].map((header) => (
-                    <TableCell key={header} sx={{ fontWeight: "bold" }}>
+                    <TableCell key={header} sx={{ color: isDark ? "#0F3460" : "#0F3460", fontWeight: "bold" }}>
                       {header}
                     </TableCell>
                   ))}
                 </TableRow>
               </TableHead>
-              <TableBody>
-                {products.map((prod) => (
-                  <TableRow key={prod.id} hover>
-                    <TableCell>{prod.id}</TableCell>
-                    <TableCell>{prod.productId}</TableCell>
-                    <TableCell>{prod.productName}</TableCell>
-                    <TableCell>{prod.category}</TableCell>
-                    <TableCell>{prod.createName}</TableCell>
-                    <TableCell>{prod.updateDate}</TableCell>
-                    <TableCell>
-                      <Stack direction="row" spacing={1}>
-                        <IconButton color="info">
-                          <EyeIcon />
-                        </IconButton>
-                        <IconButton color="success">
-                          {" "}
-                          <CheckCircle />{" "}
-                        </IconButton>
-                        <IconButton color="error">
-                          <TrashIcon />
-                        </IconButton>
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
+
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={5} align="center">
+                    <Box sx={{ py: 2 }}>
+                      <BeatLoader color={isDark ? "#f2f6fc" : "#0F3460"} size={12} />
+                    </Box>
+                  </TableCell>
+                </TableRow>
+
+              ) : (
+                <TableBody >
+                  {paginatedDrivers.map((driver, index) => (
+                    <TableRow key={driver.id} hover>
+                      <TableCell>{startIndex + index + 1}</TableCell>
+                      <TableCell>{driver.fName} {driver.lName}</TableCell>
+                      <TableCell>{driver.email}</TableCell>
+                      <TableCell>{driver.phone}</TableCell>
+
+                      <TableCell>
+                        <Stack direction="row" spacing={1}>
+                          <IconButton color="info" onClick={() => driverDetialsNavigate(driver.id)}><Visibility /></IconButton>
+                          {/* <IconButton className="mx-1" color="success"> <CheckCircle /></IconButton> */}
+                          <IconButton onClick={() => deleteDriver(driver.id)} color="error"><Delete /></IconButton>
+                        </Stack>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              )}
+
             </Table>
           </TableContainer>
+
+
 
           {/* Pagination */}
           <Stack
@@ -285,19 +298,23 @@ export default function Drivers({ toggleDarkMode }: DriversProps) {
             alignItems="center"
             sx={{ mt: 3 }}
           >
-            <Typography variant="body2">Showing 1–10 of 1000</Typography>
+            <Typography variant="body2">
+              Showing {drivers.length === 0 ? 0 : startIndex + 1}–
+              {Math.min(endIndex, drivers.length)} of {drivers.length}
+            </Typography>
             <Pagination
               page={page}
-              count={100}
+              count={Math.ceil(drivers.length / driversPerPage)}
               onChange={(_, val) => setPage(val)}
               variant="outlined"
               shape="rounded"
               showFirstButton
               showLastButton
             />
+
           </Stack>
         </Paper>
       </Box>
-    </Box>
+    </Box >
   );
 }

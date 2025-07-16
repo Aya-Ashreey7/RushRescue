@@ -17,9 +17,18 @@ import { createTheme, CssBaseline } from '@mui/material';
 import React from 'react';
 
 function App() {
-    const [darkMode, setDarkMode] = React.useState(false);
-    const toggleDarkMode = () => setDarkMode((prev) => !prev);
+    const [darkMode, setDarkMode] = React.useState(() => {
+        const storedTheme = localStorage.getItem("theme");
+        return storedTheme === "dark";
+    });
 
+    const toggleDarkMode = () => {
+        setDarkMode((prev) => {
+            const newMode = !prev;
+            localStorage.setItem("theme", newMode ? "dark" : "light");
+            return newMode;
+        });
+    };
     const theme = React.useMemo(() => createTheme({
         palette: {
             mode: darkMode ? 'dark' : 'light',
