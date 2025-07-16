@@ -1,11 +1,8 @@
-import {
-    AppBar, Box, Button, IconButton,
-    Toolbar, Typography
-} from '@mui/material';
+import { AppBar, Box, Button, IconButton, Toolbar, Typography } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useState, useEffect } from 'react';
 import { auth } from '../firebase';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useTheme } from '@mui/material/styles';
 
@@ -55,7 +52,8 @@ const NavBar: React.FC<NavBarProps> = ({ onMenuToggle }) => {
                             alt="RushRescue"
                             sx={{ height: 40, mr: 2 }}
                         /> */}
-                        <Typography variant="h6" ml={1} sx={{ color: isDark ? '#ffd700' : '#fff', fontWeight: 700, letterSpacing: 1 }}>RushRescue</Typography>
+                        <Typography component={Link}
+                            to="/dashboard" variant="h6" ml={1} sx={{ color: isDark ? '#ffd700' : '#fff', fontWeight: 700, letterSpacing: 1 }}>RushRescue</Typography>
 
                     </Box>
                     <Box display="flex" alignItems="center" gap={2}>
