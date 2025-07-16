@@ -113,7 +113,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ toggleDarkMode }) => {
       <Box sx={{ maxWidth: 1300, mx: "auto", px: 3 }}>
         <PageHeader
           breadcrumb={breadcrumb}
-          title="Drivers"
+          title="Settings"
           rightActions={
             <HeaderActions
               searchQuery={searchQuery}

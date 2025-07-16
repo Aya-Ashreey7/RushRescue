@@ -9,6 +9,7 @@ import {
   InfoOutlined as InfoOutlinedIcon,
 } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
 
 interface HeaderActionsProps {
   searchQuery: string;
@@ -16,13 +17,15 @@ interface HeaderActionsProps {
   toggleDarkMode: () => void;
 }
 
-const HeaderActions: React.FC<HeaderActionsProps> = ({
-  searchQuery,
-  setSearchQuery,
-  toggleDarkMode,
-}) => {
+const HeaderActions: React.FC<HeaderActionsProps> = ({ searchQuery, setSearchQuery, toggleDarkMode, }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const navigate = useNavigate();
+
+  const settingNavigate = () => {
+    navigate("/dashboard/settings");
+  }
+
 
   return (
     <Box
@@ -72,12 +75,12 @@ const HeaderActions: React.FC<HeaderActionsProps> = ({
       <IconButton onClick={toggleDarkMode}>
         <DarkModeOutlinedIcon sx={{ color: isDark ? "#ffd700" : "#888" }} />
       </IconButton>
-      <IconButton>
+      <IconButton onClick={settingNavigate}>
         <InfoOutlinedIcon sx={{ color: isDark ? "#b0b8d1" : "#888" }} />
       </IconButton>
       <Avatar
-        sx={{ width: 32, height: 32, ml: 1, boxShadow: isDark ? 2 : 0 }}
-        src="https://randomuser.me/api/portraits/men/32.jpg"
+        sx={{ width: 30, height: 30, ml: 1, boxShadow: isDark ? 2 : 0 }}
+        src="/admin.webp"
       />
     </Box>
   );

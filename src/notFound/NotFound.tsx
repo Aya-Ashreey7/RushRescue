@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 const Error404Page = () => {
     const navigate = useNavigate();
     const handleGoBack = () => {
-        navigate("/");
+        navigate("/dashboard");
     }
 
     return (
@@ -89,7 +89,7 @@ const Error404Page = () => {
                             boxShadow: "0 30px 15px rgba(0, 0, 0, 0.15)",
                         }}
                     >
-                        Go back
+                        Go To Dashboard
                     </button>
                 </div>
             </div>
