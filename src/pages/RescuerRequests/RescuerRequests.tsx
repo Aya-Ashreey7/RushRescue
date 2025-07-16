@@ -6,6 +6,7 @@ import {
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
+import WarningIcon from '@mui/icons-material/Warning';
 import { useEffect, useState } from 'react';
 import { db } from '../../firebase';
 import { collection, getDocs, deleteDoc, updateDoc, doc } from 'firebase/firestore';
@@ -24,27 +25,15 @@ const RescuerRequests = () => {
     setRescuers(filtered);
   };
 
-  useEffect(() => {
-    fetchRescuers();
-  }, []);
+  useEffect(() => { fetchRescuers(); }, []);
 
-  const handleAccept = async (id: string) => {
+  const handleStatusChange = async (id: string, status: number) => {
     try {
-      await updateDoc(doc(db, 'users', id), { status: 'approved' });
-      setMessage({ type: 'success', text: 'Rescuer approved successfully.' });
+      await updateDoc(doc(db, 'users', id), { status });
+      setMessage({ type: 'success', text: `Rescuer status updated.` });
       fetchRescuers();
-    } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to approve rescuer.' });
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteDoc(doc(db, 'users', id));
-      setMessage({ type: 'success', text: 'Rescuer deleted successfully.' });
-      fetchRescuers();
-    } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to delete rescuer.' });
+    } catch {
+      setMessage({ type: 'error', text: 'Failed to update status.' });
     }
   };
 
@@ -52,9 +41,7 @@ const RescuerRequests = () => {
     <Box>
       <Typography variant="h5" gutterBottom>Rescuer Requests</Typography>
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', p: 2, bgcolor: '#f9fafe', borderRadius: 2, mb: 2 }}>
-        <Tabs value={0}><Tab label="All Requests" /></Tabs>
-      </Box>
+      <Tabs value={0}><Tab label="All Requests" /></Tabs>
 
       {message && (
         <Snackbar open autoHideDuration={3000} onClose={() => setMessage(null)}>
@@ -82,10 +69,13 @@ const RescuerRequests = () => {
                   <IconButton color="primary" onClick={() => navigate(`/dashboard/rescuer/${rescuer.id}`)}>
                     <VisibilityIcon />
                   </IconButton>
-                  <IconButton color="success" onClick={() => handleAccept(rescuer.id)}>
+                  <IconButton color="success" onClick={() => handleStatusChange(rescuer.id, 1)}>
                     <CheckCircleIcon />
                   </IconButton>
-                  <IconButton color="error" onClick={() => handleDelete(rescuer.id)}>
+                  <IconButton color="warning" onClick={() => handleStatusChange(rescuer.id, -2)}>
+                    <WarningIcon />
+                  </IconButton>
+                  <IconButton color="error" onClick={() => handleStatusChange(rescuer.id, -1)}>
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>
@@ -104,12 +94,3 @@ const RescuerRequests = () => {
 };
 
 export default RescuerRequests;
-
-
-
-
-
-
-
-
-

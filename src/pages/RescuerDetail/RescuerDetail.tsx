@@ -3,16 +3,9 @@ import { doc, getDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useEffect, useState } from 'react';
 import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  CardMedia,
-  IconButton,
-  Grid,
-  Alert
+  Box, Typography, Card, CardContent, CardMedia, IconButton,
+  Grid, Alert, Button, Stack
 } from '@mui/material';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 const RescuerDetail = () => {
@@ -40,6 +33,16 @@ const RescuerDetail = () => {
     fetchRescuer();
   }, [id]);
 
+  const handleStatusChange = async (status: number) => {
+    if (!id) return;
+    try {
+      await updateDoc(doc(db, 'users', id), { status });
+      setMessage({ type: 'success', text: 'Status updated successfully.' });
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Failed to update status.' });
+    }
+  };
+
   const handleDelete = async () => {
     if (!id) return;
     try {
@@ -47,19 +50,7 @@ const RescuerDetail = () => {
       setMessage({ type: 'success', text: 'Rescuer deleted successfully.' });
       setTimeout(() => navigate('/dashboard/rescuer-requests'), 1500);
     } catch (error) {
-      console.error('Error deleting rescuer:', error);
       setMessage({ type: 'error', text: 'Failed to delete rescuer.' });
-    }
-  };
-
-  const handleAccept = async () => {
-    if (!id) return;
-    try {
-      await updateDoc(doc(db, 'users', id), { status: 'approved' });
-      setMessage({ type: 'success', text: 'Rescuer approved successfully.' });
-    } catch (error) {
-      console.error('Error approving rescuer:', error);
-      setMessage({ type: 'error', text: 'Failed to approve rescuer.' });
     }
   };
 
@@ -69,27 +60,23 @@ const RescuerDetail = () => {
     <Box>
       <Typography variant="h4" gutterBottom>Rescuer Details</Typography>
 
-      {message && (
-        <Alert severity={message.type} sx={{ mb: 2 }}>
-          {message.text}
-        </Alert>
-      )}
+      {message && <Alert severity={message.type} sx={{ mb: 2 }}>{message.text}</Alert>}
 
       <Card sx={{ p: 3, mb: 4 }}>
         <CardContent>
           <Typography variant="h6">Name: {rescuer.fName} {rescuer.lName}</Typography>
-          <Typography variant="body1">Email: {rescuer.email}</Typography>
-          <Typography variant="body1">Phone: {rescuer.phone}</Typography>
+          <Typography>Email: {rescuer.email}</Typography>
+          <Typography>Phone: {rescuer.phone}</Typography>
         </CardContent>
 
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', pr: 2, pb: 2 }}>
-          <IconButton color="success" onClick={handleAccept}>
-            <CheckCircleIcon />
-          </IconButton>
+        <Stack direction="row" spacing={1} justifyContent="flex-end" sx={{ pr: 2, pb: 2 }}>
+          <Button variant="contained" color="success" onClick={() => handleStatusChange(1)}>Accept</Button>
+          <Button variant="contained" color="warning" onClick={() => handleStatusChange(-2)}>Incomplete</Button>
+          <Button variant="contained" color="error" onClick={() => handleStatusChange(-1)}>Reject</Button>
           <IconButton color="error" onClick={handleDelete}>
             <DeleteIcon />
           </IconButton>
-        </Box>
+        </Stack>
       </Card>
 
       <Typography variant="h6" gutterBottom>Vehicle Documents</Typography>
