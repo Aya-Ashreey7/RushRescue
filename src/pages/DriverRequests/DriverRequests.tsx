@@ -23,33 +23,39 @@ import { useEffect, useState } from "react";
 import { db } from "../../firebase";
 import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
-import HeaderActions from "../../components/HeaderActions"; // تأكد من المسار الصحيح
+import HeaderActions from "../../components/HeaderActions";
 
-const DriverRequests = () => {
+type Props = {
+  darkMode: boolean;
+  toggleDarkMode: () => void;
+};
+
+const DriverRequests = ({ darkMode, toggleDarkMode }: Props) => {
   const [drivers, setDrivers] = useState<any[]>([]);
-  const [filteredDrivers, setFilteredDrivers] = useState<any[]>([]); // حالة للسائقين المفلترين
-  const [searchQuery, setSearchQuery] = useState(""); // حالة نص البحث
+  const [filteredDrivers, setFilteredDrivers] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [message, setMessage] = useState<{
     type: "success" | "error";
     text: string;
   } | null>(null);
+
   const navigate = useNavigate();
-  const isDark = false; // غيرها حسب حالتك
+  const isDark = darkMode;
 
   const fetchDrivers = async () => {
     const querySnapshot = await getDocs(collection(db, "users"));
     const filtered = querySnapshot.docs
       .map((doc) => ({ id: doc.id, ...(doc.data() as any) }))
       .filter((doc) => doc.role === "driver");
+
     setDrivers(filtered);
-    setFilteredDrivers(filtered); // تهيئة السائقين المفلترين بالبيانات الأصلية
+    setFilteredDrivers(filtered);
   };
 
   useEffect(() => {
     fetchDrivers();
   }, []);
 
-  // دالة فلترة السائقين بناءً على نص البحث
   useEffect(() => {
     if (searchQuery.trim() === "") {
       setFilteredDrivers(drivers);
@@ -91,7 +97,7 @@ const DriverRequests = () => {
         <HeaderActions
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
-          toggleDarkMode={() => {}} // يمكنك تمرير دالة تبديل الوضع الليلي هنا
+          toggleDarkMode={toggleDarkMode}
           onSearch={(query) => setSearchQuery(query)}
         />
       </Box>

@@ -23,9 +23,15 @@ import { useEffect, useState } from "react";
 import { db } from "../../firebase";
 import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
-import HeaderActions from "../../components/HeaderActions"; // تأكد من المسار الصحيح
+import HeaderActions from "../../components/HeaderActions";
 
-const RescuerRequests = () => {
+// ✅ props to receive darkMode and toggle function
+type Props = {
+  darkMode: boolean;
+  toggleDarkMode: () => void;
+};
+
+const RescuerRequests = ({ darkMode, toggleDarkMode }: Props) => {
   const [rescuers, setRescuers] = useState<any[]>([]);
   const [filteredRescuers, setFilteredRescuers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -34,7 +40,7 @@ const RescuerRequests = () => {
     text: string;
   } | null>(null);
   const navigate = useNavigate();
-  const isDark = false; // غيرها حسب حالتك
+  const isDark = darkMode; // ✅ استخدام darkMode من الـ props
 
   const fetchRescuers = async () => {
     const querySnapshot = await getDocs(collection(db, "users"));
@@ -49,7 +55,6 @@ const RescuerRequests = () => {
     fetchRescuers();
   }, []);
 
-  // دالة فلترة المنقذين بناءً على نص البحث
   useEffect(() => {
     if (searchQuery.trim() === "") {
       setFilteredRescuers(rescuers);
@@ -91,7 +96,7 @@ const RescuerRequests = () => {
         <HeaderActions
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
-          toggleDarkMode={() => {}} // يمكنك تمرير دالة تبديل الوضع الليلي هنا
+          toggleDarkMode={toggleDarkMode} // ✅ الآن تعمل فعلياً
           onSearch={(query) => setSearchQuery(query)}
         />
       </Box>
@@ -127,7 +132,7 @@ const RescuerRequests = () => {
                   align="center"
                   sx={{
                     fontWeight: "bold",
-                    color: isDark ? "#0F3460" : "#000",
+                    color: isDark ? "#0F3460" : "#000", // ✅ لون حسب الوضع
                   }}
                 >
                   {header}
