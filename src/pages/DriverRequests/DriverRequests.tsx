@@ -23,9 +23,12 @@ import { useEffect, useState } from "react";
 import { db } from "../../firebase";
 import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import HeaderActions from "../../components/HeaderActions"; // تأكد من المسار الصحيح
 
 const DriverRequests = () => {
   const [drivers, setDrivers] = useState<any[]>([]);
+  const [filteredDrivers, setFilteredDrivers] = useState<any[]>([]); // حالة للسائقين المفلترين
+  const [searchQuery, setSearchQuery] = useState(""); // حالة نص البحث
   const [message, setMessage] = useState<{
     type: "success" | "error";
     text: string;
@@ -39,11 +42,28 @@ const DriverRequests = () => {
       .map((doc) => ({ id: doc.id, ...(doc.data() as any) }))
       .filter((doc) => doc.role === "driver");
     setDrivers(filtered);
+    setFilteredDrivers(filtered); // تهيئة السائقين المفلترين بالبيانات الأصلية
   };
 
   useEffect(() => {
     fetchDrivers();
   }, []);
+
+  // دالة فلترة السائقين بناءً على نص البحث
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setFilteredDrivers(drivers);
+    } else {
+      const filtered = drivers.filter(
+        (driver) =>
+          driver.fName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          driver.lName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          driver.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          driver.phone?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredDrivers(filtered);
+    }
+  }, [searchQuery, drivers]);
 
   const handleStatusChange = async (id: string, status: number) => {
     try {
@@ -56,10 +76,25 @@ const DriverRequests = () => {
   };
 
   return (
-    <Box>
-      <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
-        Driver Requests
-      </Typography>
+    <Box sx={{ maxWidth: 1300, mx: "auto", pt: 4 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
+          Driver Requests
+        </Typography>
+
+        <HeaderActions
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          toggleDarkMode={() => {}} // يمكنك تمرير دالة تبديل الوضع الليلي هنا
+          onSearch={(query) => setSearchQuery(query)}
+        />
+      </Box>
 
       <Box
         sx={{
@@ -101,7 +136,7 @@ const DriverRequests = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {drivers.map((driver, i) => (
+            {filteredDrivers.map((driver, i) => (
               <TableRow key={driver.id} hover>
                 <TableCell align="center">{i + 1}</TableCell>
                 <TableCell align="center">
@@ -142,7 +177,9 @@ const DriverRequests = () => {
       </TableContainer>
 
       <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}>
-        <Typography variant="body2">Showing 1 - {drivers.length}</Typography>
+        <Typography variant="body2">
+          Showing 1 - {filteredDrivers.length} of {drivers.length}
+        </Typography>
         <Pagination count={1} page={1} variant="outlined" shape="rounded" />
       </Box>
     </Box>

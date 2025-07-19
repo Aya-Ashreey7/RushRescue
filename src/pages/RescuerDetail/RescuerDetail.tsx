@@ -116,7 +116,7 @@ const RescuerDetail = () => {
   ];
 
   return (
-    <Box>
+    <Box sx={{ maxWidth: 1300, mx: "auto", pt: 4 }}>
       <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
         Rescuer Details
       </Typography>

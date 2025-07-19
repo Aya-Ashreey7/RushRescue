@@ -21,22 +21,20 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import WarningIcon from "@mui/icons-material/Warning";
 import { useEffect, useState } from "react";
 import { db } from "../../firebase";
-import {
-  collection,
-  getDocs,
-  deleteDoc,
-  updateDoc,
-  doc,
-} from "firebase/firestore";
+import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import HeaderActions from "../../components/HeaderActions"; // تأكد من المسار الصحيح
 
 const RescuerRequests = () => {
   const [rescuers, setRescuers] = useState<any[]>([]);
+  const [filteredRescuers, setFilteredRescuers] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [message, setMessage] = useState<{
     type: "success" | "error";
     text: string;
   } | null>(null);
   const navigate = useNavigate();
+  const isDark = false; // غيرها حسب حالتك
 
   const fetchRescuers = async () => {
     const querySnapshot = await getDocs(collection(db, "users"));
@@ -44,12 +42,28 @@ const RescuerRequests = () => {
       .map((doc) => ({ id: doc.id, ...(doc.data() as any) }))
       .filter((doc) => doc.role === "rescuer");
     setRescuers(filtered);
+    setFilteredRescuers(filtered);
   };
-  const isDark = false; // غيرها حسب حالتك
 
   useEffect(() => {
     fetchRescuers();
   }, []);
+
+  // دالة فلترة المنقذين بناءً على نص البحث
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setFilteredRescuers(rescuers);
+    } else {
+      const filtered = rescuers.filter(
+        (rescuer) =>
+          rescuer.fName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          rescuer.lName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          rescuer.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          rescuer.phone?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredRescuers(filtered);
+    }
+  }, [searchQuery, rescuers]);
 
   const handleStatusChange = async (id: string, status: number) => {
     try {
@@ -62,13 +76,40 @@ const RescuerRequests = () => {
   };
 
   return (
-    <Box>
-      <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
-        Rescuer Requests
-      </Typography>
-      <Tabs value={0}>
-        <Tab label="All Requests" />
-      </Tabs>
+    <Box sx={{ maxWidth: 1300, mx: "auto", pt: 4 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
+          Rescuer Requests
+        </Typography>
+
+        <HeaderActions
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          toggleDarkMode={() => {}} // يمكنك تمرير دالة تبديل الوضع الليلي هنا
+          onSearch={(query) => setSearchQuery(query)}
+        />
+      </Box>
+
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          p: 2,
+          bgcolor: "#f9fafe",
+          borderRadius: 2,
+          mb: 2,
+        }}
+      >
+        <Tabs value={0}>
+          <Tab label="All Requests" />
+        </Tabs>
+      </Box>
 
       {message && (
         <Snackbar open autoHideDuration={3000} onClose={() => setMessage(null)}>
@@ -95,7 +136,7 @@ const RescuerRequests = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rescuers.map((rescuer, i) => (
+            {filteredRescuers.map((rescuer, i) => (
               <TableRow key={rescuer.id} hover>
                 <TableCell align="center">{i + 1}</TableCell>
                 <TableCell align="center">
@@ -136,7 +177,9 @@ const RescuerRequests = () => {
       </TableContainer>
 
       <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}>
-        <Typography variant="body2">Showing 1 - {rescuers.length}</Typography>
+        <Typography variant="body2">
+          Showing 1 - {filteredRescuers.length} of {rescuers.length}
+        </Typography>
         <Pagination count={1} page={1} variant="outlined" shape="rounded" />
       </Box>
     </Box>
