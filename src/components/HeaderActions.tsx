@@ -17,15 +17,18 @@ interface HeaderActionsProps {
   toggleDarkMode: () => void;
 }
 
-const HeaderActions: React.FC<HeaderActionsProps> = ({ searchQuery, setSearchQuery, toggleDarkMode, }) => {
+const HeaderActions: React.FC<HeaderActionsProps> = ({
+  searchQuery,
+  setSearchQuery,
+  toggleDarkMode,
+}) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
 
   const settingNavigate = () => {
     navigate("/dashboard/settings");
-  }
-
+  };
 
   return (
     <Box
@@ -35,8 +38,8 @@ const HeaderActions: React.FC<HeaderActionsProps> = ({ searchQuery, setSearchQue
         bgcolor: isDark ? "#23243a" : "#fff",
         borderRadius: 8,
         boxShadow: isDark ? 3 : 1,
-        px: 2,
-        py: 0.5,
+        pr: 2,
+        // pr: 0.5,
         gap: 1,
         transition: "background 0.3s",
       }}
