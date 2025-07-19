@@ -85,7 +85,7 @@ const DashboardView = () => {
   }
 
   return (
-    <Box>
+    <Box sx={{ maxWidth: 1300, mx: "auto", pt: 4 }}>
       <Typography variant="h5" my={2} color="text.secondary">
         Total Users
       </Typography>

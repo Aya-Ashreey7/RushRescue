@@ -1,7 +1,23 @@
 import React, { useEffect, useState } from "react";
 import {
-  Box, Button, Paper, Typography, IconButton, MenuItem, Select, FormControl, InputLabel, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Pagination, Stack,
+  Box,
+  Button,
+  Paper,
+  Typography,
+  IconButton,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Pagination,
+  Stack,
+  Container,
 } from "@mui/material";
 import { Visibility, Delete, Download } from "@mui/icons-material";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -9,11 +25,17 @@ import { useTheme } from "@mui/material/styles";
 import PageHeader from "../components/PageHeader";
 import HeaderActions from "../components/HeaderActions";
 import { db } from "../firebase";
-import { collection, deleteDoc, doc, getDocs, query, where } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 import { BeatLoader } from "react-spinners";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-
 
 interface DriversProps {
   toggleDarkMode: () => void;
@@ -39,21 +61,24 @@ export default function Drivers({ toggleDarkMode }: DriversProps) {
   const [filterDate, setFilterDate] = useState("");
   const [page, setPage] = useState(1);
   const [drivers, setDrivers] = useState<User[]>([]);
+  const [filteredDrivers, setFilteredDrivers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
   const pathSegments = location.pathname.split("/").filter(Boolean);
-  const breadcrumb = pathSegments.map((seg) => seg.charAt(0).toUpperCase() + seg.slice(1)).join(" / ");
+  const breadcrumb = pathSegments
+    .map((seg) => seg.charAt(0).toUpperCase() + seg.slice(1))
+    .join(" / ");
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const driversPerPage = 10;
   const startIndex = (page - 1) * driversPerPage;
   const endIndex = startIndex + driversPerPage;
-  const paginatedDrivers = drivers.slice(startIndex, endIndex);
+  const paginatedDrivers = filteredDrivers.slice(startIndex, endIndex);
   const navigate = useNavigate();
 
   const driverDetialsNavigate = (id: string) => {
     navigate(`/dashboard/drivers/${id}`);
-  }
+  };
 
   useEffect(() => {
     const fetchDrivers = async () => {
@@ -72,8 +97,9 @@ export default function Drivers({ toggleDarkMode }: DriversProps) {
         })) as User[];
 
         setDrivers(usersList);
+        setFilteredDrivers(usersList);
       } catch (err) {
-        console.error(" Error fetching drivers", err);
+        console.error("Error fetching drivers", err);
       } finally {
         setLoading(false);
       }
@@ -82,18 +108,35 @@ export default function Drivers({ toggleDarkMode }: DriversProps) {
     fetchDrivers();
   }, []);
 
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setFilteredDrivers(drivers);
+    } else {
+      const filtered = drivers.filter(
+        (driver) =>
+          driver.fName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          driver.lName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          driver.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          driver.phone?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredDrivers(filtered);
+      setPage(1); // Reset to first page when searching
+    }
+  }, [searchQuery, drivers]);
+
   const deleteDriver = async (id: string) => {
     try {
       await deleteDoc(doc(db, "users", id));
       setDrivers((prev) => prev.filter((driver) => driver.id !== id));
-      console.log(" User deleted:", id);
+      setFilteredDrivers((prev) => prev.filter((driver) => driver.id !== id));
+      console.log("User deleted:", id);
     } catch (error) {
-      console.error(" Error deleting user:", error);
+      console.error("Error deleting user:", error);
     }
   };
 
   const exportToExcel = () => {
-    const exportData = drivers.map((driver, index) => ({
+    const exportData = filteredDrivers.map((driver, index) => ({
       "#": index + 1,
       Name: `${driver.fName} ${driver.lName}`,
       Email: driver.email,
@@ -109,26 +152,24 @@ export default function Drivers({ toggleDarkMode }: DriversProps) {
     });
 
     const fileData = new Blob([excelBuffer], {
-      type:
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
     });
 
     saveAs(fileData, "Drivers.xlsx");
   };
-
-
-
 
   return (
     <Box
       sx={{
         minHeight: "100vh",
         bgcolor: isDark ? "#181c2a" : "#f2f6fc",
-        pt: 6,
         transition: "background 0.3s",
+        maxWidth: 1300,
+        mx: "auto",
+        pt: 4,
       }}
     >
-      <Box sx={{ maxWidth: 1300, mx: "auto" }}>
+      <Container maxWidth="xl">
         <PageHeader
           breadcrumb={breadcrumb}
           title="Drivers"
@@ -137,10 +178,12 @@ export default function Drivers({ toggleDarkMode }: DriversProps) {
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
               toggleDarkMode={toggleDarkMode}
+              onSearch={(query) => setSearchQuery(query)}
             />
           }
         />
-        {/* Header */}
+
+        {/* Main Content */}
         <Paper
           sx={{
             p: 4,
@@ -148,32 +191,23 @@ export default function Drivers({ toggleDarkMode }: DriversProps) {
             bgcolor: isDark ? "#23243a" : "#fff",
             boxShadow: isDark ? 3 : 1,
             transition: "background 0.3s",
+            borderRadius: 2,
           }}
         >
-          <Typography
-            variant="h6"
-            sx={{ mb: 3, color: isDark ? "#b0b8d1" : "inherit" }}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 3,
+            }}
           >
-            {" "}
-            Requests Status
-          </Typography>
-
-          {/* Filters */}
-          <Stack
-            direction="row"
-            spacing={2}
-            alignItems="center"
-            justifyContent="space-between"
-            sx={{ mb: 2 }}
-          >
-            <Box sx={{ display: "flex", gap: 2 }}>
-              <Typography className="px-3 py-2 rounded"
-                sx={{
-                  backgroundColor: isDark ? "#e5e7eb" : "#0F3460",
-                  color: isDark ? "#0F3460" : "#e5e7eb",
-                  boxShadow: isDark ? 1 : 0,
-                }}> All Drivers Requests </Typography>
-            </Box>
+            <Typography
+              variant="h6"
+              sx={{ color: isDark ? "#b0b8d1" : "inherit" }}
+            >
+              Requests Status
+            </Typography>
 
             <Box sx={{ display: "flex", gap: 2 }}>
               <FormControl
@@ -219,7 +253,8 @@ export default function Drivers({ toggleDarkMode }: DriversProps) {
                 </Select>
               </FormControl>
 
-              <Button onClick={exportToExcel}
+              <Button
+                onClick={exportToExcel}
                 sx={{
                   borderColor: isDark ? "#b0b8d1" : "#0F3460",
                   color: isDark ? "#b0b8d1" : "#0F3460",
@@ -231,25 +266,43 @@ export default function Drivers({ toggleDarkMode }: DriversProps) {
                   },
                 }}
                 variant="outlined"
-                startIcon={<Download sx={{ color: isDark ? "#ffd700" : "#0F3460" }} />} > Export Drivers
+                startIcon={
+                  <Download sx={{ color: isDark ? "#ffd700" : "#0F3460" }} />
+                }
+              >
+                Export Drivers
               </Button>
             </Box>
-          </Stack>
+          </Box>
+
+          {/* Status Filter */}
+          <Box sx={{ mb: 3 }}>
+            <Typography
+              className="px-3 py-2 rounded"
+              sx={{
+                backgroundColor: isDark ? "#e5e7eb" : "#0F3460",
+                color: isDark ? "#0F3460" : "#e5e7eb",
+                boxShadow: isDark ? 1 : 0,
+                display: "inline-block",
+              }}
+            >
+              All Drivers Requests
+            </Typography>
+          </Box>
 
           {/* Table */}
-
           <TableContainer component={Paper} variant="outlined">
             <Table size="small">
-              <TableHead >
+              <TableHead>
                 <TableRow sx={{ bgcolor: isDark ? "#f2f6fc" : "#f2f6fc" }}>
-                  {[
-                    "",
-                    "Name",
-                    "Email",
-                    "Phone",
-                    "Actions",
-                  ].map((header) => (
-                    <TableCell key={header} sx={{ color: isDark ? "#0F3460" : "#0F3460", fontWeight: "bold" }}>
+                  {["", "Name", "Email", "Phone", "Actions"].map((header) => (
+                    <TableCell
+                      key={header}
+                      sx={{
+                        color: isDark ? "#0F3460" : "#0F3460",
+                        fontWeight: "bold",
+                      }}
+                    >
                       {header}
                     </TableCell>
                   ))}
@@ -260,36 +313,46 @@ export default function Drivers({ toggleDarkMode }: DriversProps) {
                 <TableRow>
                   <TableCell colSpan={5} align="center">
                     <Box sx={{ py: 2 }}>
-                      <BeatLoader color={isDark ? "#f2f6fc" : "#0F3460"} size={12} />
+                      <BeatLoader
+                        color={isDark ? "#f2f6fc" : "#0F3460"}
+                        size={12}
+                      />
                     </Box>
                   </TableCell>
                 </TableRow>
-
               ) : (
-                <TableBody >
+                <TableBody>
                   {paginatedDrivers.map((driver, index) => (
                     <TableRow key={driver.id} hover>
                       <TableCell>{startIndex + index + 1}</TableCell>
-                      <TableCell>{driver.fName} {driver.lName}</TableCell>
+                      <TableCell>
+                        {driver.fName} {driver.lName}
+                      </TableCell>
                       <TableCell>{driver.email}</TableCell>
                       <TableCell>{driver.phone}</TableCell>
 
                       <TableCell>
                         <Stack direction="row" spacing={1}>
-                          <IconButton color="info" onClick={() => driverDetialsNavigate(driver.id)}><Visibility /></IconButton>
-                          {/* <IconButton className="mx-1" color="success"> <CheckCircle /></IconButton> */}
-                          <IconButton onClick={() => deleteDriver(driver.id)} color="error"><Delete /></IconButton>
+                          <IconButton
+                            color="info"
+                            onClick={() => driverDetialsNavigate(driver.id)}
+                          >
+                            <Visibility />
+                          </IconButton>
+                          <IconButton
+                            onClick={() => deleteDriver(driver.id)}
+                            color="error"
+                          >
+                            <Delete />
+                          </IconButton>
                         </Stack>
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               )}
-
             </Table>
           </TableContainer>
-
-
 
           {/* Pagination */}
           <Stack
@@ -299,22 +362,22 @@ export default function Drivers({ toggleDarkMode }: DriversProps) {
             sx={{ mt: 3 }}
           >
             <Typography variant="body2">
-              Showing {drivers.length === 0 ? 0 : startIndex + 1}–
-              {Math.min(endIndex, drivers.length)} of {drivers.length}
+              Showing {filteredDrivers.length === 0 ? 0 : startIndex + 1}–
+              {Math.min(endIndex, filteredDrivers.length)} of{" "}
+              {filteredDrivers.length}
             </Typography>
             <Pagination
               page={page}
-              count={Math.ceil(drivers.length / driversPerPage)}
+              count={Math.ceil(filteredDrivers.length / driversPerPage)}
               onChange={(_, val) => setPage(val)}
               variant="outlined"
               shape="rounded"
               showFirstButton
               showLastButton
             />
-
           </Stack>
         </Paper>
-      </Box>
-    </Box >
+      </Container>
+    </Box>
   );
 }
