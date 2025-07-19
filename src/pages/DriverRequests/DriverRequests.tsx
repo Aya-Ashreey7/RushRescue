@@ -15,8 +15,8 @@ import {
   Stack,
   Snackbar,
   Alert,
+  Chip,
 } from "@mui/material";
-import { Chip } from "@mui/material";
 
 import {
   Visibility as EyeIcon,
@@ -29,52 +29,42 @@ import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
 import { db } from "../../firebase";
+import HeaderActions from "../../components/HeaderActions";
 
-export default function DriverRequests() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [page, setPage] = useState(1);
+type Props = {
+  darkMode: boolean;
+  toggleDarkMode: () => void;
+};
+
+const DriverRequests = ({ darkMode, toggleDarkMode }: Props) => {
   const [drivers, setDrivers] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
   const theme = useTheme();
-  const isDark = theme.palette.mode === "dark";
+  const isDark = darkMode;
   const navigate = useNavigate();
+  const page = 1;
 
   const fetchDrivers = async () => {
     const snapshot = await getDocs(collection(db, "users"));
     const filtered = snapshot.docs
-      .map(doc => ({ id: doc.id, ...(doc.data() as any) }))
-      .filter(user => user.role === "driver");
+      .map((doc) => ({ id: doc.id, ...(doc.data() as any) }))
+      .filter((user) => user.role === "driver");
+
     setDrivers(filtered);
   };
-const getStatusColor = (status: any) => {
-  switch (status) {
-    case 0:
-    case "pending":
-      return "info";
-    case 1:
-    case "approved":
-      return "success";
-    case -1:
-    case "rejected":
-      return "error";
-    case -2:
-    case "incompleted":
-      return "warning";
-    default:
-      return "default";
-  }
-};
 
-const formatStatusLabel = (status: any) => {
-  if (typeof status === "string") return status.replace("-", " ").toUpperCase();
-  switch (status) {
-    case 0: return "PENDING";
-    case 1: return "APPROVED";
-    case -1: return "REJECTED";
-    case -2: return "INCOMPLETED";
-    default: return "UNKNOWN";
-  }
-};
+  useEffect(() => {
+    fetchDrivers();
+  }, []);
+
+  const filteredDrivers = drivers.filter((driver) =>
+    driver.fName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    driver.lName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    driver.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    driver.phone?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleStatusChange = async (id: string, status: number) => {
     try {
@@ -86,15 +76,35 @@ const formatStatusLabel = (status: any) => {
     }
   };
 
-  useEffect(() => {
-    fetchDrivers();
-  }, []);
+  const getStatusColor = (status: any) => {
+    switch (status) {
+      case 0:
+      case "pending":
+        return "info";
+      case 1:
+      case "approved":
+        return "success";
+      case -1:
+      case "rejected":
+        return "error";
+      case -2:
+      case "incompleted":
+        return "warning";
+      default:
+        return "default";
+    }
+  };
 
-  const filteredDrivers = drivers.filter(driver =>
-    driver.fName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    driver.lName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    driver.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const formatStatusLabel = (status: any) => {
+    if (typeof status === "string") return status.replace("-", " ").toUpperCase();
+    switch (status) {
+      case 0: return "PENDING";
+      case 1: return "APPROVED";
+      case -1: return "REJECTED";
+      case -2: return "INCOMPLETED";
+      default: return "UNKNOWN";
+    }
+  };
 
   return (
     <Box
@@ -106,32 +116,31 @@ const formatStatusLabel = (status: any) => {
       }}
     >
       <Box sx={{ maxWidth: 1300, mx: "auto" }}>
-        
         <Typography variant="h4" gutterBottom sx={{ fontWeight: 600 }}>
           Driver Requests
         </Typography>
 
-        <Paper sx={{ p: 4, mb: 4, bgcolor: isDark ? "#23243a" : "#fff", boxShadow: isDark ? 3 : 1 }}>
-          {/* Filters */}
-          <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>
-            <Box sx={{ display: "flex", gap: 2 }}>
-              <Button variant="contained" sx={{ backgroundColor: "#0F3460" }}>
-                All Driver Requests
-              </Button>
-            </Box>
-          </Stack>
+        <HeaderActions
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          toggleDarkMode={toggleDarkMode}
+          onSearch={(query) => setSearchQuery(query)}
+        />
 
-          {/* Table */}
+        <Paper
+          sx={{
+            p: 4,
+            mb: 4,
+            bgcolor: isDark ? "#23243a" : "#fff",
+            boxShadow: isDark ? 3 : 1,
+          }}
+        >
           <TableContainer component={Paper} variant="outlined">
             <Table size="small">
               <TableHead>
                 <TableRow>
                   {["#", "Name", "Email", "Phone", "Status", "Actions"].map((head) => (
-                    <TableCell
-                      key={head}
-                      align="center"
-                      sx={{ fontWeight: "bold", textAlign: "center" }}
-                    >
+                    <TableCell key={head} align="center" sx={{ fontWeight: "bold" }}>
                       {head}
                     </TableCell>
                   ))}
@@ -141,20 +150,16 @@ const formatStatusLabel = (status: any) => {
                 {filteredDrivers.map((driver, idx) => (
                   <TableRow key={driver.id} hover>
                     <TableCell align="center">{idx + 1}</TableCell>
-                    <TableCell align="center">
-                      {driver.fName} {driver.lName}
-                    </TableCell>
+                    <TableCell align="center">{driver.fName} {driver.lName}</TableCell>
                     <TableCell align="center">{driver.email}</TableCell>
                     <TableCell align="center">{driver.phone}</TableCell>
                     <TableCell align="center">
-                    
-  <Chip
-    label={formatStatusLabel(driver.status)}
-    color={getStatusColor(driver.status)}
-    size="small"
-    variant="outlined"
-  />
-
+                      <Chip
+                        label={formatStatusLabel(driver.status)}
+                        color={getStatusColor(driver.status)}
+                        size="small"
+                        variant="outlined"
+                      />
                     </TableCell>
                     <TableCell align="center">
                       <Stack direction="row" spacing={1} justifyContent="center">
@@ -178,7 +183,6 @@ const formatStatusLabel = (status: any) => {
             </Table>
           </TableContainer>
 
-          {/* Pagination */}
           <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 3 }}>
             <Typography variant="body2">
               Showing {filteredDrivers.length ? 1 : 0}–{filteredDrivers.length} of {drivers.length}
@@ -195,4 +199,6 @@ const formatStatusLabel = (status: any) => {
       )}
     </Box>
   );
-}
+};
+
+export default DriverRequests;

@@ -17,7 +17,6 @@ import {
   Alert,
   Chip,
 } from "@mui/material";
-
 import {
   Visibility as EyeIcon,
   CheckCircle,
@@ -29,13 +28,19 @@ import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
 import { db } from "../../firebase";
+import HeaderActions from "../../components/HeaderActions";
 
-export default function RescuerRequests() {
+type Props = {
+  darkMode: boolean;
+  toggleDarkMode: () => void;
+};
+
+const RescuerRequests = ({ darkMode, toggleDarkMode }: Props) => {
   const [rescuers, setRescuers] = useState<any[]>([]);
+  const [filteredRescuers, setFilteredRescuers] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
-  const theme = useTheme();
-  const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
 
   const fetchRescuers = async () => {
@@ -44,7 +49,29 @@ export default function RescuerRequests() {
       .map(doc => ({ id: doc.id, ...(doc.data() as any) }))
       .filter(user => user.role === "rescuer");
     setRescuers(filtered);
+    setFilteredRescuers(filtered);
   };
+
+  useEffect(() => {
+    fetchRescuers();
+  }, []);
+
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setFilteredRescuers(rescuers);
+    } else {
+      const lower = searchQuery.toLowerCase();
+      setFilteredRescuers(
+        rescuers.filter(
+          (r) =>
+            r.fName?.toLowerCase().includes(lower) ||
+            r.lName?.toLowerCase().includes(lower) ||
+            r.email?.toLowerCase().includes(lower) ||
+            r.phone?.toLowerCase().includes(lower)
+        )
+      );
+    }
+  }, [searchQuery, rescuers]);
 
   const handleStatusChange = async (id: string, status: number) => {
     try {
@@ -56,20 +83,12 @@ export default function RescuerRequests() {
     }
   };
 
-  useEffect(() => {
-    fetchRescuers();
-  }, []);
-
   const getStatusColor = (status: any) => {
     switch (status) {
       case 0:
       case "pending":
         return "info";
       case 1:
-      case "under-review":
-        return "success";
-      case 2:
-      case "resolved":
         return "success";
       case -1:
         return "error";
@@ -81,101 +100,90 @@ export default function RescuerRequests() {
   };
 
   const formatStatusLabel = (status: any) => {
-    if (typeof status === "string") return status.replace("-", " ").toUpperCase();
     switch (status) {
-      case 0: return "PENDING";
-      case 1: return "APPROVED";
-      case -1: return "REJECTED";
-      case -2: return "INCOMPLETED";
-      default: return "UNKNOWN";
+      case 0:
+        return "PENDING";
+      case 1:
+        return "APPROVED";
+      case -1:
+        return "REJECTED";
+      case -2:
+        return "INCOMPLETED";
+      default:
+        return "UNKNOWN";
     }
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        bgcolor: isDark ? "#181c2a" : "#f2f6fc",
-        pt: 6,
-        transition: "background 0.3s",
-      }}
-    >
+    <Box sx={{ minHeight: "100vh", bgcolor: darkMode ? "#181c2a" : "#f2f6fc", pt: 6 }}>
       <Box sx={{ maxWidth: 1300, mx: "auto" }}>
         <Typography variant="h4" gutterBottom sx={{ fontWeight: 600 }}>
           Rescuer Requests
         </Typography>
 
-        <Paper sx={{ p: 4, mb: 4, bgcolor: isDark ? "#23243a" : "#fff", boxShadow: isDark ? 3 : 1 }}>
-          {/* Filters */}
-          <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>
-            <Box sx={{ display: "flex", gap: 2 }}>
-              <Button variant="contained" sx={{ backgroundColor: "#0F3460" }}>
-                All Rescuer Requests
-              </Button>
-            </Box>
-          </Stack>
+        <HeaderActions
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          toggleDarkMode={toggleDarkMode}
+          onSearch={(query) => setSearchQuery(query)}
+        />
 
-          {/* Table */}
-          <TableContainer component={Paper} variant="outlined">
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  {["#", "Name", "Email", "Phone", "Status", "Actions"].map((head) => (
-                    <TableCell
-                      key={head}
-                      align="center"
-                      sx={{ fontWeight: "bold", textAlign: "center" }}
-                    >
-                      {head}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {rescuers.map((rescuer, idx) => (
-                  <TableRow key={rescuer.id} hover>
-                    <TableCell align="center">{idx + 1}</TableCell>
-                    <TableCell align="center">{rescuer.fName} {rescuer.lName}</TableCell>
-                    <TableCell align="center">{rescuer.email}</TableCell>
-                    <TableCell align="center">{rescuer.phone}</TableCell>
-                    <TableCell align="center">
-                      <Chip
-                        label={formatStatusLabel(rescuer.status)}
-                        color={getStatusColor(rescuer.status)}
-                        size="small"
-                        variant="outlined"
-                      />
-                    </TableCell>
-                    <TableCell align="center">
-                      <Stack direction="row" spacing={1} justifyContent="center">
-                        <IconButton color="info" onClick={() => navigate(`/dashboard/rescuer/${rescuer.id}`)}>
-                          <EyeIcon />
-                        </IconButton>
-                        <IconButton color="success" onClick={() => handleStatusChange(rescuer.id, 1)}>
-                          <CheckCircle />
-                        </IconButton>
-                        <IconButton color="warning" onClick={() => handleStatusChange(rescuer.id, -2)}>
-                          <WarningIcon />
-                        </IconButton>
-                        <IconButton color="error" onClick={() => handleStatusChange(rescuer.id, -1)}>
-                          <TrashIcon />
-                        </IconButton>
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
+        <TableContainer component={Paper} sx={{ mt: 3 }}>
+          <Table>
+            <TableHead sx={{ backgroundColor: "#f5f5f5" }}>
+              <TableRow>
+                {["#", "Name", "Email", "Phone", "Status", "Actions"].map((head) => (
+                  <TableCell key={head} align="center" sx={{ fontWeight: "bold" }}>
+                    {head}
+                  </TableCell>
                 ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredRescuers.map((rescuer, i) => (
+                <TableRow key={rescuer.id} hover>
+                  <TableCell align="center">{i + 1}</TableCell>
+                  <TableCell align="center">
+                    {rescuer.fName} {rescuer.lName}
+                  </TableCell>
+                  <TableCell align="center">{rescuer.email}</TableCell>
+                  <TableCell align="center">{rescuer.phone}</TableCell>
+                  <TableCell align="center">
+                    <Chip
+                      label={formatStatusLabel(rescuer.status)}
+                      color={getStatusColor(rescuer.status)}
+                      size="small"
+                      variant="outlined"
+                    />
+                  </TableCell>
+                  <TableCell align="center">
+                    <Stack direction="row" spacing={1} justifyContent="center">
+                      <IconButton color="info" onClick={() => navigate(`/dashboard/rescuer/${rescuer.id}`)}>
+                        <EyeIcon />
+                      </IconButton>
+                      <IconButton color="success" onClick={() => handleStatusChange(rescuer.id, 1)}>
+                        <CheckCircle />
+                      </IconButton>
+                      <IconButton color="warning" onClick={() => handleStatusChange(rescuer.id, -2)}>
+                        <WarningIcon />
+                      </IconButton>
+                      <IconButton color="error" onClick={() => handleStatusChange(rescuer.id, -1)}>
+                        <TrashIcon />
+                      </IconButton>
+                    </Stack>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
-          {/* Pagination */}
-          <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 3 }}>
-            <Typography variant="body2">
-              Showing {rescuers.length ? 1 : 0}–{rescuers.length} of {rescuers.length}
-            </Typography>
-            <Pagination page={page} count={1} variant="outlined" shape="rounded" />
-          </Stack>
-        </Paper>
+        <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}>
+          <Typography variant="body2">
+            Showing {filteredRescuers.length} of {rescuer.length}
+          </Typography>
+          <Pagination count={1} page={page} variant="outlined" shape="rounded" />
+        </Box>
       </Box>
 
       {message && (
@@ -185,4 +193,6 @@ export default function RescuerRequests() {
       )}
     </Box>
   );
-}
+};
+
+export default RescuerRequests;
