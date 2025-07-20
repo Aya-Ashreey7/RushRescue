@@ -15,6 +15,7 @@ interface HeaderActionsProps {
   searchQuery: string;
   setSearchQuery: (value: string) => void;
   toggleDarkMode: () => void;
+  onSearch: (query: string) => void;
 }
 
 const HeaderActions: React.FC<HeaderActionsProps> = ({ searchQuery, setSearchQuery, toggleDarkMode, }) => {

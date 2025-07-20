@@ -1,22 +1,35 @@
 // components/PageHeader.tsx
-
 import React from "react";
 import { Box, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
+import { useLocation } from "react-router-dom";
 
 interface PageHeaderProps {
-  breadcrumb: string;
-  title: string;
+  title?: string;
   rightActions?: React.ReactNode;
 }
 
-const PageHeader: React.FC<PageHeaderProps> = ({
-  breadcrumb,
-  title,
-  rightActions,
-}) => {
+const PageHeader: React.FC<PageHeaderProps> = ({ title, rightActions }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const location = useLocation();
+
+  const pathSegments = location.pathname.split("/").filter(Boolean);
+
+  const breadcrumb = pathSegments
+    .map((segment) =>
+      segment
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, (char) => char.toUpperCase())
+    )
+    .join(" / ");
+
+  const displayTitle =
+    title ||
+    pathSegments[pathSegments.length - 1]
+      ?.replace(/-/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase()) ||
+    "Dashboard";
 
   return (
     <Box
@@ -39,7 +52,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
           variant="h4"
           sx={{ fontWeight: 700, color: isDark ? "#fff" : "#1A1A2E" }}
         >
-          {title}
+          {displayTitle}
         </Typography>
       </Box>
       {rightActions}

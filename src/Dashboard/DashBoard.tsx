@@ -1,12 +1,8 @@
 import React, { useState } from 'react';
-import {
-  Box,
-  CssBaseline,
-} from '@mui/material';
+import { Box } from '@mui/material';
 import NavBar from '../components/navBar';
 import Sidebar from '../components/sideBar';
-import { useLocation, useNavigate, Outlet } from 'react-router-dom';
-
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 
 const DashBoard: React.FC = () => {
@@ -15,23 +11,20 @@ const DashBoard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-
   const handleNavigate = (path: string) => navigate(path);
   const handleClose = () => setDrawerOpen(false);
 
   return (
-    <>
-      <CssBaseline />
+    <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <NavBar onMenuToggle={toggleDrawer} />
-      <Sidebar open={drawerOpen} onClose={handleClose} onNavigate={handleNavigate}
-        currentPath={location.pathname} />
-
-
-      <Box sx={{ pt: 8, px: 3, width: '100%' }}>
-
-        <Outlet />
-      </Box>
-    </>
+      <Sidebar
+        open={drawerOpen}
+        onClose={handleClose}
+        onNavigate={handleNavigate}
+        currentPath={location.pathname}
+      />
+      <Outlet />
+    </Box>
   );
 };
 

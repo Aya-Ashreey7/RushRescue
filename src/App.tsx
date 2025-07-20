@@ -5,7 +5,7 @@ import DashBoard from './Dashboard/DashBoard';
 import NotFound from './notFound/NotFound';
 import DriverRequests from './pages/DriverRequests/DriverRequests';
 import RescuerRequests from './pages/RescuerRequests/RescuerRequests';
-import ProtectedRoute from './components/protectedRoute';
+import ProtectedRoute from './components/ProtectedRoute';
 import DashboardView from './pages/view/view';
 import DriverDetail from './pages/DriverDetail/DriverDetail';
 import RescuerDetail from './pages/RescuerDetail/RescuerDetail';
@@ -15,6 +15,8 @@ import SettingsPage from './Settings/settings';
 import { ThemeProvider } from '@emotion/react';
 import { createTheme, CssBaseline } from '@mui/material';
 import React from 'react';
+import DashboardLayout from './components/layout/DashboardLayout';
+import { ThemeToggleContext } from './ThemeToggleContext';
 
 function App() {
     const [darkMode, setDarkMode] = React.useState(() => {
@@ -42,25 +44,32 @@ function App() {
 
 
     return (
-        <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <Routes>
-                <Route path="/" element={<LoginForm />} />
-                <Route element={<ProtectedRoute />}>
-                    <Route path="/dashboard" element={<DashBoard />}>
-                        <Route index element={<DashboardView />} />
-                        <Route path="driver-requests" element={<DriverRequests />} />
-                        <Route path="driver/:id" element={<DriverDetail />} />
-                        <Route path="rescuer-requests" element={<RescuerRequests />} />
-                        <Route path="rescuer/:id" element={<RescuerDetail />} />
-                        <Route path="drivers" element={<Drivers toggleDarkMode={toggleDarkMode} />} />
-                        <Route path="rescuers" element={<Rescures toggleDarkMode={toggleDarkMode} />} />
-                        <Route path="settings" element={<SettingsPage toggleDarkMode={toggleDarkMode} />} />
+        <ThemeToggleContext.Provider value={{ darkMode, toggleDarkMode }}>
+
+
+
+            <ThemeProvider theme={theme}>
+                <CssBaseline />
+                <Routes>
+                    <Route path="/" element={<LoginForm />} />
+                    <Route element={<ProtectedRoute />}>
+                        <Route path="/dashboard" element={<DashBoard />}>
+                            <Route element={<DashboardLayout />}>
+                                <Route index element={<DashboardView />} />
+                                <Route path="driver-requests" element={<DriverRequests />} />
+                                <Route path="driver/:id" element={<DriverDetail />} />
+                                <Route path="rescuer-requests" element={<RescuerRequests />} />
+                                <Route path="rescuer/:id" element={<RescuerDetail />} />
+                                <Route path="drivers" element={<Drivers />} />
+                                <Route path="rescuers" element={<Rescures />} />
+                                <Route path="settings" element={<SettingsPage />} />
+                            </Route>
+                        </Route>
                     </Route>
-                </Route>
-                <Route path="*" element={<NotFound />} />
-            </Routes>
-        </ThemeProvider>
+                    <Route path="*" element={<NotFound />} />
+                </Routes>
+            </ThemeProvider>
+        </ThemeToggleContext.Provider>
     );
 }
 

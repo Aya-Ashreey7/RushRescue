@@ -3,15 +3,8 @@ import { Box, Typography, Paper, Divider, Avatar, TextField, Button, Alert, Stac
 import { useTheme } from "@mui/material/styles";
 import { onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
 import { auth } from "../firebase";
-import PageHeader from "../components/PageHeader";
-import { useLocation } from "react-router-dom";
-import HeaderActions from "../components/HeaderActions";
 
-interface SettingsPageProps {
-  toggleDarkMode: () => void;
-}
-
-const SettingsPage: React.FC<SettingsPageProps> = ({ toggleDarkMode }) => {
+const SettingsPage: React.FC = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
@@ -22,21 +15,11 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ toggleDarkMode }) => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const location = useLocation();
-  const pathSegments = location.pathname.split("/").filter(Boolean);
-  const breadcrumb = pathSegments
-    .map((seg) => seg.charAt(0).toUpperCase() + seg.slice(1))
-    .join(" / ");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserEmail(user.email || "No Email");
-      } else {
-        setUserEmail("Unknown");
-      }
+      if (user) setUserEmail(user.email || "No Email");
+      else setUserEmail("Unknown");
     });
     return () => unsubscribe();
   }, []);
@@ -68,6 +51,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ toggleDarkMode }) => {
     }
 
     setLoading(true);
+
     try {
       const credential = EmailAuthProvider.credential(
         user.email,
@@ -75,16 +59,25 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ toggleDarkMode }) => {
       );
       await reauthenticateWithCredential(user, credential);
       await updatePassword(user, newPassword);
+
       setSuccess("Password updated successfully!");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err: any) {
-      setError(err.message || "Failed to update password.");
+      const message =
+        err.code === "auth/wrong-password"
+          ? "Current password is incorrect."
+          : err.message || "Failed to update password.";
+      setError(message);
     } finally {
       setLoading(false);
     }
   };
+  console.log(auth.currentUser?.providerData);
+
+
+
 
   return (
     <Box
@@ -96,17 +89,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ toggleDarkMode }) => {
       }}
     >
       <Box sx={{ maxWidth: 1300, mx: "auto", px: 3 }}>
-        <PageHeader
-          breadcrumb={breadcrumb}
-          title="Settings"
-          rightActions={
-            <HeaderActions
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              toggleDarkMode={toggleDarkMode}
-            />
-          }
-        />
         <Paper
           sx={{
             p: 4,
@@ -133,7 +115,8 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ toggleDarkMode }) => {
                 width: 56,
                 height: 56,
                 fontSize: 24,
-              }}>
+              }}
+            >
               {userEmail && userEmail[0] ? userEmail[0].toUpperCase() : "?"}
             </Avatar>
             <Box>
@@ -150,7 +133,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ toggleDarkMode }) => {
           </Box>
 
           <Divider sx={{ mb: 3 }} />
-
           <Typography
             variant="h6"
             sx={{
@@ -171,7 +153,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ toggleDarkMode }) => {
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 fullWidth
                 required
-                autoComplete="current-password"
                 InputLabelProps={{
                   style: { color: isDark ? "#b0b8d1" : undefined },
                 }}
@@ -189,7 +170,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ toggleDarkMode }) => {
                 onChange={(e) => setNewPassword(e.target.value)}
                 fullWidth
                 required
-                autoComplete="new-password"
                 InputLabelProps={{
                   style: { color: isDark ? "#b0b8d1" : undefined },
                 }}
@@ -207,7 +187,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ toggleDarkMode }) => {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 fullWidth
                 required
-                autoComplete="new-password"
                 InputLabelProps={{
                   style: { color: isDark ? "#b0b8d1" : undefined },
                 }}
