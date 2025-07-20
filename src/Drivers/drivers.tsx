@@ -142,8 +142,7 @@ export default function Drivers() {
       type: "array",
     });
     const fileData = new Blob([excelBuffer], {
-      type:
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
     });
     saveAs(fileData, "Drivers.xlsx");
   };

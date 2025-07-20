@@ -19,26 +19,29 @@ import DashboardLayout from './components/layout/DashboardLayout';
 import { ThemeToggleContext } from './ThemeToggleContext';
 
 function App() {
-    const [darkMode, setDarkMode] = React.useState(() => {
-        const storedTheme = localStorage.getItem("theme");
-        return storedTheme === "dark";
-    });
+  const [darkMode, setDarkMode] = React.useState(() => {
+    const storedTheme = localStorage.getItem("theme");
+    return storedTheme === "dark";
+  });
 
-    const toggleDarkMode = () => {
-        setDarkMode((prev) => {
-            const newMode = !prev;
-            localStorage.setItem("theme", newMode ? "dark" : "light");
-            return newMode;
-        });
-    };
-    const theme = React.useMemo(() => createTheme({
+  const toggleDarkMode = () => {
+    setDarkMode((prev) => {
+      const newMode = !prev;
+      localStorage.setItem("theme", newMode ? "dark" : "light");
+      return newMode;
+    });
+  };
+
+  const theme = React.useMemo(
+    () =>
+      createTheme({
         palette: {
-            mode: darkMode ? 'dark' : 'light',
-            primary: { main: '#0F3460' },
-            background: {
-                default: darkMode ? '#1A1A2E' : '#f2f6fc',
-                paper: darkMode ? '#23243a' : '#fff',
-            },
+          mode: darkMode ? "dark" : "light",
+          primary: { main: "#0F3460" },
+          background: {
+            default: darkMode ? "#1A1A2E" : "#f2f6fc",
+            paper: darkMode ? "#23243a" : "#fff",
+          },
         },
     }), [darkMode]);
 

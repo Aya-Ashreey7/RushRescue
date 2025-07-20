@@ -1,5 +1,4 @@
 // components/HeaderActions.tsx
-
 import React from "react";
 import { Box, IconButton, TextField, Avatar } from "@mui/material";
 import {
@@ -15,18 +14,28 @@ interface HeaderActionsProps {
   searchQuery: string;
   setSearchQuery: (value: string) => void;
   toggleDarkMode: () => void;
-  onSearch: (query: string) => void;
+  onSearch: (query: string) => void; // دالة جديدة للبحث الفوري
 }
 
-const HeaderActions: React.FC<HeaderActionsProps> = ({ searchQuery, setSearchQuery, toggleDarkMode, }) => {
+const HeaderActions: React.FC<HeaderActionsProps> = ({
+  searchQuery,
+  setSearchQuery,
+  toggleDarkMode,
+  onSearch,
+}) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
 
   const settingNavigate = () => {
     navigate("/dashboard/settings");
-  }
+  };
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    onSearch(value); // استدعاء دالة البحث الفوري عند كل تغيير
+  };
 
   return (
     <Box
@@ -36,8 +45,7 @@ const HeaderActions: React.FC<HeaderActionsProps> = ({ searchQuery, setSearchQue
         bgcolor: isDark ? "#23243a" : "#fff",
         borderRadius: 8,
         boxShadow: isDark ? 3 : 1,
-        px: 2,
-        py: 0.5,
+        pr: 2,
         gap: 1,
         transition: "background 0.3s",
       }}
@@ -59,7 +67,7 @@ const HeaderActions: React.FC<HeaderActionsProps> = ({ searchQuery, setSearchQue
           variant="standard"
           placeholder="Search"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={handleSearchChange} // استخدام الدالة المعدلة
           InputProps={{
             disableUnderline: true,
             style: {
