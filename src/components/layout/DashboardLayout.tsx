@@ -45,7 +45,7 @@ const DashboardLayout = () => {
                         />
                     }
                 />
-                <Outlet context={{ searchQuery }} />
+                <Outlet context={{ searchQuery, setSearchQuery,toggleDarkMode, }} />
 
 
             </Box>

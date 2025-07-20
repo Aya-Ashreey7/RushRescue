@@ -1,20 +1,17 @@
 // components/HeaderActions.tsx
-import React from "react";
-import { Box, IconButton, TextField, Avatar } from "@mui/material";
-import {
-  Search as SearchIcon,
-  NotificationsNone as NotificationsNoneIcon,
-  DarkModeOutlined as DarkModeOutlinedIcon,
-  InfoOutlined as InfoOutlinedIcon,
-} from "@mui/icons-material";
+import React, { useEffect, useState } from "react";
+import { Box, IconButton, TextField, Avatar, Badge } from "@mui/material";
+import { Search, NotificationsNone, DarkModeOutlined, InfoOutlined, } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
+import { collection, onSnapshot, query } from "firebase/firestore";
+import { db } from "../firebase";
 
 interface HeaderActionsProps {
   searchQuery: string;
   setSearchQuery: (value: string) => void;
   toggleDarkMode: () => void;
-  onSearch: (query: string) => void; // دالة جديدة للبحث الفوري
+  onSearch: (query: string) => void;
   breadcrumb: string;
 }
 
@@ -27,6 +24,16 @@ const HeaderActions: React.FC<HeaderActionsProps> = ({
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
+
+  const [newUsersCount, setNewUsersCount] = useState(0);
+  useEffect(() => {
+    const q = query(collection(db, "users"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setNewUsersCount(snapshot.size);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const settingNavigate = () => {
     navigate("/dashboard/settings");
@@ -63,12 +70,9 @@ const HeaderActions: React.FC<HeaderActionsProps> = ({
           boxShadow: isDark ? 1 : 0,
         }}
       >
-        <SearchIcon sx={{ color: isDark ? "#b0b8d1" : "#888", mr: 1 }} />
-        <TextField
-          variant="standard"
-          placeholder="Search"
-          value={searchQuery}
-          onChange={handleSearchChange} // استخدام الدالة المعدلة
+        <Search sx={{ color: isDark ? "#b0b8d1" : "#888", mr: 1 }} />
+        <TextField variant="standard" placeholder="Search" value={searchQuery}
+          onChange={handleSearchChange}
           InputProps={{
             disableUnderline: true,
             style: {
@@ -80,13 +84,27 @@ const HeaderActions: React.FC<HeaderActionsProps> = ({
         />
       </Box>
       <IconButton>
-        <NotificationsNoneIcon sx={{ color: isDark ? "#b0b8d1" : "#888" }} />
+        <Badge
+          badgeContent={newUsersCount}
+          color="error"
+          overlap="circular"
+          sx={{
+            "& .MuiBadge-badge": {
+              fontSize: "0.75rem",
+              fontWeight: "bold",
+              minWidth: 20,
+              height: 20,
+            },
+          }}
+        >
+          <NotificationsNone sx={{ color: isDark ? "#b0b8d1" : "#888" }} />
+        </Badge>
       </IconButton>
       <IconButton onClick={toggleDarkMode}>
-        <DarkModeOutlinedIcon sx={{ color: isDark ? "#ffd700" : "#888" }} />
+        <DarkModeOutlined sx={{ color: isDark ? "#ffd700" : "#888" }} />
       </IconButton>
       <IconButton onClick={settingNavigate}>
-        <InfoOutlinedIcon sx={{ color: isDark ? "#b0b8d1" : "#888" }} />
+        <InfoOutlined sx={{ color: isDark ? "#b0b8d1" : "#888" }} />
       </IconButton>
       <Avatar
         sx={{ width: 30, height: 30, ml: 1, boxShadow: isDark ? 2 : 0 }}
