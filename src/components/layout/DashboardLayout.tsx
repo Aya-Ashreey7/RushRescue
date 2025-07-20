@@ -23,9 +23,9 @@ const DashboardLayout = () => {
 
     const [searchQuery, setSearchQuery] = React.useState("");
     return (
-        <Box sx={{ 
-            minHeight: "100vh", 
-            bgcolor: isDark ? "#181c2a" : "#f2f6fc", 
+        <Box sx={{
+            minHeight: "100vh",
+            bgcolor: isDark ? "#181c2a" : "#f2f6fc",
             pt: 10,
             transition: "background 0.3s"
         }}>

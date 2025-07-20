@@ -48,9 +48,6 @@ function App() {
 
     return (
         <ThemeToggleContext.Provider value={{ darkMode, toggleDarkMode }}>
-
-
-
             <ThemeProvider theme={theme}>
                 <CssBaseline />
                 <Routes>

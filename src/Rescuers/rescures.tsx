@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   Box, Button, Paper, Typography, IconButton, MenuItem, Select,
   FormControl, InputLabel, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Pagination, Stack, Container,
-  Breadcrumbs
+  TableHead, TableRow, Pagination, Stack,
 } from "@mui/material";
 import { Visibility, Delete, Download } from "@mui/icons-material";
 import { useNavigate, useOutletContext } from "react-router-dom";
@@ -15,8 +14,6 @@ import {
 import { BeatLoader } from "react-spinners";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import PageHeader from "../components/PageHeader";
-import HeaderActions from "../components/HeaderActions";
 
 interface User {
   id: string;
@@ -40,11 +37,15 @@ export default function Rescures() {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
-  const { searchQuery, setSearchQuery, toggleDarkMode } = useOutletContext<{
-    searchQuery: string;
-    setSearchQuery: (val: string) => void;
-    toggleDarkMode: () => void;
-  }>();
+
+  const { searchQuery } = useOutletContext<{ searchQuery: string }>();
+
+
+  // const { searchQuery, setSearchQuery, toggleDarkMode } = useOutletContext<{
+  //   searchQuery: string;
+  //   setSearchQuery: (val: string) => void;
+  //   toggleDarkMode: () => void;
+  // }>();
 
   const rescuresPerPage = 10;
   const startIndex = (page - 1) * rescuresPerPage;
@@ -134,20 +135,7 @@ export default function Rescures() {
         pt: 4,
       }}
     >
-      <Container maxWidth="xl">
-        <PageHeader
-         
-          breadcrumb="Dashboard / Rescures"
-          title="Rescues"
-          rightActions={
-            <HeaderActions
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              toggleDarkMode={toggleDarkMode}
-              onSearch={(q) => setSearchQuery(q)}
-            />
-          }
-        />
+    
 
         <Paper
           sx={{
@@ -173,19 +161,50 @@ export default function Rescures() {
             </Typography>
 
             <Stack direction="row" spacing={2}>
-              <FormControl size="small">
-                <InputLabel id="date-label">Create Date</InputLabel>
+              <FormControl
+                sx={{
+                  minWidth: 160,
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: isDark ? "#444a5a" : "#0F3460",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: isDark ? "#5a6a8a" : "#0d2f50",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: isDark ? "#b0b8d1" : "#0F3460",
+                    },
+                    backgroundColor: isDark ? "#23243a" : "#fff",
+                    color: isDark ? "#fff" : "#222",
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: isDark ? "#b0b8d1" : "#777",
+                  },
+                  "& .MuiInputLabel-root.Mui-focused": {
+                    color: isDark ? "#ffd700" : "#0F3460",
+                    fontWeight: 500,
+                  },
+                }}
+                size="small"
+              >
+                <InputLabel id="create-date-label">Create Date</InputLabel>
                 <Select
-                  labelId="date-label"
-                  value={filterDate}
+                  labelId="create-date-label"
                   label="Create Date"
+                  value={filterDate}
                   onChange={(e) => setFilterDate(e.target.value)}
+                  sx={{
+                    color: isDark ? "#fff" : "#222",
+                    backgroundColor: isDark ? "#23243a" : "#fff",
+                  }}
                 >
-                  <MenuItem value="7">Last 7 Days</MenuItem>
-                  <MenuItem value="30">Last 30 Days</MenuItem>
-                  <MenuItem value="90">Last 90 Days</MenuItem>
+                  <MenuItem value="7">Last 7 days</MenuItem>
+                  <MenuItem value="30">Last 30 days</MenuItem>
+                  <MenuItem value="90">Last 90 days</MenuItem>
                 </Select>
               </FormControl>
+
+
               <Button
                 onClick={exportToExcel}
                 variant="outlined"
@@ -266,7 +285,9 @@ export default function Rescures() {
             />
           </Stack>
         </Paper>
-      </Container>
+
+
+    
     </Box>
   );
 }

@@ -169,100 +169,77 @@ export default function Drivers() {
           borderRadius: 2,
         }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            mb: 3,
-          }}
-        >
-          <Typography
-            variant="h6"
-            sx={{ color: isDark ? "#b0b8d1" : "inherit" }}
-          >
-            Requests Status
-          </Typography>
+       
 
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <FormControl
+
+          {/* Filter + Export */}
+          <Stack direction="row" justifyContent="space-between" mb={3}>
+            <Typography
               sx={{
-                minWidth: 160,
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": {
-                    borderColor: isDark ? "#444a5a" : "#0F3460",
-                  },
-                  "&:hover fieldset": {
-                    borderColor: isDark ? "#5a6a8a" : "#0d2f50",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: isDark ? "#b0b8d1" : "#0F3460",
-                  },
-                  backgroundColor: isDark ? "#23243a" : "#fff",
-                  color: isDark ? "#fff" : "#222",
-                },
-                "& .MuiInputLabel-root": {
-                  color: isDark ? "#b0b8d1" : "#777",
-                },
-                "& .MuiInputLabel-root.Mui-focused": {
-                  color: isDark ? "#ffd700" : "#0F3460",
-                  fontWeight: 500,
-                },
+                backgroundColor: isDark ? "#e5e7eb" : "#0F3460",
+                color: isDark ? "#0F3460" : "#e5e7eb",
+                px: 2,
+                py: 1,
+                borderRadius: 1,
               }}
-              size="small"
             >
-              <InputLabel id="create-date-label">Create Date</InputLabel>
-              <Select
-                labelId="create-date-label"
-                label="Create Date"
-                value={filterDate}
-                onChange={(e) => setFilterDate(e.target.value)}
+              All Drivers Requests
+            </Typography>
+
+            <Stack direction="row" spacing={2}>
+              <FormControl
                 sx={{
-                  color: isDark ? "#fff" : "#222",
-                  backgroundColor: isDark ? "#23243a" : "#fff",
+                  minWidth: 160,
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: isDark ? "#444a5a" : "#0F3460",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: isDark ? "#5a6a8a" : "#0d2f50",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: isDark ? "#b0b8d1" : "#0F3460",
+                    },
+                    backgroundColor: isDark ? "#23243a" : "#fff",
+                    color: isDark ? "#fff" : "#222",
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: isDark ? "#b0b8d1" : "#777",
+                  },
+                  "& .MuiInputLabel-root.Mui-focused": {
+                    color: isDark ? "#ffd700" : "#0F3460",
+                    fontWeight: 500,
+                  },
                 }}
+                size="small"
               >
-                <MenuItem value="7">Last 7 days</MenuItem>
-                <MenuItem value="30">Last 30 days</MenuItem>
-                <MenuItem value="90">Last 90 days</MenuItem>
-              </Select>
-            </FormControl>
+                <InputLabel id="create-date-label">Create Date</InputLabel>
+                <Select
+                  labelId="create-date-label"
+                  label="Create Date"
+                  value={filterDate}
+                  onChange={(e) => setFilterDate(e.target.value)}
+                  sx={{
+                    color: isDark ? "#fff" : "#222",
+                    backgroundColor: isDark ? "#23243a" : "#fff",
+                  }}
+                >
+                  <MenuItem value="7">Last 7 days</MenuItem>
+                  <MenuItem value="30">Last 30 days</MenuItem>
+                  <MenuItem value="90">Last 90 days</MenuItem>
+                </Select>
+              </FormControl>
 
-            <Button
-              onClick={exportToExcel}
-              sx={{
-                borderColor: isDark ? "#b0b8d1" : "#0F3460",
-                color: isDark ? "#b0b8d1" : "#0F3460",
-                "&:hover": {
-                  borderColor: isDark ? "#ffd700" : "#0d2f50",
-                  backgroundColor: isDark
-                    ? "rgba(176,184,209,0.05)"
-                    : "rgba(15, 52, 96, 0.05)",
-                },
-              }}
-              variant="outlined"
-              startIcon={
-                <Download sx={{ color: isDark ? "#ffd700" : "#0F3460" }} />
-              }
-            >
-              Export Drivers
-            </Button>
-          </Box>
-        </Box>
 
-        <Box sx={{ mb: 3 }}>
-          <Typography
-            className="px-3 py-2 rounded"
-            sx={{
-              backgroundColor: isDark ? "#e5e7eb" : "#0F3460",
-              color: isDark ? "#0F3460" : "#e5e7eb",
-              boxShadow: isDark ? 1 : 0,
-              display: "inline-block",
-            }}
-          >
-            All Drivers Requests
-          </Typography>
-        </Box>
+              <Button
+                onClick={exportToExcel}
+                variant="outlined"
+                startIcon={<Download />}
+              >
+                Export Rescues
+              </Button>
+            </Stack>
+          </Stack>
 
         <TableContainer component={Paper} variant="outlined">
           <Table size="small">
