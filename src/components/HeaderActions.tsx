@@ -15,6 +15,7 @@ interface HeaderActionsProps {
   setSearchQuery: (value: string) => void;
   toggleDarkMode: () => void;
   onSearch: (query: string) => void; // دالة جديدة للبحث الفوري
+  breadcrumb: string;
 }
 
 const HeaderActions: React.FC<HeaderActionsProps> = ({

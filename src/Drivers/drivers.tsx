@@ -17,14 +17,10 @@ import {
   TableRow,
   Pagination,
   Stack,
-  Container,
 } from "@mui/material";
 import { Visibility, Delete, Download } from "@mui/icons-material";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
-import PageHeader from "../components/PageHeader";
-import HeaderActions from "../components/HeaderActions";
-import { db } from "../firebase";
 import {
   collection,
   deleteDoc,
@@ -33,13 +29,10 @@ import {
   query,
   where,
 } from "firebase/firestore";
+import { db } from "../firebase";
 import { BeatLoader } from "react-spinners";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-
-interface DriversProps {
-  toggleDarkMode: () => void;
-}
 
 interface User {
   id: string;
@@ -56,25 +49,22 @@ interface User {
   vehicleLicenceFrontUrl: string;
 }
 
-export default function Drivers({ toggleDarkMode }: DriversProps) {
-  const [searchQuery, setSearchQuery] = useState("");
+export default function Drivers() {
   const [filterDate, setFilterDate] = useState("");
   const [page, setPage] = useState(1);
   const [drivers, setDrivers] = useState<User[]>([]);
   const [filteredDrivers, setFilteredDrivers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const location = useLocation();
-  const pathSegments = location.pathname.split("/").filter(Boolean);
-  const breadcrumb = pathSegments
-    .map((seg) => seg.charAt(0).toUpperCase() + seg.slice(1))
-    .join(" / ");
+  const navigate = useNavigate();
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+
+  const { searchQuery } = useOutletContext<{ searchQuery: string }>();
+
   const driversPerPage = 10;
   const startIndex = (page - 1) * driversPerPage;
   const endIndex = startIndex + driversPerPage;
   const paginatedDrivers = filteredDrivers.slice(startIndex, endIndex);
-  const navigate = useNavigate();
 
   const driverDetialsNavigate = (id: string) => {
     navigate(`/dashboard/drivers/${id}`);
@@ -120,7 +110,7 @@ export default function Drivers({ toggleDarkMode }: DriversProps) {
           driver.phone?.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredDrivers(filtered);
-      setPage(1); // Reset to first page when searching
+      setPage(1);
     }
   }, [searchQuery, drivers]);
 
@@ -128,7 +118,9 @@ export default function Drivers({ toggleDarkMode }: DriversProps) {
     try {
       await deleteDoc(doc(db, "users", id));
       setDrivers((prev) => prev.filter((driver) => driver.id !== id));
-      setFilteredDrivers((prev) => prev.filter((driver) => driver.id !== id));
+      setFilteredDrivers((prev) =>
+        prev.filter((driver) => driver.id !== id)
+      );
       console.log("User deleted:", id);
     } catch (error) {
       console.error("Error deleting user:", error);
@@ -145,16 +137,13 @@ export default function Drivers({ toggleDarkMode }: DriversProps) {
     const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Drivers");
-
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
       type: "array",
     });
-
     const fileData = new Blob([excelBuffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
     });
-
     saveAs(fileData, "Drivers.xlsx");
   };
 
@@ -169,47 +158,35 @@ export default function Drivers({ toggleDarkMode }: DriversProps) {
         pt: 4,
       }}
     >
-      <Container maxWidth="xl">
-        <PageHeader
-          breadcrumb={breadcrumb}
-          title="Drivers"
-          rightActions={
-            <HeaderActions
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              toggleDarkMode={toggleDarkMode}
-              onSearch={(query) => setSearchQuery(query)}
-            />
-          }
-        />
 
-        {/* Main Content */}
-        <Paper
-          sx={{
-            p: 4,
-            mb: 4,
-            bgcolor: isDark ? "#23243a" : "#fff",
-            boxShadow: isDark ? 3 : 1,
-            transition: "background 0.3s",
-            borderRadius: 2,
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 3,
-            }}
-          >
+      <Paper
+        sx={{
+          p: 4,
+          mb: 4,
+          bgcolor: isDark ? "#23243a" : "#fff",
+          boxShadow: isDark ? 3 : 1,
+          transition: "background 0.3s",
+          borderRadius: 2,
+        }}
+      >
+       
+
+
+          {/* Filter + Export */}
+          <Stack direction="row" justifyContent="space-between" mb={3}>
             <Typography
-              variant="h6"
-              sx={{ color: isDark ? "#b0b8d1" : "inherit" }}
+              sx={{
+                backgroundColor: isDark ? "#e5e7eb" : "#0F3460",
+                color: isDark ? "#0F3460" : "#e5e7eb",
+                px: 2,
+                py: 1,
+                borderRadius: 1,
+              }}
             >
-              Requests Status
+              All Drivers Requests
             </Typography>
 
-            <Box sx={{ display: "flex", gap: 2 }}>
+            <Stack direction="row" spacing={2}>
               <FormControl
                 sx={{
                   minWidth: 160,
@@ -253,131 +230,102 @@ export default function Drivers({ toggleDarkMode }: DriversProps) {
                 </Select>
               </FormControl>
 
+
               <Button
                 onClick={exportToExcel}
-                sx={{
-                  borderColor: isDark ? "#b0b8d1" : "#0F3460",
-                  color: isDark ? "#b0b8d1" : "#0F3460",
-                  "&:hover": {
-                    borderColor: isDark ? "#ffd700" : "#0d2f50",
-                    backgroundColor: isDark
-                      ? "rgba(176,184,209,0.05)"
-                      : "rgba(15, 52, 96, 0.05)",
-                  },
-                }}
                 variant="outlined"
-                startIcon={
-                  <Download sx={{ color: isDark ? "#ffd700" : "#0F3460" }} />
-                }
+                startIcon={<Download />}
               >
-                Export Drivers
+                Export Rescues
               </Button>
-            </Box>
-          </Box>
-
-          {/* Status Filter */}
-          <Box sx={{ mb: 3 }}>
-            <Typography
-              className="px-3 py-2 rounded"
-              sx={{
-                backgroundColor: isDark ? "#e5e7eb" : "#0F3460",
-                color: isDark ? "#0F3460" : "#e5e7eb",
-                boxShadow: isDark ? 1 : 0,
-                display: "inline-block",
-              }}
-            >
-              All Drivers Requests
-            </Typography>
-          </Box>
-
-          {/* Table */}
-          <TableContainer component={Paper} variant="outlined">
-            <Table size="small">
-              <TableHead>
-                <TableRow sx={{ bgcolor: isDark ? "#f2f6fc" : "#f2f6fc" }}>
-                  {["", "Name", "Email", "Phone", "Actions"].map((header) => (
-                    <TableCell
-                      key={header}
-                      sx={{
-                        color: isDark ? "#0F3460" : "#0F3460",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {header}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={5} align="center">
-                    <Box sx={{ py: 2 }}>
-                      <BeatLoader
-                        color={isDark ? "#f2f6fc" : "#0F3460"}
-                        size={12}
-                      />
-                    </Box>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                <TableBody>
-                  {paginatedDrivers.map((driver, index) => (
-                    <TableRow key={driver.id} hover>
-                      <TableCell>{startIndex + index + 1}</TableCell>
-                      <TableCell>
-                        {driver.fName} {driver.lName}
-                      </TableCell>
-                      <TableCell>{driver.email}</TableCell>
-                      <TableCell>{driver.phone}</TableCell>
-
-                      <TableCell>
-                        <Stack direction="row" spacing={1}>
-                          <IconButton
-                            color="info"
-                            onClick={() => driverDetialsNavigate(driver.id)}
-                          >
-                            <Visibility />
-                          </IconButton>
-                          <IconButton
-                            onClick={() => deleteDriver(driver.id)}
-                            color="error"
-                          >
-                            <Delete />
-                          </IconButton>
-                        </Stack>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              )}
-            </Table>
-          </TableContainer>
-
-          {/* Pagination */}
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            sx={{ mt: 3 }}
-          >
-            <Typography variant="body2">
-              Showing {filteredDrivers.length === 0 ? 0 : startIndex + 1}–
-              {Math.min(endIndex, filteredDrivers.length)} of{" "}
-              {filteredDrivers.length}
-            </Typography>
-            <Pagination
-              page={page}
-              count={Math.ceil(filteredDrivers.length / driversPerPage)}
-              onChange={(_, val) => setPage(val)}
-              variant="outlined"
-              shape="rounded"
-              showFirstButton
-              showLastButton
-            />
+            </Stack>
           </Stack>
-        </Paper>
-      </Container>
+
+        <TableContainer component={Paper} variant="outlined">
+          <Table size="small">
+            <TableHead>
+              <TableRow sx={{ bgcolor: "#f2f6fc" }}>
+                {["", "Name", "Email", "Phone", "Actions"].map((header) => (
+                  <TableCell
+                    key={header}
+                    sx={{
+                      color: "#0F3460",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {header}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={5} align="center">
+                  <Box sx={{ py: 2 }}>
+                    <BeatLoader
+                      color={isDark ? "#f2f6fc" : "#0F3460"}
+                      size={12}
+                    />
+                  </Box>
+                </TableCell>
+              </TableRow>
+            ) : (
+              <TableBody>
+                {paginatedDrivers.map((driver, index) => (
+                  <TableRow key={driver.id} hover>
+                    <TableCell>{startIndex + index + 1}</TableCell>
+                    <TableCell>
+                      {driver.fName} {driver.lName}
+                    </TableCell>
+                    <TableCell>{driver.email}</TableCell>
+                    <TableCell>{driver.phone}</TableCell>
+                    <TableCell>
+                      <Stack direction="row" spacing={1}>
+                        <IconButton
+                          color="info"
+                          onClick={() => driverDetialsNavigate(driver.id)}
+                        >
+                          <Visibility />
+                        </IconButton>
+                        <IconButton
+                          onClick={() => deleteDriver(driver.id)}
+                          color="error"
+                        >
+                          <Delete />
+                        </IconButton>
+                      </Stack>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            )}
+          </Table>
+        </TableContainer>
+
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{ mt: 3 }}
+        >
+          <Typography variant="body2">
+            Showing {filteredDrivers.length === 0 ? 0 : startIndex + 1}–
+            {Math.min(endIndex, filteredDrivers.length)} of{" "}
+            {filteredDrivers.length}
+          </Typography>
+          <Pagination
+            page={page}
+            count={Math.ceil(filteredDrivers.length / driversPerPage)}
+            onChange={(_, val) => setPage(val)}
+            variant="outlined"
+            shape="rounded"
+            showFirstButton
+            showLastButton
+          />
+        </Stack>
+      </Paper>
+
     </Box>
   );
 }
