@@ -43,34 +43,34 @@ function App() {
             paper: darkMode ? "#23243a" : "#fff",
           },
         },
-    }), [darkMode]);
+      }), [darkMode]);
 
 
-    return (
-        <ThemeToggleContext.Provider value={{ darkMode, toggleDarkMode }}>
-            <ThemeProvider theme={theme}>
-                <CssBaseline />
-                <Routes>
-                    <Route path="/" element={<LoginForm />} />
-                    <Route element={<ProtectedRoute />}>
-                        <Route path="/dashboard" element={<DashBoard />}>
-                            <Route element={<DashboardLayout />}>
-                                <Route index element={<DashboardView />} />
-                                <Route path="driver-requests" element={<DriverRequests />} />
-                                <Route path="driver/:id" element={<DriverDetail />} />
-                                <Route path="rescuer-requests" element={<RescuerRequests />} />
-                                <Route path="rescuer/:id" element={<RescuerDetail />} />
-                                <Route path="drivers" element={<Drivers />} />
-                                <Route path="rescuers" element={<Rescures />} />
-                                <Route path="settings" element={<SettingsPage />} />
-                            </Route>
-                        </Route>
-                    </Route>
-                    <Route path="*" element={<NotFound />} />
-                </Routes>
-            </ThemeProvider>
-        </ThemeToggleContext.Provider>
-    );
+  return (
+    <ThemeToggleContext.Provider value={{ darkMode, toggleDarkMode }}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Routes>
+          <Route path="/" element={<LoginForm />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/dashboard" element={<DashBoard />}>
+              <Route element={<DashboardLayout />}>
+                <Route index element={<DashboardView />} />
+                <Route path="driver-requests" element={<DriverRequests darkMode={darkMode} toggleDarkMode={toggleDarkMode} />} />
+                <Route path="driver/:id" element={<DriverDetail />} />
+                <Route path="rescuer-requests" element={<RescuerRequests darkMode={darkMode} toggleDarkMode={toggleDarkMode} />} />
+                <Route path="rescuer/:id" element={<RescuerDetail />} />
+                <Route path="drivers" element={<Drivers />} />
+                <Route path="rescuers" element={<Rescures />} />
+                <Route path="settings" element={<SettingsPage />} />
+              </Route>
+            </Route>
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </ThemeProvider>
+    </ThemeToggleContext.Provider>
+  );
 }
 
 export default App;

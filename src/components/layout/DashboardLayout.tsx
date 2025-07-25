@@ -1,4 +1,5 @@
-import React from "react";
+// layout/DashboardLayout.tsx
+import React, { useState } from "react";
 import { Box } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useLocation, Outlet } from "react-router-dom";
@@ -7,6 +8,8 @@ import HeaderActions from "../HeaderActions";
 import { useThemeToggle } from "../../ThemeToggleContext";
 
 const DashboardLayout = () => {
+    const [isDrawerOpen, setDrawerOpen] = useState(false);
+
     const location = useLocation();
     const { toggleDarkMode } = useThemeToggle();
     const theme = useTheme();
@@ -21,7 +24,8 @@ const DashboardLayout = () => {
         ?.replace("-", " ")
         ?.replace(/\b\w/g, (char) => char.toUpperCase()) || "Dashboard";
 
-    const [searchQuery, setSearchQuery] = React.useState("");
+    const [searchQuery, setSearchQuery] = useState("");
+
     return (
         <Box sx={{
             minHeight: "100vh",
@@ -30,9 +34,6 @@ const DashboardLayout = () => {
             transition: "background 0.3s"
         }}>
             <Box sx={{ maxWidth: 1300, mx: "auto", px: 2 }}>
-
-
-
                 <PageHeader
                     breadcrumb={breadcrumb}
                     title={title}
@@ -42,12 +43,11 @@ const DashboardLayout = () => {
                             setSearchQuery={setSearchQuery}
                             toggleDarkMode={toggleDarkMode}
                             onSearch={(q) => setSearchQuery(q)}
+                            onOpenDrawer={() => setDrawerOpen(true)}
                         />
                     }
                 />
-                <Outlet context={{ searchQuery }} />
-
-
+                <Outlet context={{ searchQuery, setSearchQuery, toggleDarkMode }} />
             </Box>
         </Box>
     );
