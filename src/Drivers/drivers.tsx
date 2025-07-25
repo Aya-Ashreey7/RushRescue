@@ -67,7 +67,7 @@ export default function Drivers() {
   const paginatedDrivers = filteredDrivers.slice(startIndex, endIndex);
 
   const driverDetialsNavigate = (id: string) => {
-    navigate(`/dashboard/drivers/${id}`);
+    navigate(`/dashboard/driver/${id}`);
   };
 
   useEffect(() => {
@@ -169,77 +169,90 @@ export default function Drivers() {
           borderRadius: 2,
         }}
       >
-       
 
 
-          {/* Filter + Export */}
-          <Stack direction="row" justifyContent="space-between" mb={3}>
-            <Typography
+
+        {/* Filter + Export */}
+        <Stack direction="row" justifyContent="space-between" mb={3}>
+          <Typography
+            sx={{
+              backgroundColor: isDark ? "#e5e7eb" : "#0F3460",
+              color: isDark ? "#0F3460" : "#e5e7eb",
+              px: 2,
+              py: 1,
+              borderRadius: 1,
+            }}
+          >
+            All Drivers
+          </Typography>
+
+          <Stack direction="row" spacing={2}>
+            <FormControl
               sx={{
-                backgroundColor: isDark ? "#e5e7eb" : "#0F3460",
-                color: isDark ? "#0F3460" : "#e5e7eb",
-                px: 2,
-                py: 1,
-                borderRadius: 1,
+                minWidth: 160,
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: isDark ? "#444a5a" : "#0F3460",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: isDark ? "#5a6a8a" : "#0d2f50",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: isDark ? "#b0b8d1" : "#0F3460",
+                  },
+                  backgroundColor: isDark ? "#23243a" : "#fff",
+                  color: isDark ? "#fff" : "#222",
+                },
+                "& .MuiInputLabel-root": {
+                  color: isDark ? "#b0b8d1" : "#777",
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: isDark ? "#ffd700" : "#0F3460",
+                  fontWeight: 500,
+                },
+              }}
+              size="small"
+            >
+              <InputLabel id="create-date-label">Create Date</InputLabel>
+              <Select
+                labelId="create-date-label"
+                label="Create Date"
+                value={filterDate}
+                onChange={(e) => setFilterDate(e.target.value)}
+                sx={{
+                  color: isDark ? "#fff" : "#222",
+                  backgroundColor: isDark ? "#23243a" : "#fff",
+                }}
+              >
+                <MenuItem value="7">Last 7 days</MenuItem>
+                <MenuItem value="30">Last 30 days</MenuItem>
+                <MenuItem value="90">Last 90 days</MenuItem>
+              </Select>
+            </FormControl>
+
+
+            <Button
+              onClick={exportToExcel}
+              variant="outlined"
+              startIcon={<Download />}
+              sx={{
+                ...(isDark && {
+                  color: "#ffd700",
+                  borderColor: "#ffd700",
+                  "&:hover": {
+                    borderColor: "#ffdf00",
+                    backgroundColor: "rgba(255, 215, 0, 0.08)",
+                  },
+                  "& .MuiButton-startIcon": {
+                    color: "#ffd700",
+                  },
+                }),
               }}
             >
-              All Drivers Requests
-            </Typography>
-
-            <Stack direction="row" spacing={2}>
-              <FormControl
-                sx={{
-                  minWidth: 160,
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: isDark ? "#444a5a" : "#0F3460",
-                    },
-                    "&:hover fieldset": {
-                      borderColor: isDark ? "#5a6a8a" : "#0d2f50",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: isDark ? "#b0b8d1" : "#0F3460",
-                    },
-                    backgroundColor: isDark ? "#23243a" : "#fff",
-                    color: isDark ? "#fff" : "#222",
-                  },
-                  "& .MuiInputLabel-root": {
-                    color: isDark ? "#b0b8d1" : "#777",
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": {
-                    color: isDark ? "#ffd700" : "#0F3460",
-                    fontWeight: 500,
-                  },
-                }}
-                size="small"
-              >
-                <InputLabel id="create-date-label">Create Date</InputLabel>
-                <Select
-                  labelId="create-date-label"
-                  label="Create Date"
-                  value={filterDate}
-                  onChange={(e) => setFilterDate(e.target.value)}
-                  sx={{
-                    color: isDark ? "#fff" : "#222",
-                    backgroundColor: isDark ? "#23243a" : "#fff",
-                  }}
-                >
-                  <MenuItem value="7">Last 7 days</MenuItem>
-                  <MenuItem value="30">Last 30 days</MenuItem>
-                  <MenuItem value="90">Last 90 days</MenuItem>
-                </Select>
-              </FormControl>
-
-
-              <Button
-                onClick={exportToExcel}
-                variant="outlined"
-                startIcon={<Download />}
-              >
-                Export Rescues
-              </Button>
-            </Stack>
+              Export Rescues
+            </Button>
           </Stack>
+        </Stack>
 
         <TableContainer component={Paper} variant="outlined">
           <Table size="small">

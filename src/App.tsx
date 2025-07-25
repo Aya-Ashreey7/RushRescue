@@ -17,6 +17,8 @@ import { createTheme, CssBaseline } from '@mui/material';
 import React from 'react';
 import DashboardLayout from './components/layout/DashboardLayout';
 import { ThemeToggleContext } from './ThemeToggleContext';
+import Reports from './pages/Reports/Reports';
+import AllRequestsPage from './Requests/Requests';
 
 function App() {
   const [darkMode, setDarkMode] = React.useState(() => {
@@ -56,13 +58,16 @@ function App() {
             <Route path="/dashboard" element={<DashBoard />}>
               <Route element={<DashboardLayout />}>
                 <Route index element={<DashboardView />} />
-                <Route path="driver-requests" element={<DriverRequests darkMode={darkMode} toggleDarkMode={toggleDarkMode} />} />
+                <Route path="driver-requests" element={<DriverRequests />} />
                 <Route path="driver/:id" element={<DriverDetail />} />
-                <Route path="rescuer-requests" element={<RescuerRequests darkMode={darkMode} toggleDarkMode={toggleDarkMode} />} />
+                <Route path="rescuer-requests" element={<RescuerRequests />} />
                 <Route path="rescuer/:id" element={<RescuerDetail />} />
                 <Route path="drivers" element={<Drivers />} />
                 <Route path="rescuers" element={<Rescures />} />
                 <Route path="settings" element={<SettingsPage />} />
+                <Route path="reports" element={<Reports />} />
+                <Route path="allrequests" element={<AllRequestsPage />} />
+
               </Route>
             </Route>
           </Route>

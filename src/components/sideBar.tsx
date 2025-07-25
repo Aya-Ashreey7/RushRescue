@@ -14,6 +14,8 @@ import {
     HealthAndSafety,
     Settings,
     ReportProblem,
+    InsertChartOutlined,
+    ReceiptLong,
 } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 
@@ -51,6 +53,16 @@ const navigationItems = [
         label: "Rescuers",
         icon: HealthAndSafety,
         path: "/dashboard/rescuers",
+    },
+    {
+        label: "Reports",
+        icon: InsertChartOutlined,
+        path: "/dashboard/reports",
+    },
+    {
+        label: "All Requests",
+        icon: ReceiptLong,
+        path: "/dashboard/allrequests",
     },
 ];
 
