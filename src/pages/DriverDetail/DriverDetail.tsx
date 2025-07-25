@@ -288,17 +288,7 @@ const DriverDetail = () => {
           >
             Reject 
           </Button>
-          <IconButton 
-            onClick={handleDelete}
-            sx={{
-              backgroundColor: alpha(theme.palette.error.main, 0.1),
-              '&:hover': {
-                backgroundColor: alpha(theme.palette.error.main, 0.2)
-              }
-            }}
-          >
-            <DeleteIcon color="error" />
-          </IconButton>
+      
         </Stack>
       </Paper>
 
