@@ -7,6 +7,7 @@ import { useLocation } from "react-router-dom";
 interface PageHeaderProps {
   title?: string;
   rightActions?: React.ReactNode;
+  breadcrumb: string;
 }
 
 const PageHeader: React.FC<PageHeaderProps> = ({ title, rightActions }) => {

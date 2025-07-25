@@ -7,7 +7,7 @@ import { auth, db } from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc, collection } from "firebase/firestore";
 import { FirebaseError } from "firebase/app";
-import Loader from "../components/Loader"; // ✅ تأكد من المسار الصحيح
+import Loader from "../components/Loader"; 
 
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}$/;
 const schema = z.object({
@@ -36,7 +36,7 @@ const theme = {
 const LoginForm = () => {
   const navigate = useNavigate();
   const [firebaseError, setFirebaseError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false); // ✅ حالة التحميل
+  const [loading, setLoading] = useState(false); 
 
   const {
     register,
@@ -48,7 +48,7 @@ const LoginForm = () => {
 
   const onSubmit = async (data: FormValues) => {
     setFirebaseError(null);
-    setLoading(true); // ✅ ابدأ التحميل
+    setLoading(true); 
 
     try {
       const userCredential = await signInWithEmailAndPassword(
