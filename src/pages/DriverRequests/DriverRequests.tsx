@@ -107,10 +107,7 @@ const formatStatusLabel = (status: any) => {
     >
       <Box sx={{ maxWidth: 1300, mx: "auto" }}>
         
-        <Typography variant="h4" gutterBottom sx={{ fontWeight: 600 }}>
-          Driver Requests
-        </Typography>
-
+      
         <Paper sx={{ p: 4, mb: 4, bgcolor: isDark ? "#23243a" : "#fff", boxShadow: isDark ? 3 : 1 }}>
           {/* Filters */}
           <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>
