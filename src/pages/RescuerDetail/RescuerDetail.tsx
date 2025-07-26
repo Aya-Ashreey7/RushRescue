@@ -6,24 +6,22 @@ import {
   Box,
   Typography,
   Card,
-  CardContent,
   CardMedia,
-  IconButton,
   Grid,
   Alert,
   Button,
   Stack,
   TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Avatar,
   Divider,
   Chip,
   Paper,
   alpha,
-  useTheme
+  useTheme,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from '@mui/material';
 import {
   Delete as DeleteIcon,
@@ -44,6 +42,8 @@ const RescuerDetail = () => {
   const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null);
   const [rejectionDialogOpen, setRejectionDialogOpen] = useState(false);
   const [rejectionFeedback, setRejectionFeedback] = useState('');
+    const isDark = theme.palette.mode === "dark";
+
   const [imageRejection, setImageRejection] = useState<{ [key: string]: { reason: string; dialogOpen: boolean } }>({});
   const [expandedImage, setExpandedImage] = useState<{ url: string; label: string } | null>(null);
   const [approvedImages, setApprovedImages] = useState<Record<string, boolean>>({});
@@ -154,7 +154,8 @@ function handleDelete(event: React.MouseEvent<HTMLButtonElement>, rescuerId: str
           borderRadius: '12px',
           px: 3,
           textTransform: 'none',
-          fontWeight: 600
+          fontWeight: 600 ,
+           backgroundColor: isDark ? "#e5e7eb" : "#f3f4f6",
         }}
       >
         Back to Rescuers
@@ -172,6 +173,8 @@ function handleDelete(event: React.MouseEvent<HTMLButtonElement>, rescuerId: str
           {message.text}
         </Alert>
       )}
+
+    
 
       {/* Rescuer Profile Section */}
       <Paper elevation={0} sx={{ 
@@ -191,14 +194,15 @@ function handleDelete(event: React.MouseEvent<HTMLButtonElement>, rescuerId: str
           }}>
             {rescuer.fName?.charAt(0)}{rescuer.lName?.charAt(0)}
           </Avatar>
-          <Box>
+             <Box>
             <Typography variant="h4" component="h1" fontWeight="700">
               {rescuer.fName} {rescuer.lName}
             </Typography>
             <Typography variant="subtitle1" color="text.secondary">
-              Rescuer Profile
+             Rescuer Profile
             </Typography>
           </Box>
+       
         </Box>
 
         <Grid container spacing={3} mb={3}>
@@ -290,17 +294,7 @@ function handleDelete(event: React.MouseEvent<HTMLButtonElement>, rescuerId: str
           >
             Reject 
           </Button>
-          <IconButton 
-            onClick={handleDelete}
-            sx={{
-              backgroundColor: alpha(theme.palette.error.main, 0.1),
-              '&:hover': {
-                backgroundColor: alpha(theme.palette.error.main, 0.2)
-              }
-            }}
-          >
-            <DeleteIcon color="error" />
-          </IconButton>
+  
         </Stack>
       </Paper>
 
@@ -441,8 +435,115 @@ function handleDelete(event: React.MouseEvent<HTMLButtonElement>, rescuerId: str
         ))}
       </Grid>
 
-      {/* Dialogs remain the same */}
-      {/* ... */}
+      {/* Rejection Dialog for Application */}
+      <Dialog 
+        open={rejectionDialogOpen} 
+        onClose={() => setRejectionDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Reject Application</DialogTitle>
+        <DialogContent>
+          <Typography variant="body1" gutterBottom sx={{ mb: 2 }}>
+            Please provide a reason for rejecting this rescuer's application:
+          </Typography>
+          <TextField
+            autoFocus
+            fullWidth
+            multiline
+            rows={4}
+            variant="outlined"
+            value={rejectionFeedback}
+            onChange={(e) => setRejectionFeedback(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button 
+            onClick={() => setRejectionDialogOpen(false)}
+            sx={{
+              borderRadius: '8px',
+              textTransform: 'none',
+              fontWeight: 500
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={() => handleStatusChange(-1)}
+            disabled={!rejectionFeedback.trim()}
+            sx={{
+              borderRadius: '8px',
+              textTransform: 'none',
+              fontWeight: 500
+            }}
+          >
+            Submit Rejection
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Rejection Dialogs for Images */}
+      {docFields.map(({ label, key }) => (
+        <Dialog
+          key={key}
+          open={!!(imageRejection[key]?.dialogOpen)}
+          onClose={() => setImageRejection(prev => ({
+            ...prev,
+            [key]: { ...prev[key], dialogOpen: false }
+          }))}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle>Reject {label}</DialogTitle>
+          <DialogContent>
+            <Typography variant="body1" gutterBottom sx={{ mb: 2 }}>
+              Please specify why you're rejecting this document:
+            </Typography>
+            <TextField
+              autoFocus
+              fullWidth
+              multiline
+              rows={4}
+              variant="outlined"
+              value={imageRejection[key]?.reason || ''}
+              onChange={(e) => setImageRejection(prev => ({
+                ...prev,
+                [key]: { ...prev[key], reason: e.target.value }
+              }))}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button 
+              onClick={() => setImageRejection(prev => ({
+                ...prev,
+                [key]: { ...prev[key], dialogOpen: false }
+              }))}
+              sx={{
+                borderRadius: '8px',
+                textTransform: 'none',
+                fontWeight: 500
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              color="error"
+              variant="contained"
+              onClick={() => handleImageRejection(key)}
+              disabled={!imageRejection[key]?.reason}
+              sx={{
+                borderRadius: '8px',
+                textTransform: 'none',
+                fontWeight: 500
+              }}
+            >
+              Confirm Rejection
+            </Button>
+          </DialogActions>
+        </Dialog>
+      ))}
     </Box>
   );
 };

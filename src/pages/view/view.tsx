@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Card,
@@ -5,7 +6,6 @@ import {
   Typography,
   Grid,
   CircularProgress,
-  useTheme,
   Paper,
 } from '@mui/material';
 import {
@@ -17,75 +17,87 @@ import {
   ResponsiveContainer,
   CartesianGrid,
   Legend,
+  type TooltipProps,
 } from 'recharts';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import DriveEtaIcon from '@mui/icons-material/DriveEta';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import { useEffect, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase';
 
-const DashboardView = () => {
-  const [chartData, setChartData] = useState([]);
-  const [totals, setTotals] = useState({ drivers: 0, rescuers: 0, admins: 0 });
+interface ChartItem {
+  month: string;
+  drivers: number;
+  rescuers: number;
+  admins: number;
+}
+
+interface Totals {
+  drivers: number;
+  rescuers: number;
+  admins: number;
+}
+
+interface CustomTooltipProps extends TooltipProps<number, string> {
+  active?: boolean;
+  payload?: Array<{
+    name: string;
+    value: number;
+    color: string;
+  }>;
+  label?: string;
+}
+
+const DashboardView: React.FC = () => {
+  const [chartData, setChartData] = useState<ChartItem[]>([]);
+  const [totals, setTotals] = useState<Totals>({ drivers: 0, rescuers: 0, admins: 0 });
   const [loading, setLoading] = useState(true);
-  const theme = useTheme();
 
   useEffect(() => {
     const fetchCounts = async () => {
       try {
-        const [userSnap, adminSnap] = await Promise.all([
+        const [usersSnap, adminsSnap] = await Promise.all([
           getDocs(collection(db, 'users')),
-          getDocs(collection(db, 'admins')),
+          getDocs(collection(db, 'admins'))
         ]);
 
-        const counts = {
-          drivers: 0,
-          rescuers: 0,
-          admins: 0,
-        };
-
-        const monthly = Array.from({ length: 12 }, (_, i) => ({
+        const counts: Totals = { drivers: 0, rescuers: 0, admins: 0 };
+        const monthly: ChartItem[] = Array.from({ length: 12 }, (_, i) => ({
           month: new Date(0, i).toLocaleString('default', { month: 'short' }),
           drivers: 0,
           rescuers: 0,
-          admins: 0,
+          admins: 0
         }));
 
-        userSnap.forEach(doc => {
+        usersSnap.forEach(doc => {
           const user = doc.data();
-          const role = user.role;
-          const createdAt = user.createdAt?.toDate?.();
+          const role = (user.role || '').toLowerCase();
+          const createdAt = user.createdAt?.toDate?.() || new Date();
+          const monthIdx = createdAt.getMonth();
 
-          if (role === 'driver') counts.drivers++;
-          else if (role === 'rescuer') counts.rescuers++;
-
-          if (createdAt instanceof Date && !isNaN(createdAt)) {
-            const m = createdAt.getMonth();
-            if (role === 'driver') monthly[m].drivers++;
-            else if (role === 'rescuer') monthly[m].rescuers++;
+          if (role === 'driver') {
+            counts.drivers++;
+            monthly[monthIdx].drivers++;
+          } else if (role === 'rescuer') {
+            counts.rescuers++;
+            monthly[monthIdx].rescuers++;
           }
         });
 
-        adminSnap.forEach(doc => {
+        adminsSnap.forEach(doc => {
           const admin = doc.data();
+          const createdAt = admin.createdAt?.toDate?.() || new Date();
+          const monthIdx = createdAt.getMonth();
+
           counts.admins++;
-          const createdAt = admin.createdAt?.toDate?.();
-          if (createdAt instanceof Date && !isNaN(createdAt)) {
-            const m = createdAt.getMonth();
-            monthly[m].admins++;
-          }
+          monthly[monthIdx].admins++;
         });
 
         setTotals(counts);
         setChartData(monthly);
-        
-        // Debug: Log data to console
-        console.log('Chart Data:', monthly);
-        console.log('Totals:', counts);
-      } catch (err) {
-        console.error('Error fetching data:', err);
+      } catch (error) {
+        console.error('Error fetching data:', error);
       } finally {
         setLoading(false);
       }
@@ -94,7 +106,11 @@ const DashboardView = () => {
     fetchCounts();
   }, []);
 
-  const CustomTooltip = ({ active, payload, label }) => {
+  const CustomTooltip: React.FC<CustomTooltipProps> = ({ 
+    active, 
+    payload, 
+    label 
+  }) => {
     if (active && payload && payload.length) {
       return (
         <Paper
@@ -112,7 +128,7 @@ const DashboardView = () => {
             {label}
           </Typography>
           {payload.map((entry, index) => (
-            <Box key={index} display="flex" alignItems="center" gap={1}>
+            <Box key={`${entry.name}-${index}`} display="flex" alignItems="center" gap={1}>
               <Box
                 sx={{
                   width: 8,
@@ -179,7 +195,7 @@ const DashboardView = () => {
           variant="h3" 
           sx={{ 
             fontWeight: 700,
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -203,6 +219,7 @@ const DashboardView = () => {
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               color: 'white',
               transition: 'all 0.3s ease',
+              cursor: 'pointer',
               '&:hover': {
                 transform: 'translateY(-8px)',
                 boxShadow: '0 20px 40px rgba(102, 126, 234, 0.3)',
@@ -216,7 +233,7 @@ const DashboardView = () => {
                     Total Users
                   </Typography>
                   <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                    {totalUsers}
+                    {totalUsers.toLocaleString()}
                   </Typography>
                 </Box>
                 <TrendingUpIcon sx={{ fontSize: 40, opacity: 0.8 }} />
@@ -233,6 +250,7 @@ const DashboardView = () => {
               background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
               color: 'white',
               transition: 'all 0.3s ease',
+              cursor: 'pointer',
               '&:hover': {
                 transform: 'translateY(-8px)',
                 boxShadow: '0 20px 40px rgba(79, 172, 254, 0.3)',
@@ -246,7 +264,7 @@ const DashboardView = () => {
                     Drivers
                   </Typography>
                   <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                    {totals.drivers}
+                    {totals.drivers.toLocaleString()}
                   </Typography>
                 </Box>
                 <DriveEtaIcon sx={{ fontSize: 40, opacity: 0.8 }} />
@@ -263,6 +281,7 @@ const DashboardView = () => {
               background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
               color: 'white',
               transition: 'all 0.3s ease',
+              cursor: 'pointer',
               '&:hover': {
                 transform: 'translateY(-8px)',
                 boxShadow: '0 20px 40px rgba(67, 233, 123, 0.3)',
@@ -276,7 +295,7 @@ const DashboardView = () => {
                     Rescuers
                   </Typography>
                   <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                    {totals.rescuers}
+                    {totals.rescuers.toLocaleString()}
                   </Typography>
                 </Box>
                 <ReportProblemIcon sx={{ fontSize: 40, opacity: 0.8 }} />
@@ -293,6 +312,7 @@ const DashboardView = () => {
               background: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
               color: 'white',
               transition: 'all 0.3s ease',
+              cursor: 'pointer',
               '&:hover': {
                 transform: 'translateY(-8px)',
                 boxShadow: '0 20px 40px rgba(250, 112, 154, 0.3)',
@@ -306,7 +326,7 @@ const DashboardView = () => {
                     Admins
                   </Typography>
                   <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                    {totals.admins}
+                    {totals.admins.toLocaleString()}
                   </Typography>
                 </Box>
                 <AdminPanelSettingsIcon sx={{ fontSize: 40, opacity: 0.8 }} />
@@ -316,13 +336,14 @@ const DashboardView = () => {
         </Grid>
       </Grid>
 
-      {/* Chart */}
+      {/* User Registration Chart */}
       <Paper
         elevation={0}
         sx={{
           borderRadius: 6,
           p: 4,
-          background: 'rgba(255, 255, 255, 0.9)',
+          mb: 4,
+          background: 'rgba(255, 255, 255, 0.95)',
           backdropFilter: 'blur(20px)',
           border: '1px solid rgba(255, 255, 255, 0.2)',
           boxShadow: '0 25px 50px rgba(0, 0, 0, 0.1)',
@@ -337,12 +358,26 @@ const DashboardView = () => {
             color: '#1e293b'
           }}
         >
-          Monthly User Registration Trends
+          User Registration Trends ({new Date().getFullYear()})
         </Typography>
 
         <Box sx={{ height: 400 }}>
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+            <LineChart 
+              data={chartData} 
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <defs>
+                <linearGradient id="driversGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#4facfe" stopOpacity={0.6}/>
+                  <stop offset="100%" stopColor="#4facfe" stopOpacity={0.05}/>
+                </linearGradient>
+                <linearGradient id="rescuersGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#43e97b" stopOpacity={0.6}/>
+                  <stop offset="100%" stopColor="#43e97b" stopOpacity={0.05}/>
+                </linearGradient>
+              </defs>
+              
               <XAxis 
                 dataKey="month" 
                 axisLine={false}
@@ -353,11 +388,13 @@ const DashboardView = () => {
                 axisLine={false}
                 tickLine={false}
                 tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }}
+                domain={[0, 'dataMax + 3']}
               />
               <CartesianGrid 
                 strokeDasharray="3 3" 
                 stroke="#e2e8f0" 
                 vertical={false}
+                opacity={0.5}
               />
               <Tooltip content={<CustomTooltip />} />
               
@@ -366,27 +403,27 @@ const DashboardView = () => {
                 dataKey="drivers"
                 name="Drivers"
                 stroke="#4facfe"
-                strokeWidth={4}
-                dot={{ r: 5, fill: '#4facfe', strokeWidth: 2, stroke: '#fff' }}
-                activeDot={{ r: 7, fill: '#4facfe', strokeWidth: 3, stroke: '#fff' }}
+                strokeWidth={3}
+                dot={{ r: 4, fill: '#4facfe', strokeWidth: 2, stroke: '#fff' }}
+                activeDot={{ r: 6, fill: '#4facfe', strokeWidth: 3, stroke: '#fff' }}
               />
               <Line
                 type="monotone"
                 dataKey="rescuers"
                 name="Rescuers"
                 stroke="#43e97b"
-                strokeWidth={4}
-                dot={{ r: 5, fill: '#43e97b', strokeWidth: 2, stroke: '#fff' }}
-                activeDot={{ r: 7, fill: '#43e97b', strokeWidth: 3, stroke: '#fff' }}
+                strokeWidth={3}
+                dot={{ r: 4, fill: '#43e97b', strokeWidth: 2, stroke: '#fff' }}
+                activeDot={{ r: 6, fill: '#43e97b', strokeWidth: 3, stroke: '#fff' }}
               />
               <Line
                 type="monotone"
                 dataKey="admins"
                 name="Admins"
                 stroke="#fa709a"
-                strokeWidth={4}
-                dot={{ r: 5, fill: '#fa709a', strokeWidth: 2, stroke: '#fff' }}
-                activeDot={{ r: 7, fill: '#fa709a', strokeWidth: 3, stroke: '#fff' }}
+                strokeWidth={3}
+                dot={{ r: 4, fill: '#fa709a', strokeWidth: 2, stroke: '#fff' }}
+                activeDot={{ r: 6, fill: '#fa709a', strokeWidth: 3, stroke: '#fff' }}
               />
               
               <Legend 
