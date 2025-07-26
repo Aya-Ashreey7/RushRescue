@@ -73,6 +73,10 @@ export default function Rescures() {
     }
   };
 
+  const rescureDetialsNavigate = (id: string) => {
+    navigate(`/dashboard/rescuer/${id}`);
+  };
+
   useEffect(() => {
     fetchRescures();
   }, []);
@@ -209,7 +213,7 @@ export default function Rescures() {
               onClick={exportToExcel}
               variant="outlined"
               startIcon={<Download />}
-               sx={{
+              sx={{
                 ...(isDark && {
                   color: "#ffd700",
                   borderColor: "#ffd700",
@@ -263,7 +267,7 @@ export default function Rescures() {
                       <Stack direction="row" spacing={1}>
                         <IconButton
                           color="info"
-                          onClick={() => navigate(`/dashboard/rescure/${rescuer.id}`)}
+                          onClick={() => rescureDetialsNavigate(rescuer.id)}
                         >
                           <Visibility />
                         </IconButton>
