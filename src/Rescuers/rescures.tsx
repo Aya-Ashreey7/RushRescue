@@ -135,159 +135,172 @@ export default function Rescures() {
         pt: 4,
       }}
     >
-    
 
-        <Paper
-          sx={{
-            p: 4,
-            mb: 4,
-            bgcolor: isDark ? "#23243a" : "#fff",
-            boxShadow: isDark ? 3 : 1,
-            transition: "background 0.3s",
-          }}
-        >
-          {/* Filter + Export */}
-          <Stack direction="row" justifyContent="space-between" mb={3}>
-            <Typography
+
+      <Paper
+        sx={{
+          p: 4,
+          mb: 4,
+          bgcolor: isDark ? "#23243a" : "#fff",
+          boxShadow: isDark ? 3 : 1,
+          transition: "background 0.3s",
+        }}
+      >
+        {/* Filter + Export */}
+        <Stack direction="row" justifyContent="space-between" mb={3}>
+          <Typography
+            sx={{
+              backgroundColor: isDark ? "#e5e7eb" : "#0F3460",
+              color: isDark ? "#0F3460" : "#e5e7eb",
+              px: 2,
+              py: 1,
+              borderRadius: 1,
+            }}
+          >
+            All Rescues
+          </Typography>
+
+          <Stack direction="row" spacing={2}>
+            <FormControl
               sx={{
-                backgroundColor: isDark ? "#e5e7eb" : "#0F3460",
-                color: isDark ? "#0F3460" : "#e5e7eb",
-                px: 2,
-                py: 1,
-                borderRadius: 1,
+                minWidth: 160,
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: isDark ? "#444a5a" : "#0F3460",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: isDark ? "#5a6a8a" : "#0d2f50",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: isDark ? "#b0b8d1" : "#0F3460",
+                  },
+                  backgroundColor: isDark ? "#23243a" : "#fff",
+                  color: isDark ? "#fff" : "#222",
+                },
+                "& .MuiInputLabel-root": {
+                  color: isDark ? "#b0b8d1" : "#777",
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: isDark ? "#ffd700" : "#0F3460",
+                  fontWeight: 500,
+                },
+              }}
+              size="small"
+            >
+              <InputLabel id="create-date-label">Create Date</InputLabel>
+              <Select
+                labelId="create-date-label"
+                label="Create Date"
+                value={filterDate}
+                onChange={(e) => setFilterDate(e.target.value)}
+                sx={{
+                  color: isDark ? "#fff" : "#222",
+                  backgroundColor: isDark ? "#23243a" : "#fff",
+                }}
+              >
+                <MenuItem value="7">Last 7 days</MenuItem>
+                <MenuItem value="30">Last 30 days</MenuItem>
+                <MenuItem value="90">Last 90 days</MenuItem>
+              </Select>
+            </FormControl>
+
+
+            <Button
+              onClick={exportToExcel}
+              variant="outlined"
+              startIcon={<Download />}
+               sx={{
+                ...(isDark && {
+                  color: "#ffd700",
+                  borderColor: "#ffd700",
+                  "&:hover": {
+                    borderColor: "#ffdf00",
+                    backgroundColor: "rgba(255, 215, 0, 0.08)",
+                  },
+                  "& .MuiButton-startIcon": {
+                    color: "#ffd700",
+                  },
+                }),
               }}
             >
-              All Rescues Requests
-            </Typography>
-
-            <Stack direction="row" spacing={2}>
-              <FormControl
-                sx={{
-                  minWidth: 160,
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: isDark ? "#444a5a" : "#0F3460",
-                    },
-                    "&:hover fieldset": {
-                      borderColor: isDark ? "#5a6a8a" : "#0d2f50",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: isDark ? "#b0b8d1" : "#0F3460",
-                    },
-                    backgroundColor: isDark ? "#23243a" : "#fff",
-                    color: isDark ? "#fff" : "#222",
-                  },
-                  "& .MuiInputLabel-root": {
-                    color: isDark ? "#b0b8d1" : "#777",
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": {
-                    color: isDark ? "#ffd700" : "#0F3460",
-                    fontWeight: 500,
-                  },
-                }}
-                size="small"
-              >
-                <InputLabel id="create-date-label">Create Date</InputLabel>
-                <Select
-                  labelId="create-date-label"
-                  label="Create Date"
-                  value={filterDate}
-                  onChange={(e) => setFilterDate(e.target.value)}
-                  sx={{
-                    color: isDark ? "#fff" : "#222",
-                    backgroundColor: isDark ? "#23243a" : "#fff",
-                  }}
-                >
-                  <MenuItem value="7">Last 7 days</MenuItem>
-                  <MenuItem value="30">Last 30 days</MenuItem>
-                  <MenuItem value="90">Last 90 days</MenuItem>
-                </Select>
-              </FormControl>
-
-
-              <Button
-                onClick={exportToExcel}
-                variant="outlined"
-                startIcon={<Download />}
-              >
-                Export Rescues
-              </Button>
-            </Stack>
+              Export Rescues
+            </Button>
           </Stack>
+        </Stack>
 
-          {/* Table */}
-          <TableContainer component={Paper} variant="outlined">
-            <Table size="small">
-              <TableHead>
-                <TableRow sx={{ bgcolor: "#f2f6fc" }}>
-                  {["", "Name", "Email", "Phone", "Actions"].map((header) => (
-                    <TableCell
-                      key={header}
-                      sx={{ color: "#0F3460", fontWeight: "bold" }}
-                    >
-                      {header}
-                    </TableCell>
-                  ))}
+        {/* Table */}
+        <TableContainer component={Paper} variant="outlined">
+          <Table size="small">
+            <TableHead>
+              <TableRow sx={{ bgcolor: "#f2f6fc" }}>
+                {["", "Name", "Email", "Phone", "Actions"].map((header) => (
+                  <TableCell
+                    key={header}
+                    sx={{ color: "#0F3460", fontWeight: "bold" }}
+                  >
+                    {header}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={5} align="center">
+                    <Box sx={{ py: 2 }}>
+                      <BeatLoader size={10} color="#0F3460" />
+                    </Box>
+                  </TableCell>
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={5} align="center">
-                      <Box sx={{ py: 2 }}>
-                        <BeatLoader size={10} color="#0F3460" />
-                      </Box>
+              ) : (
+                paginatedRescures.map((rescuer, index) => (
+                  <TableRow key={rescuer.id} hover>
+                    <TableCell>{startIndex + index + 1}</TableCell>
+                    <TableCell>{rescuer.fName} {rescuer.lName}</TableCell>
+                    <TableCell>{rescuer.email}</TableCell>
+                    <TableCell>{rescuer.phone}</TableCell>
+                    <TableCell>
+                      <Stack direction="row" spacing={1}>
+                        <IconButton
+                          color="info"
+                          onClick={() => navigate(`/dashboard/rescure/${rescuer.id}`)}
+                        >
+                          <Visibility />
+                        </IconButton>
+                        <IconButton
+                          color="error"
+                          onClick={() => deleteRescuer(rescuer.id)}
+                        >
+                          <Delete />
+                        </IconButton>
+                      </Stack>
                     </TableCell>
                   </TableRow>
-                ) : (
-                  paginatedRescures.map((rescuer, index) => (
-                    <TableRow key={rescuer.id} hover>
-                      <TableCell>{startIndex + index + 1}</TableCell>
-                      <TableCell>{rescuer.fName} {rescuer.lName}</TableCell>
-                      <TableCell>{rescuer.email}</TableCell>
-                      <TableCell>{rescuer.phone}</TableCell>
-                      <TableCell>
-                        <Stack direction="row" spacing={1}>
-                          <IconButton
-                            color="info"
-                            onClick={() => navigate(`/dashboard/rescures/${rescuer.id}`)}
-                          >
-                            <Visibility />
-                          </IconButton>
-                          <IconButton
-                            color="error"
-                            onClick={() => deleteRescuer(rescuer.id)}
-                          >
-                            <Delete />
-                          </IconButton>
-                        </Stack>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
-          {/* Pagination */}
-          <Stack direction="row" justifyContent="space-between" mt={3}>
-            <Typography variant="body2">
-              Showing {rescures.length === 0 ? 0 : startIndex + 1}–{Math.min(endIndex, rescures.length)} of {rescures.length}
-            </Typography>
-            <Pagination
-              page={page}
-              count={Math.ceil(rescures.length / rescuresPerPage)}
-              onChange={(_, val) => setPage(val)}
-              variant="outlined"
-              shape="rounded"
-              showFirstButton
-              showLastButton
-            />
-          </Stack>
-        </Paper>
+        {/* Pagination */}
+        <Stack direction="row" justifyContent="space-between" mt={3}>
+          <Typography variant="body2">
+            Showing {rescures.length === 0 ? 0 : startIndex + 1}–{Math.min(endIndex, rescures.length)} of {rescures.length}
+          </Typography>
+          <Pagination
+            page={page}
+            count={Math.ceil(rescures.length / rescuresPerPage)}
+            onChange={(_, val) => setPage(val)}
+            variant="outlined"
+            shape="rounded"
+            showFirstButton
+            showLastButton
+          />
+        </Stack>
+      </Paper>
 
 
-    
+
     </Box>
   );
 }

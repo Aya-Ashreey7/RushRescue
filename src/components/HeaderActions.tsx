@@ -1,5 +1,5 @@
 // components/HeaderActions.tsx
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   Box, IconButton, TextField, Avatar, Badge,
 } from "@mui/material";
@@ -8,8 +8,8 @@ import {
 } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
-import { db } from "../firebase";
+// import { collection, onSnapshot, query, where } from "firebase/firestore";
+// import { db } from "../firebase";
 
 interface HeaderActionsProps {
   searchQuery: string;
@@ -17,6 +17,8 @@ interface HeaderActionsProps {
   toggleDarkMode: () => void;
   onSearch: (query: string) => void;
   onOpenDrawer: () => void;
+  driverPending: number;
+  rescuerPending: number;
 }
 
 const HeaderActions: React.FC<HeaderActionsProps> = ({
@@ -25,28 +27,30 @@ const HeaderActions: React.FC<HeaderActionsProps> = ({
   toggleDarkMode,
   onSearch,
   onOpenDrawer,
+  driverPending,
+  rescuerPending,
 }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
 
-  const [driverPending, setDriverPending] = useState(0);
-  const [rescuerPending, setRescuerPending] = useState(0);
+  // const [driverPending, setDriverPending] = useState(0);
+  // const [rescuerPending, setRescuerPending] = useState(0);
 
-  useEffect(() => {
-    const unsubDrivers = onSnapshot(
-      query(collection(db, "users"), where("role", "==", "driver"), where("status", "==", 0)),
-      (snap) => setDriverPending(snap.size)
-    );
-    const unsubRescuers = onSnapshot(
-      query(collection(db, "users"), where("role", "==", "rescuer"), where("status", "==", 0)),
-      (snap) => setRescuerPending(snap.size)
-    );
-    return () => {
-      unsubDrivers();
-      unsubRescuers();
-    };
-  }, []);
+  // useEffect(() => {
+  //   const unsubDrivers = onSnapshot(
+  //     query(collection(db, "users"), where("role", "==", "driver"), where("status", "==", 0)),
+  //     (snap) => setDriverPending(snap.size)
+  //   );
+  //   const unsubRescuers = onSnapshot(
+  //     query(collection(db, "users"), where("role", "==", "rescuer"), where("status", "==", 0)),
+  //     (snap) => setRescuerPending(snap.size)
+  //   );
+  //   return () => {
+  //     unsubDrivers();
+  //     unsubRescuers();
+  //   };
+  // }, []);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
