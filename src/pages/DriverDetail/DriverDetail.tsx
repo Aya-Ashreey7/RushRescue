@@ -6,9 +6,7 @@ import {
   Box,
   Typography,
   Card,
-  CardContent,
   CardMedia,
-  IconButton,
   Grid,
   Alert,
   Button,
@@ -23,10 +21,10 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  useMediaQuery
 } from '@mui/material';
 import {
-  Delete as DeleteIcon,
   Check as ApproveIcon,
   Close as RejectIcon,
   Warning as IncompleteIcon,
@@ -43,8 +41,14 @@ const DriverDetail = () => {
   const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null);
   const [rejectionDialogOpen, setRejectionDialogOpen] = useState(false);
   const [rejectionFeedback, setRejectionFeedback] = useState('');
+  const isDark = theme.palette.mode === "dark";
   const [imageRejection, setImageRejection] = useState<{ [key: string]: { reason: string; dialogOpen: boolean } }>({});
   const [approvedImages, setApprovedImages] = useState<Record<string, boolean>>({});
+  
+  // Responsive breakpoints
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
 
   useEffect(() => {
     const fetchDriver = async () => {
@@ -124,26 +128,13 @@ const DriverDetail = () => {
     { label: 'Vehicle Licence (Back)', url: driver.vehicleLicenceBackUrl, key: 'vehicleLicenceBackUrl' }
   ];
 
- function handleDelete(event: React.MouseEvent<HTMLButtonElement>, rescuerId: string): void {
-  event.stopPropagation(); 
-
-  const confirmDelete = window.confirm('Are you sure you want to delete this rescuer?');
-
-  if (!confirmDelete) return;
-
-  deleteDoc(doc(db, 'users', rescuerId))
-    .then(() => {
-      alert('Rescuer deleted successfully.');
-
-    })
-    .catch((error) => {
-      console.error('Error deleting rescuer:', error);
-      alert('Failed to delete rescuer.');
-    });
-}
-
   return (
-    <Box sx={{ p: 3, maxWidth: '1400px', mx: 'auto' }}>
+    <Box sx={{ 
+      p: isMobile ? 2 : 3, 
+      maxWidth: '1400px', 
+      mx: 'auto',
+      width: '100%'
+    }}>
       <Button
         startIcon={<BackIcon />}
         onClick={() => navigate(-1)}
@@ -152,7 +143,8 @@ const DriverDetail = () => {
           borderRadius: '12px',
           px: 3,
           textTransform: 'none',
-          fontWeight: 600
+          fontWeight: 600,
+          backgroundColor: isDark ? "#e5e7eb" : "#f3f4f6",
         }}
       >
         Back to Drivers
@@ -173,24 +165,25 @@ const DriverDetail = () => {
 
       {/* Driver Profile Section */}
       <Paper elevation={0} sx={{ 
-        p: 4, 
+        p: isMobile ? 2 : 4, 
         mb: 4, 
         borderRadius: '16px',
         background: theme.palette.background.paper,
         boxShadow: theme.shadows[2]
       }}>
-        <Box display="flex" alignItems="center" mb={4}>
+        <Box display="flex" alignItems="center" mb={4} flexDirection={isMobile ? 'column' : 'row'}>
           <Avatar sx={{ 
-            width: 80, 
-            height: 80, 
-            mr: 3,
-            fontSize: '2rem',
+            width: isMobile ? 60 : 80, 
+            height: isMobile ? 60 : 80, 
+            mr: isMobile ? 0 : 3,
+            mb: isMobile ? 2 : 0,
+            fontSize: isMobile ? '1.5rem' : '2rem',
             bgcolor: theme.palette.primary.main
           }}>
             {driver.fName?.charAt(0)}{driver.lName?.charAt(0)}
           </Avatar>
-          <Box>
-            <Typography variant="h4" component="h1" fontWeight="700">
+          <Box textAlign={isMobile ? 'center' : 'left'}>
+            <Typography variant={isMobile ? 'h5' : 'h4'} component="h1" fontWeight="700">
               {driver.fName} {driver.lName}
             </Typography>
             <Typography variant="subtitle1" color="text.secondary">
@@ -230,22 +223,29 @@ const DriverDetail = () => {
               <Typography variant="subtitle2" color="text.secondary" gutterBottom sx={{ fontWeight: 600 }}>
                 Application Status
               </Typography>
-              <Chip
-                label={driver.status === 1 ? 'Approved' : driver.status === -1 ? 'Rejected' : 'Pending'}
-                color={
-                  driver.status === 1 ? 'success' : 
-                  driver.status === -1 ? 'error' : 'warning'
-                }
-                sx={{ fontWeight: 600 }}
-              />
+              <Box display="flex" alignItems="center" justifyContent={isMobile ? 'center' : 'flex-start'}>
+                <Chip
+                  label={driver.status === 1 ? 'Approved' : driver.status === -1 ? 'Rejected' : 'Pending'}
+                  color={
+                    driver.status === 1 ? 'success' : 
+                    driver.status === -1 ? 'error' : 'warning'
+                  }
+                  sx={{ fontWeight: 600 }}
+                />
+              </Box>
             </Card>
           </Grid>
         </Grid>
 
         <Divider sx={{ my: 3, borderColor: alpha(theme.palette.divider, 0.1) }} />
 
-        {/* Action Buttons */}
-        <Stack direction="row" spacing={2} justifyContent="flex-end">
+        {/* Action Buttons - Responsive Stack */}
+        <Stack 
+          direction={isMobile ? 'column' : 'row'} 
+          spacing={2} 
+          justifyContent="flex-end"
+          alignItems={isMobile ? 'stretch' : 'center'}
+        >
           <Button
             variant="contained"
             color="success"
@@ -255,7 +255,8 @@ const DriverDetail = () => {
               borderRadius: '12px',
               px: 3,
               textTransform: 'none',
-              fontWeight: 600
+              fontWeight: 600,
+              width: isMobile ? '100%' : 'auto'
             }}
           >
             Approve 
@@ -269,10 +270,11 @@ const DriverDetail = () => {
               borderRadius: '12px',
               px: 3,
               textTransform: 'none',
-              fontWeight: 600
+              fontWeight: 600,
+              width: isMobile ? '100%' : 'auto'
             }}
           >
-          Incomplete
+            Incomplete
           </Button>
           <Button
             variant="contained"
@@ -283,19 +285,20 @@ const DriverDetail = () => {
               borderRadius: '12px',
               px: 3,
               textTransform: 'none',
-              fontWeight: 600
+              fontWeight: 600,
+              width: isMobile ? '100%' : 'auto'
             }}
           >
             Reject 
           </Button>
-      
         </Stack>
       </Paper>
 
       {/* Documents Section */}
       <Typography variant="h5" gutterBottom sx={{ 
         mb: 3,
-        fontWeight: 700
+        fontWeight: 700,
+        textAlign: isMobile ? 'center' : 'left'
       }}>
         Driver Documents
       </Typography>
@@ -340,7 +343,8 @@ const DriverDetail = () => {
                   align="center" 
                   sx={{ 
                     mb: 2,
-                    fontWeight: 600
+                    fontWeight: 600,
+                    fontSize: isMobile ? '0.9rem' : '1rem'
                   }}
                 >
                   {label}
@@ -349,7 +353,7 @@ const DriverDetail = () => {
                   <CardMedia
                     component="img"
                     sx={{ 
-                      height: 180,
+                      height: isMobile ? 150 : 180,
                       cursor: 'pointer',
                       borderRadius: '8px',
                       objectFit: 'cover',
@@ -364,7 +368,7 @@ const DriverDetail = () => {
                 ) : (
                   <Box
                     sx={{
-                      height: 180,
+                      height: isMobile ? 150 : 180,
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
@@ -374,8 +378,14 @@ const DriverDetail = () => {
                       border: `1px dashed ${theme.palette.divider}`
                     }}
                   >
-                    <ImageIcon sx={{ fontSize: 48, color: 'grey.400', mb: 1 }} />
-                    <Typography color="text.secondary">Image not available</Typography>
+                    <ImageIcon sx={{ 
+                      fontSize: isMobile ? 36 : 48, 
+                      color: 'grey.400', 
+                      mb: 1 
+                    }} />
+                    <Typography color="text.secondary" variant={isMobile ? 'caption' : 'body1'}>
+                      Image not available
+                    </Typography>
                   </Box>
                 )}
               </Box>
@@ -386,7 +396,11 @@ const DriverDetail = () => {
                   borderTop: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
                   bgcolor: alpha(theme.palette.background.default, 0.6)
                 }}>
-                  <Stack direction="row" spacing={1.5} justifyContent="space-between">
+                  <Stack 
+                    direction={isMobile ? 'column' : 'row'} 
+                    spacing={1.5} 
+                    justifyContent="space-between"
+                  >
                     <Button
                       size="small"
                       variant="contained"
@@ -397,7 +411,8 @@ const DriverDetail = () => {
                         borderRadius: '8px',
                         flex: 1,
                         textTransform: 'none',
-                        fontWeight: 500
+                        fontWeight: 500,
+                        mb: isMobile ? 1 : 0
                       }}
                     >
                       Approve

@@ -21,17 +21,18 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  useMediaQuery,
+  IconButton
 } from '@mui/material';
 import {
-  Delete as DeleteIcon,
   Check as ApproveIcon,
   Close as RejectIcon,
   Warning as IncompleteIcon,
   Image as ImageIcon,
   ArrowBack as BackIcon,
-  Expand as ExpandIcon,
-  CheckCircle as CheckCircleIcon
+  CheckCircle as CheckCircleIcon,
+  MoreVert as MoreIcon
 } from '@mui/icons-material';
 
 const RescuerDetail = () => {
@@ -42,11 +43,14 @@ const RescuerDetail = () => {
   const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null);
   const [rejectionDialogOpen, setRejectionDialogOpen] = useState(false);
   const [rejectionFeedback, setRejectionFeedback] = useState('');
-    const isDark = theme.palette.mode === "dark";
+  const isDark = theme.palette.mode === "dark";
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMediumScreen = useMediaQuery(theme.breakpoints.down('md'));
 
   const [imageRejection, setImageRejection] = useState<{ [key: string]: { reason: string; dialogOpen: boolean } }>({});
   const [expandedImage, setExpandedImage] = useState<{ url: string; label: string } | null>(null);
   const [approvedImages, setApprovedImages] = useState<Record<string, boolean>>({});
+  const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
 
   useEffect(() => {
     const fetchRescuer = async () => {
@@ -80,6 +84,7 @@ const RescuerDetail = () => {
       setMessage({ type: 'success', text: 'Status updated successfully.' });
       setRejectionDialogOpen(false);
       setRejectionFeedback('');
+      setMobileActionsOpen(false);
     } catch (error) {
       setMessage({ type: 'error', text: 'Failed to update status.' });
     }
@@ -126,26 +131,13 @@ const RescuerDetail = () => {
     { label: 'Vehicle Licence (Back)', url: rescuer.vehicleLicenceBackUrl, key: 'vehicleLicenceBackUrl' }
   ];
 
-function handleDelete(event: React.MouseEvent<HTMLButtonElement>, rescuerId: string): void {
-  event.stopPropagation(); // prevent propagation if used inside a card or list
-
-  const confirmDelete = window.confirm('Are you sure you want to delete this rescuer?');
-
-  if (!confirmDelete) return;
-
-  deleteDoc(doc(db, 'users', rescuerId))
-    .then(() => {
-      alert('Rescuer deleted successfully.');
-      // Optionally refresh or remove from UI here
-    })
-    .catch((error) => {
-      console.error('Error deleting rescuer:', error);
-      alert('Failed to delete rescuer.');
-    });
-}
-
   return (
-    <Box sx={{ p: 3, maxWidth: '1400px', mx: 'auto' }}>
+    <Box sx={{ 
+      p: isSmallScreen ? 2 : 3, 
+      maxWidth: '1400px', 
+      mx: 'auto',
+      pb: isSmallScreen ? 7 : 3
+    }}>
       <Button
         startIcon={<BackIcon />}
         onClick={() => navigate(-1)}
@@ -154,8 +146,8 @@ function handleDelete(event: React.MouseEvent<HTMLButtonElement>, rescuerId: str
           borderRadius: '12px',
           px: 3,
           textTransform: 'none',
-          fontWeight: 600 ,
-           backgroundColor: isDark ? "#e5e7eb" : "#f3f4f6",
+          fontWeight: 600,
+          backgroundColor: isDark ? "#e5e7eb" : "#f3f4f6",
         }}
       >
         Back to Rescuers
@@ -174,41 +166,39 @@ function handleDelete(event: React.MouseEvent<HTMLButtonElement>, rescuerId: str
         </Alert>
       )}
 
-    
-
       {/* Rescuer Profile Section */}
       <Paper elevation={0} sx={{ 
-        p: 4, 
+        p: isSmallScreen ? 2 : 4, 
         mb: 4, 
         borderRadius: '16px',
         background: theme.palette.background.paper,
         boxShadow: theme.shadows[2]
       }}>
-        <Box display="flex" alignItems="center" mb={4}>
+        <Box display="flex" alignItems="center" mb={4} flexDirection={isSmallScreen ? 'column' : 'row'} textAlign={isSmallScreen ? 'center' : 'left'}>
           <Avatar sx={{ 
-            width: 80, 
-            height: 80, 
-            mr: 3,
-            fontSize: '2rem',
+            width: isSmallScreen ? 64 : 80, 
+            height: isSmallScreen ? 64 : 80, 
+            mr: isSmallScreen ? 0 : 3,
+            mb: isSmallScreen ? 2 : 0,
+            fontSize: isSmallScreen ? '1.5rem' : '2rem',
             bgcolor: theme.palette.primary.main
           }}>
             {rescuer.fName?.charAt(0)}{rescuer.lName?.charAt(0)}
           </Avatar>
-             <Box>
-            <Typography variant="h4" component="h1" fontWeight="700">
+          <Box>
+            <Typography variant={isSmallScreen ? "h5" : "h4"} component="h1" fontWeight="700">
               {rescuer.fName} {rescuer.lName}
             </Typography>
             <Typography variant="subtitle1" color="text.secondary">
-             Rescuer Profile
+              Rescuer Profile
             </Typography>
           </Box>
-       
         </Box>
 
         <Grid container spacing={3} mb={3}>
           <Grid item xs={12} md={6}>
             <Card variant="outlined" sx={{ 
-              p: 3,
+              p: isSmallScreen ? 2 : 3,
               borderRadius: '12px',
               borderColor: alpha(theme.palette.divider, 0.2)
             }}>
@@ -229,7 +219,7 @@ function handleDelete(event: React.MouseEvent<HTMLButtonElement>, rescuerId: str
           </Grid>
           <Grid item xs={12} md={6}>
             <Card variant="outlined" sx={{ 
-              p: 3,
+              p: isSmallScreen ? 2 : 3,
               borderRadius: '12px',
               borderColor: alpha(theme.palette.divider, 0.2)
             }}>
@@ -250,63 +240,147 @@ function handleDelete(event: React.MouseEvent<HTMLButtonElement>, rescuerId: str
 
         <Divider sx={{ my: 3, borderColor: alpha(theme.palette.divider, 0.1) }} />
 
-        {/* Action Buttons */}
-        <Stack direction="row" spacing={2} justifyContent="flex-end">
-          <Button
-            variant="contained"
-            color="success"
-            startIcon={<ApproveIcon />}
-            onClick={() => handleStatusChange(1)}
-            sx={{
-              borderRadius: '12px',
-              px: 3,
-              textTransform: 'none',
-              fontWeight: 600
-            }}
-          >
-            Approve
-          </Button>
-          <Button
-            variant="contained"
-            color="warning"
-            startIcon={<IncompleteIcon />}
-            onClick={() => handleStatusChange(-2)}
-            sx={{
-              borderRadius: '12px',
-              px: 3,
-              textTransform: 'none',
-              fontWeight: 600
-            }}
-          >
-         Incomplete
-          </Button>
-          <Button
-            variant="contained"
-            color="error"
-            startIcon={<RejectIcon />}
-            onClick={() => setRejectionDialogOpen(true)}
-            sx={{
-              borderRadius: '12px',
-              px: 3,
-              textTransform: 'none',
-              fontWeight: 600
-            }}
-          >
-            Reject 
-          </Button>
-  
-        </Stack>
+        {/* Action Buttons - Desktop */}
+        {!isSmallScreen && (
+          <Stack direction="row" spacing={2} justifyContent="flex-end">
+            <Button
+              variant="contained"
+              color="success"
+              startIcon={<ApproveIcon />}
+              onClick={() => handleStatusChange(1)}
+              sx={{
+                borderRadius: '12px',
+                px: 3,
+                textTransform: 'none',
+                fontWeight: 600
+              }}
+            >
+              Approve
+            </Button>
+            <Button
+              variant="contained"
+              color="warning"
+              startIcon={<IncompleteIcon />}
+              onClick={() => handleStatusChange(-2)}
+              sx={{
+                borderRadius: '12px',
+                px: 3,
+                textTransform: 'none',
+                fontWeight: 600
+              }}
+            >
+              Incomplete
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              startIcon={<RejectIcon />}
+              onClick={() => setRejectionDialogOpen(true)}
+              sx={{
+                borderRadius: '12px',
+                px: 3,
+                textTransform: 'none',
+                fontWeight: 600
+              }}
+            >
+              Reject 
+            </Button>
+          </Stack>
+        )}
+
+        {/* Action Buttons - Mobile */}
+        {isSmallScreen && (
+          <Box sx={{ position: 'relative' }}>
+            <IconButton
+              sx={{
+                position: 'fixed',
+                bottom: 80,
+                right: 20,
+                zIndex: 1000,
+                bgcolor: theme.palette.primary.main,
+                color: theme.palette.primary.contrastText,
+                '&:hover': {
+                  bgcolor: theme.palette.primary.dark
+                }
+              }}
+              onClick={() => setMobileActionsOpen(!mobileActionsOpen)}
+            >
+              <MoreIcon />
+            </IconButton>
+
+            {mobileActionsOpen && (
+              <Paper
+                sx={{
+                  position: 'fixed',
+                  bottom: 130,
+                  right: 20,
+                  zIndex: 1000,
+                  p: 2,
+                  borderRadius: '12px',
+                  boxShadow: theme.shadows[6],
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 1,
+                  minWidth: 200
+                }}
+              >
+                <Button
+                  variant="contained"
+                  color="success"
+                  startIcon={<ApproveIcon />}
+                  onClick={() => handleStatusChange(1)}
+                  size="small"
+                  sx={{
+                    borderRadius: '8px',
+                    textTransform: 'none',
+                    fontWeight: 600
+                  }}
+                >
+                  Approve
+                </Button>
+                <Button
+                  variant="contained"
+                  color="warning"
+                  startIcon={<IncompleteIcon />}
+                  onClick={() => handleStatusChange(-2)}
+                  size="small"
+                  sx={{
+                    borderRadius: '8px',
+                    textTransform: 'none',
+                    fontWeight: 600
+                  }}
+                >
+                  Incomplete
+                </Button>
+                <Button
+                  variant="contained"
+                  color="error"
+                  startIcon={<RejectIcon />}
+                  onClick={() => setRejectionDialogOpen(true)}
+                  size="small"
+                  sx={{
+                    borderRadius: '8px',
+                    textTransform: 'none',
+                    fontWeight: 600
+                  }}
+                >
+                  Reject
+                </Button>
+              </Paper>
+            )}
+          </Box>
+        )}
       </Paper>
 
       {/* Documents Section */}
-      <Typography variant="h5" gutterBottom sx={{ 
+      <Typography variant={isSmallScreen ? "h6" : "h5"} gutterBottom sx={{ 
         mb: 3,
         fontWeight: 700
       }}>
         Vehicle Documents
       </Typography>
 
-      <Grid container spacing={3}>
+      <Grid container spacing={isSmallScreen ? 2 : 3}>
         {docFields.map(({ label, url, key }) => (
           <Grid item xs={12} sm={6} md={3} key={key}>
             <Card 
@@ -340,9 +414,9 @@ function handleDelete(event: React.MouseEvent<HTMLButtonElement>, rescuerId: str
                 </Box>
               )}
               
-              <Box sx={{ p: 2, flexGrow: 1 }}>
+              <Box sx={{ p: isSmallScreen ? 1 : 2, flexGrow: 1 }}>
                 <Typography 
-                  variant="subtitle1" 
+                  variant={isSmallScreen ? "body2" : "subtitle1"} 
                   align="center" 
                   sx={{ 
                     mb: 2,
@@ -355,7 +429,7 @@ function handleDelete(event: React.MouseEvent<HTMLButtonElement>, rescuerId: str
                   <CardMedia
                     component="img"
                     sx={{ 
-                      height: 180,
+                      height: isSmallScreen ? 120 : 180,
                       cursor: 'pointer',
                       borderRadius: '8px',
                       objectFit: 'cover',
@@ -371,7 +445,7 @@ function handleDelete(event: React.MouseEvent<HTMLButtonElement>, rescuerId: str
                 ) : (
                   <Box
                     sx={{
-                      height: 180,
+                      height: isSmallScreen ? 120 : 180,
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
@@ -381,39 +455,46 @@ function handleDelete(event: React.MouseEvent<HTMLButtonElement>, rescuerId: str
                       border: `1px dashed ${theme.palette.divider}`
                     }}
                   >
-                    <ImageIcon sx={{ fontSize: 48, color: 'grey.400', mb: 1 }} />
-                    <Typography color="text.secondary">Image not available</Typography>
+                    <ImageIcon sx={{ 
+                      fontSize: isSmallScreen ? 32 : 48, 
+                      color: 'grey.400', 
+                      mb: 1 
+                    }} />
+                    <Typography variant={isSmallScreen ? "caption" : "body2"} color="text.secondary">
+                      Image not available
+                    </Typography>
                   </Box>
                 )}
               </Box>
               
               {url && !approvedImages[key] && (
                 <Box sx={{ 
-                  p: 2, 
+                  p: isSmallScreen ? 1 : 2, 
                   borderTop: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
                   bgcolor: alpha(theme.palette.background.default, 0.6)
                 }}>
-                  <Stack direction="row" spacing={1.5} justifyContent="space-between">
+                  <Stack direction="row" spacing={1} justifyContent="space-between">
                     <Button
-                      size="small"
+                      size={isSmallScreen ? "small" : "medium"}
                       variant="contained"
                       color="success"
-                      startIcon={<ApproveIcon />}
+                      startIcon={!isSmallScreen && <ApproveIcon />}
                       onClick={() => handleImageApproval(key)}
                       sx={{
                         borderRadius: '8px',
                         flex: 1,
                         textTransform: 'none',
-                        fontWeight: 500
+                        fontWeight: 500,
+                        fontSize: isSmallScreen ? '0.75rem' : '0.875rem'
                       }}
                     >
-                      Approve
+                      {isSmallScreen ? <ApproveIcon fontSize="small" /> : 'Approve'}
                     </Button>
                     <Button
-                      size="small"
+                      size={isSmallScreen ? "small" : "medium"}
                       variant="outlined"
                       color="error"
-                      startIcon={<RejectIcon />}
+                      startIcon={!isSmallScreen && <RejectIcon />}
                       onClick={() => setImageRejection(prev => ({
                         ...prev,
                         [key]: { ...prev[key], dialogOpen: true }
@@ -422,10 +503,11 @@ function handleDelete(event: React.MouseEvent<HTMLButtonElement>, rescuerId: str
                         borderRadius: '8px',
                         flex: 1,
                         textTransform: 'none',
-                        fontWeight: 500
+                        fontWeight: 500,
+                        fontSize: isSmallScreen ? '0.75rem' : '0.875rem'
                       }}
                     >
-                      Reject
+                      {isSmallScreen ? <RejectIcon fontSize="small" /> : 'Reject'}
                     </Button>
                   </Stack>
                 </Box>
@@ -441,6 +523,7 @@ function handleDelete(event: React.MouseEvent<HTMLButtonElement>, rescuerId: str
         onClose={() => setRejectionDialogOpen(false)}
         maxWidth="sm"
         fullWidth
+        fullScreen={isSmallScreen}
       >
         <DialogTitle>Reject Application</DialogTitle>
         <DialogContent>
@@ -451,7 +534,7 @@ function handleDelete(event: React.MouseEvent<HTMLButtonElement>, rescuerId: str
             autoFocus
             fullWidth
             multiline
-            rows={4}
+            rows={isSmallScreen ? 3 : 4}
             variant="outlined"
             value={rejectionFeedback}
             onChange={(e) => setRejectionFeedback(e.target.value)}
@@ -495,6 +578,7 @@ function handleDelete(event: React.MouseEvent<HTMLButtonElement>, rescuerId: str
           }))}
           maxWidth="sm"
           fullWidth
+          fullScreen={isSmallScreen}
         >
           <DialogTitle>Reject {label}</DialogTitle>
           <DialogContent>
@@ -505,7 +589,7 @@ function handleDelete(event: React.MouseEvent<HTMLButtonElement>, rescuerId: str
               autoFocus
               fullWidth
               multiline
-              rows={4}
+              rows={isSmallScreen ? 3 : 4}
               variant="outlined"
               value={imageRejection[key]?.reason || ''}
               onChange={(e) => setImageRejection(prev => ({
