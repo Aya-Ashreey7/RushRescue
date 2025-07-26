@@ -1,4 +1,3 @@
-// layout/DashboardLayout.tsx
 import React, { useEffect, useState } from "react";
 import { Box } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
@@ -25,9 +24,21 @@ const DashboardLayout = () => {
     const breadcrumb = pathSegments.slice(1).map(
         (seg) => seg.charAt(0).toUpperCase() + seg.slice(1)
     ).join(" / ");
-    const title = pathSegments[pathSegments.length - 1]
-        ?.replace("-", " ")
-        ?.replace(/\b\w/g, (char) => char.toUpperCase()) || "Dashboard";
+    // const title = pathSegments[pathSegments.length - 1]
+    //     ?.replace("-", " ")
+    //     ?.replace(/\b\w/g, (char) => char.toUpperCase()) || "Dashboard";
+    let title = "Dashboard";
+
+    if (location.pathname.includes("driver/")) {
+        title = "Driver Details";
+    } else if (location.pathname.includes("rescuer/")) {
+        title = "Rescuer Details";
+    } else {
+        const lastSegment = pathSegments[pathSegments.length - 1];
+        title = lastSegment
+            ?.replace("-", " ")
+            ?.replace(/\b\w/g, (char) => char.toUpperCase()) || "Dashboard";
+    }
 
 
     useEffect(() => {
