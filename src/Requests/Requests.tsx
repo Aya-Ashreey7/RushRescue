@@ -263,7 +263,6 @@ const AllRequestsPage = () => {
                             </Typography>
                           </Box>
                           <Box display="flex" alignItems="center" gap={1}>
-                            <DollarSign size={16} />
                             <Typography>{offer.price} EGP</Typography>
                           </Box>
                         </Box>
