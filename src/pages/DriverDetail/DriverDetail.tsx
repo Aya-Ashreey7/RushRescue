@@ -30,7 +30,8 @@ import {
   Warning as IncompleteIcon,
   Image as ImageIcon,
   ArrowBack as BackIcon,
-  CheckCircle as CheckCircleIcon
+  CheckCircle as CheckCircleIcon,
+  Cancel as CancelIcon
 } from '@mui/icons-material';
 
 const DriverDetail = () => {
@@ -44,6 +45,7 @@ const DriverDetail = () => {
   const isDark = theme.palette.mode === "dark";
   const [imageRejection, setImageRejection] = useState<{ [key: string]: { reason: string; dialogOpen: boolean } }>({});
   const [approvedImages, setApprovedImages] = useState<Record<string, boolean>>({});
+  const [rejectedImages, setRejectedImages] = useState<Record<string, string>>({});
   
   // Responsive breakpoints
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -60,6 +62,7 @@ const DriverDetail = () => {
           const data = docSnap.data();
           setDriver(data);
           setApprovedImages(data.approvedImages || {});
+          setRejectedImages(data.rejectedImages || {});
         } else {
           setMessage({ type: 'error', text: 'Driver not found.' });
         }
@@ -91,9 +94,15 @@ const DriverDetail = () => {
     if (!id) return;
     try {
       await updateDoc(doc(db, 'users', id), {
-        [`approvedImages.${key}`]: true
+        [`approvedImages.${key}`]: true,
+        [`rejectedImages.${key}`]: null // Clear rejection if previously rejected
       });
       setApprovedImages(prev => ({ ...prev, [key]: true }));
+      setRejectedImages(prev => {
+        const updated = { ...prev };
+        delete updated[key];
+        return updated;
+      });
       setMessage({ type: 'success', text: `Approved ${key} image.` });
     } catch (error) {
       setMessage({ type: 'error', text: `Failed to approve image.` });
@@ -108,6 +117,7 @@ const DriverDetail = () => {
         [`approvedImages.${key}`]: false
       });
       setApprovedImages(prev => ({ ...prev, [key]: false }));
+      setRejectedImages(prev => ({ ...prev, [key]: imageRejection[key].reason }));
       setMessage({ type: 'success', text: `Rejected ${key} image.` });
       setImageRejection(prev => ({ ...prev, [key]: { ...prev[key], dialogOpen: false } }));
     } catch (error) {
@@ -127,6 +137,55 @@ const DriverDetail = () => {
     { label: 'Vehicle Licence (Front)', url: driver.vehicleLicenceFrontUrl, key: 'vehicleLicenceFrontUrl' },
     { label: 'Vehicle Licence (Back)', url: driver.vehicleLicenceBackUrl, key: 'vehicleLicenceBackUrl' }
   ];
+
+  const getCardBorderStyle = (key: string) => {
+    if (approvedImages[key]) {
+      return `2px solid ${theme.palette.success.main}`;
+    } else if (rejectedImages[key]) {
+      return `2px solid ${theme.palette.error.main}`;
+    } else {
+      return `1px solid ${alpha(theme.palette.divider, 0.2)}`;
+    }
+  };
+
+  const getStatusIcon = (key: string) => {
+    if (approvedImages[key]) {
+      return (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            zIndex: 1,
+            bgcolor: theme.palette.success.main,
+            color: theme.palette.success.contrastText,
+            borderRadius: '50%',
+            p: 0.5
+          }}
+        >
+          <CheckCircleIcon fontSize="small" />
+        </Box>
+      );
+    } else if (rejectedImages[key]) {
+      return (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            zIndex: 1,
+            bgcolor: theme.palette.error.main,
+            color: theme.palette.error.contrastText,
+            borderRadius: '50%',
+            p: 0.5
+          }}
+        >
+          <CancelIcon fontSize="small" />
+        </Box>
+      );
+    }
+    return null;
+  };
 
   return (
     <Box sx={{ 
@@ -225,11 +284,13 @@ const DriverDetail = () => {
               </Typography>
               <Box display="flex" alignItems="center" justifyContent={isMobile ? 'center' : 'flex-start'}>
                 <Chip
-                  label={driver.status === 1 ? 'Approved' : driver.status === -1 ? 'Rejected' : 'Pending'}
-                  color={
-                    driver.status === 1 ? 'success' : 
-                    driver.status === -1 ? 'error' : 'warning'
-                  }
+                  label={driver.status === 1 ? 'Approved' : driver.status === -1 ? 'Rejected' :driver.status === -2 ? 'Incomplete' : driver.status === 0 ? 'pending': 'default'}
+                color={
+                  driver.status === 1 ? 'success' : 
+                  driver.status === -1 ? 'error' :
+                  driver.status === -2 ? 'warning':
+                   driver.status === 0 ? 'info' : 'default'
+                }
                   sx={{ fontWeight: 600 }}
                 />
               </Box>
@@ -313,29 +374,12 @@ const DriverDetail = () => {
                 display: 'flex', 
                 flexDirection: 'column',
                 borderRadius: '16px',
-                border: approvedImages[key] 
-                  ? `2px solid ${theme.palette.success.main}`
-                  : `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+                border: getCardBorderStyle(key),
                 overflow: 'hidden',
                 position: 'relative'
               }}
             >
-              {approvedImages[key] && (
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    top: 8,
-                    right: 8,
-                    zIndex: 1,
-                    bgcolor: theme.palette.success.main,
-                    color: theme.palette.success.contrastText,
-                    borderRadius: '50%',
-                    p: 0.5
-                  }}
-                >
-                  <CheckCircleIcon fontSize="small" />
-                </Box>
-              )}
+              {getStatusIcon(key)}
               
               <Box sx={{ p: 2, flexGrow: 1 }}>
                 <Typography 
@@ -390,7 +434,23 @@ const DriverDetail = () => {
                 )}
               </Box>
               
-              {url && !approvedImages[key] && (
+              {/* Show rejection reason if image is rejected */}
+              {rejectedImages[key] && (
+                <Box sx={{ 
+                  p: 2,
+                  bgcolor: alpha(theme.palette.error.main, 0.1),
+                  borderTop: `1px solid ${alpha(theme.palette.error.main, 0.2)}`
+                }}>
+                  <Typography variant="caption" color="error" sx={{ fontWeight: 600 }}>
+                    Rejection Reason:
+                  </Typography>
+                  <Typography variant="body2" color="error" sx={{ mt: 0.5 }}>
+                    {rejectedImages[key]}
+                  </Typography>
+                </Box>
+              )}
+              
+              {url && !approvedImages[key] && !rejectedImages[key] && (
                 <Box sx={{ 
                   p: 2, 
                   borderTop: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
@@ -436,6 +496,31 @@ const DriverDetail = () => {
                       Reject
                     </Button>
                   </Stack>
+                </Box>
+              )}
+
+              {/* Show re-approve button for rejected images */}
+              {rejectedImages[key] && (
+                <Box sx={{ 
+                  p: 2, 
+                  borderTop: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                  bgcolor: alpha(theme.palette.background.default, 0.6)
+                }}>
+                  <Button
+                    size="small"
+                    variant="contained"
+                    color="success"
+                    startIcon={<ApproveIcon />}
+                    onClick={() => handleImageApproval(key)}
+                    fullWidth
+                    sx={{
+                      borderRadius: '8px',
+                      textTransform: 'none',
+                      fontWeight: 500
+                    }}
+                  >
+                    Re-approve
+                  </Button>
                 </Box>
               )}
             </Card>
