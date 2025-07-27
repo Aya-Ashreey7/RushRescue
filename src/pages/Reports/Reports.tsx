@@ -8,7 +8,8 @@ import {
 } from '@mui/material';
 import {
   Search, MoreVert, Visibility, CheckCircle, Cancel,
-  Pending, Block, FilterList, TrendingUp, Assessment, Warning
+  Pending, Block, FilterList, TrendingUp, Assessment, Warning,
+  KeyboardArrowDown
 } from '@mui/icons-material';
 import { collection, getDocs, doc, getDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../../firebase';
@@ -50,6 +51,10 @@ const Reports: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [usersLoading, setUsersLoading] = useState(true);
   const [users, setUsers] = useState<Record<string, User>>({});
+  
+  // New state for priority dropdown
+  const [priorityAnchorEl, setPriorityAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedPriorityReport, setSelectedPriorityReport] = useState<Report | null>(null);
 
   const fetchUserData = async (userId: string): Promise<User> => {
     if (!userId) return { id: userId, name: 'Unknown', email: '' };
@@ -157,6 +162,26 @@ const Reports: React.FC = () => {
     if (!selectedReport) return;
     setReports(prev => prev.map(r => r.id === selectedReport.id ? { ...r, status: newStatus } : r));
     handleMenuClose();
+  };
+
+  // Priority dropdown handlers
+  const handlePriorityClick = (e: React.MouseEvent<HTMLDivElement>, report: Report) => {
+    e.stopPropagation();
+    setPriorityAnchorEl(e.currentTarget);
+    setSelectedPriorityReport(report);
+  };
+
+  const handlePriorityClose = () => {
+    setPriorityAnchorEl(null);
+    setSelectedPriorityReport(null);
+  };
+
+  const handlePriorityUpdate = (newPriority: 'high' | 'medium' | 'low') => {
+    if (!selectedPriorityReport) return;
+    setReports(prev => prev.map(r => 
+      r.id === selectedPriorityReport.id ? { ...r, priority: newPriority } : r
+    ));
+    handlePriorityClose();
   };
 
   const filtered = reports.filter(r => {
@@ -669,33 +694,54 @@ const Reports: React.FC = () => {
                       </TableCell>
                       <TableCell align="center">
                         <Box display="flex" justifyContent="center">
-                          <Chip 
-                            label={r.priority?.toUpperCase()}
-                            color={getStatusColor(r.priority||'low')}
-                            size="small"
-                            sx={{ 
-                              fontWeight: 800,
-                              minWidth: 85,
-                              height: 28,
-                              textTransform: 'uppercase',
-                              fontSize: '0.75rem',
-                              borderRadius: '8px',
-                              background: (theme) => {
-                                const colors = {
-                                  high: isDark ? 'linear-gradient(135deg, #dc2626, #b91c1c)' : 'linear-gradient(135deg, #fca5a5, #f87171)',
-                                  medium: isDark ? 'linear-gradient(135deg, #d97706, #b45309)' : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                                  low: isDark ? 'linear-gradient(135deg, #059669, #047857)' : 'linear-gradient(135deg, #6ee7b7, #34d399)'
-                                };
-                                return colors[r.priority as keyof typeof colors] || colors.low;
-                              },
-                              boxShadow: isDark ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.1)',
-                              '& .MuiChip-label': {
-                                color: '#fff',
-                                fontWeight: 800,
-                                textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                          <Box
+                            onClick={(e) => handlePriorityClick(e, r)}
+                            sx={{
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 0.5,
+                              transition: 'all 0.2s ease',
+                              '&:hover': {
+                                transform: 'scale(1.05)'
                               }
                             }}
-                          />
+                          >
+                            <Chip 
+                              label={r.priority?.toUpperCase()}
+                              color={getStatusColor(r.priority||'low')}
+                              size="small"
+                              sx={{ 
+                                fontWeight: 800,
+                                minWidth: 85,
+                                height: 28,
+                                textTransform: 'uppercase',
+                                fontSize: '0.75rem',
+                                borderRadius: '8px',
+                                background: (theme) => {
+                                  const colors = {
+                                    high: isDark ? 'linear-gradient(135deg, #dc2626, #b91c1c)' : 'linear-gradient(135deg, #fca5a5, #f87171)',
+                                    medium: isDark ? 'linear-gradient(135deg, #d97706, #b45309)' : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                                    low: isDark ? 'linear-gradient(135deg, #059669, #047857)' : 'linear-gradient(135deg, #6ee7b7, #34d399)'
+                                  };
+                                  return colors[r.priority as keyof typeof colors] || colors.low;
+                                },
+                                boxShadow: isDark ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.1)',
+                                '& .MuiChip-label': {
+                                  color: '#fff',
+                                  fontWeight: 800,
+                                  textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                                }
+                              }}
+                            />
+                            <KeyboardArrowDown 
+                              sx={{ 
+                                fontSize: 16, 
+                                color: isDark ? '#94a3b8' : '#64748b',
+                                ml: 0.5
+                              }} 
+                            />
+                          </Box>
                         </Box>
                       </TableCell>
                       <TableCell align="center">
@@ -703,7 +749,7 @@ const Reports: React.FC = () => {
                           <Chip 
                             icon={getStatusIcon(r.status)}
                             label={r.status.toUpperCase()}
-                            color={getStatusColor(r.status)}
+                              color={getStatusColor(r.status)}
                             size="small"
                             sx={{ 
                               fontWeight: 800,
@@ -816,6 +862,129 @@ const Reports: React.FC = () => {
           </Card>
         </Fade>
       )}
+
+      {/* Priority Dropdown Menu */}
+      <Menu 
+        anchorEl={priorityAnchorEl} 
+        open={!!priorityAnchorEl} 
+        onClose={handlePriorityClose}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: isDark 
+              ? '0 10px 30px rgba(0,0,0,0.6)' 
+              : '0 10px 30px rgba(0,0,0,0.15)',
+            border: isDark 
+              ? '1px solid rgba(255,255,255,0.1)' 
+              : '1px solid #e5e7eb',
+            backgroundColor: isDark ? "#23243a" : "#fff",
+            minWidth: 160
+          }
+        }}
+      >
+        <MenuItem 
+          onClick={() => handlePriorityUpdate('high')} 
+          sx={{ 
+            gap: 1.5, 
+            py: 1.5,
+            px: 2,
+            color: isDark ? '#fff' : 'inherit',
+            '&:hover': {
+              backgroundColor: isDark ? '#1a1b2e' : 'rgba(220, 38, 38, 0.08)',
+              '& .MuiChip-root': {
+                transform: 'scale(1.05)'
+              }
+            },
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <Chip 
+            label="HIGH" 
+            color="error" 
+            size="small"
+            sx={{ 
+              fontWeight: 800,
+              fontSize: '0.7rem',
+              height: 24,
+              minWidth: 60,
+              '& .MuiChip-label': {
+                px: 1.5
+              }
+            }}
+          />
+          <Typography variant="body2" sx={{ color: isDark ? '#fff' : 'inherit' }}>
+            High Priority
+          </Typography>
+        </MenuItem>
+        <MenuItem 
+          onClick={() => handlePriorityUpdate('medium')} 
+          sx={{ 
+            gap: 1.5, 
+            py: 1.5,
+            px: 2,
+            color: isDark ? '#fff' : 'inherit',
+            '&:hover': {
+              backgroundColor: isDark ? '#1a1b2e' : 'rgba(245, 158, 11, 0.08)',
+              '& .MuiChip-root': {
+                transform: 'scale(1.05)'
+              }
+            },
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <Chip 
+            label="MEDIUM" 
+            color="warning" 
+            size="small"
+            sx={{ 
+              fontWeight: 800,
+              fontSize: '0.7rem',
+              height: 24,
+              minWidth: 60,
+              '& .MuiChip-label': {
+                px: 1.5
+              }
+            }}
+          />
+          <Typography variant="body2" sx={{ color: isDark ? '#fff' : 'inherit' }}>
+            Medium Priority
+          </Typography>
+        </MenuItem>
+        <MenuItem 
+          onClick={() => handlePriorityUpdate('low')} 
+          sx={{ 
+            gap: 1.5, 
+            py: 1.5,
+            px: 2,
+            color: isDark ? '#fff' : 'inherit',
+            '&:hover': {
+              backgroundColor: isDark ? '#1a1b2e' : 'rgba(16, 185, 129, 0.08)',
+              '& .MuiChip-root': {
+                transform: 'scale(1.05)'
+              }
+            },
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <Chip 
+            label="LOW" 
+            color="success" 
+            size="small"
+            sx={{ 
+              fontWeight: 800,
+              fontSize: '0.7rem',
+              height: 24,
+              minWidth: 60,
+              '& .MuiChip-label': {
+                px: 1.5
+              }
+            }}
+          />
+          <Typography variant="body2" sx={{ color: isDark ? '#fff' : 'inherit' }}>
+            Low Priority
+          </Typography>
+        </MenuItem>
+      </Menu>
 
       {/* Action Menu */}
       <Menu 

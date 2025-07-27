@@ -7,6 +7,7 @@ import {
   Grid,
   CircularProgress,
   Paper,
+  useTheme,
 } from '@mui/material';
 import {
   LineChart,
@@ -50,6 +51,8 @@ interface CustomTooltipProps extends TooltipProps<number, string> {
 }
 
 const DashboardView: React.FC = () => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
   const [chartData, setChartData] = useState<ChartItem[]>([]);
   const [totals, setTotals] = useState<Totals>({ drivers: 0, rescuers: 0, admins: 0 });
   const [loading, setLoading] = useState(true);
@@ -119,12 +122,18 @@ const DashboardView: React.FC = () => {
             p: 2,
             borderRadius: 3,
             border: 'none',
-            background: 'linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+            background: isDark 
+              ? 'linear-gradient(145deg, rgba(30,41,59,0.95) 0%, rgba(15,23,42,0.95) 100%)'
+              : 'linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
             backdropFilter: 'blur(10px)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+            boxShadow: isDark ? '0 8px 32px rgba(0,0,0,0.3)' : '0 8px 32px rgba(0,0,0,0.1)',
           }}
         >
-          <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: '#1e293b' }}>
+          <Typography variant="subtitle2" sx={{ 
+            fontWeight: 600, 
+            mb: 1, 
+            color: isDark ? '#e2e8f0' : '#1e293b' 
+          }}>
             {label}
           </Typography>
           {payload.map((entry, index) => (
@@ -137,8 +146,8 @@ const DashboardView: React.FC = () => {
                   backgroundColor: entry.color,
                 }}
               />
-              <Typography variant="body2" sx={{ color: '#475569' }}>
-                {entry.name}: <strong>{entry.value}</strong>
+              <Typography variant="body2" sx={{ color: isDark ? '#94a3b8' : '#475569' }}>
+                {entry.name}: <strong style={{ color: isDark ? '#f8fafc' : '#1e293b' }}>{entry.value}</strong>
               </Typography>
             </Box>
           ))}
@@ -156,7 +165,9 @@ const DashboardView: React.FC = () => {
         alignItems="center" 
         minHeight="70vh"
         sx={{
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: isDark 
+            ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
+            : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         }}
       >
         <Box textAlign="center">
@@ -164,14 +175,17 @@ const DashboardView: React.FC = () => {
             size={60} 
             thickness={4}
             sx={{ 
-              color: '#ffffff',
+              color: isDark ? '#38bdf8' : '#ffffff',
               mb: 2,
               '& .MuiCircularProgress-circle': {
                 strokeLinecap: 'round',
               }
             }} 
           />
-          <Typography variant="h6" sx={{ color: '#ffffff', fontWeight: 300 }}>
+          <Typography variant="h6" sx={{ 
+            color: isDark ? '#e2e8f0' : '#ffffff', 
+            fontWeight: 300 
+          }}>
             Loading Dashboard...
           </Typography>
         </Box>
@@ -185,7 +199,9 @@ const DashboardView: React.FC = () => {
     <Box 
       sx={{ 
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+        background: isDark
+          ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
+          : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
         p: 4,
       }}
     >
@@ -195,7 +211,9 @@ const DashboardView: React.FC = () => {
           variant="h3" 
           sx={{ 
             fontWeight: 700,
-            background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
+            background: isDark
+              ? 'linear-gradient(135deg, #e2e8f0 0%, #94a3b8 100%)'
+              : 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -204,7 +222,10 @@ const DashboardView: React.FC = () => {
         >
           Dashboard Analytics
         </Typography>
-        <Typography variant="h6" sx={{ color: '#64748b', fontWeight: 400 }}>
+        <Typography variant="h6" sx={{ 
+          color: isDark ? '#94a3b8' : '#64748b', 
+          fontWeight: 400 
+        }}>
           Real-time user insights and trends
         </Typography>
       </Box>
@@ -216,13 +237,17 @@ const DashboardView: React.FC = () => {
             elevation={0}
             sx={{ 
               borderRadius: 4,
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: isDark
+                ? 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)'
+                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               color: 'white',
               transition: 'all 0.3s ease',
               cursor: 'pointer',
               '&:hover': {
                 transform: 'translateY(-8px)',
-                boxShadow: '0 20px 40px rgba(102, 126, 234, 0.3)',
+                boxShadow: isDark
+                  ? '0 20px 40px rgba(124, 58, 237, 0.3)'
+                  : '0 20px 40px rgba(102, 126, 234, 0.3)',
               }
             }}
           >
@@ -247,13 +272,17 @@ const DashboardView: React.FC = () => {
             elevation={0}
             sx={{ 
               borderRadius: 4,
-              background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+              background: isDark
+                ? 'linear-gradient(135deg, #0891b2 0%, #06b6d4 100%)'
+                : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
               color: 'white',
               transition: 'all 0.3s ease',
               cursor: 'pointer',
               '&:hover': {
                 transform: 'translateY(-8px)',
-                boxShadow: '0 20px 40px rgba(79, 172, 254, 0.3)',
+                boxShadow: isDark
+                  ? '0 20px 40px rgba(8, 145, 178, 0.3)'
+                  : '0 20px 40px rgba(79, 172, 254, 0.3)',
               }
             }}
           >
@@ -278,13 +307,17 @@ const DashboardView: React.FC = () => {
             elevation={0}
             sx={{ 
               borderRadius: 4,
-              background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+              background: isDark
+                ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)'
+                : 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
               color: 'white',
               transition: 'all 0.3s ease',
               cursor: 'pointer',
               '&:hover': {
                 transform: 'translateY(-8px)',
-                boxShadow: '0 20px 40px rgba(67, 233, 123, 0.3)',
+                boxShadow: isDark
+                  ? '0 20px 40px rgba(5, 150, 105, 0.3)'
+                  : '0 20px 40px rgba(67, 233, 123, 0.3)',
               }
             }}
           >
@@ -309,13 +342,17 @@ const DashboardView: React.FC = () => {
             elevation={0}
             sx={{ 
               borderRadius: 4,
-              background: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+              background: isDark
+                ? 'linear-gradient(135deg, #c026d3 0%, #d946ef 100%)'
+                : 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
               color: 'white',
               transition: 'all 0.3s ease',
               cursor: 'pointer',
               '&:hover': {
                 transform: 'translateY(-8px)',
-                boxShadow: '0 20px 40px rgba(250, 112, 154, 0.3)',
+                boxShadow: isDark
+                  ? '0 20px 40px rgba(192, 38, 211, 0.3)'
+                  : '0 20px 40px rgba(250, 112, 154, 0.3)',
               }
             }}
           >
@@ -343,10 +380,16 @@ const DashboardView: React.FC = () => {
           borderRadius: 6,
           p: 4,
           mb: 4,
-          background: 'rgba(255, 255, 255, 0.95)',
+          background: isDark
+            ? 'rgba(15, 23, 42, 0.95)'
+            : 'rgba(255, 255, 255, 0.95)',
           backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
-          boxShadow: '0 25px 50px rgba(0, 0, 0, 0.1)',
+          border: isDark
+            ? '1px solid rgba(255, 255, 255, 0.1)'
+            : '1px solid rgba(255, 255, 255, 0.2)',
+          boxShadow: isDark
+            ? '0 25px 50px rgba(0, 0, 0, 0.3)'
+            : '0 25px 50px rgba(0, 0, 0, 0.1)',
         }}
       >
         <Typography 
@@ -355,7 +398,7 @@ const DashboardView: React.FC = () => {
             fontWeight: 600, 
             mb: 4, 
             textAlign: 'center',
-            color: '#1e293b'
+            color: isDark ? '#e2e8f0' : '#1e293b'
           }}
         >
           User Registration Trends ({new Date().getFullYear()})
@@ -369,12 +412,12 @@ const DashboardView: React.FC = () => {
             >
               <defs>
                 <linearGradient id="driversGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#4facfe" stopOpacity={0.6}/>
-                  <stop offset="100%" stopColor="#4facfe" stopOpacity={0.05}/>
+                  <stop offset="0%" stopColor={isDark ? '#0891b2' : '#4facfe'} stopOpacity={0.6}/>
+                  <stop offset="100%" stopColor={isDark ? '#0891b2' : '#4facfe'} stopOpacity={0.05}/>
                 </linearGradient>
                 <linearGradient id="rescuersGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#43e97b" stopOpacity={0.6}/>
-                  <stop offset="100%" stopColor="#43e97b" stopOpacity={0.05}/>
+                  <stop offset="0%" stopColor={isDark ? '#059669' : '#43e97b'} stopOpacity={0.6}/>
+                  <stop offset="100%" stopColor={isDark ? '#059669' : '#43e97b'} stopOpacity={0.05}/>
                 </linearGradient>
               </defs>
               
@@ -382,17 +425,25 @@ const DashboardView: React.FC = () => {
                 dataKey="month" 
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }}
+                tick={{ 
+                  fill: isDark ? '#94a3b8' : '#64748b', 
+                  fontSize: 12, 
+                  fontWeight: 500 
+                }}
               />
               <YAxis 
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }}
+                tick={{ 
+                  fill: isDark ? '#94a3b8' : '#64748b', 
+                  fontSize: 12, 
+                  fontWeight: 500 
+                }}
                 domain={[0, 'dataMax + 3']}
               />
               <CartesianGrid 
                 strokeDasharray="3 3" 
-                stroke="#e2e8f0" 
+                stroke={isDark ? '#1e293b' : '#e2e8f0'} 
                 vertical={false}
                 opacity={0.5}
               />
@@ -402,28 +453,58 @@ const DashboardView: React.FC = () => {
                 type="monotone"
                 dataKey="drivers"
                 name="Drivers"
-                stroke="#4facfe"
+                stroke={isDark ? '#06b6d4' : '#4facfe'}
                 strokeWidth={3}
-                dot={{ r: 4, fill: '#4facfe', strokeWidth: 2, stroke: '#fff' }}
-                activeDot={{ r: 6, fill: '#4facfe', strokeWidth: 3, stroke: '#fff' }}
+                dot={{ 
+                  r: 4, 
+                  fill: isDark ? '#06b6d4' : '#4facfe', 
+                  strokeWidth: 2, 
+                  stroke: isDark ? '#0f172a' : '#fff' 
+                }}
+                activeDot={{ 
+                  r: 6, 
+                  fill: isDark ? '#06b6d4' : '#4facfe', 
+                  strokeWidth: 3, 
+                  stroke: isDark ? '#0f172a' : '#fff' 
+                }}
               />
               <Line
                 type="monotone"
                 dataKey="rescuers"
                 name="Rescuers"
-                stroke="#43e97b"
+                stroke={isDark ? '#10b981' : '#43e97b'}
                 strokeWidth={3}
-                dot={{ r: 4, fill: '#43e97b', strokeWidth: 2, stroke: '#fff' }}
-                activeDot={{ r: 6, fill: '#43e97b', strokeWidth: 3, stroke: '#fff' }}
+                dot={{ 
+                  r: 4, 
+                  fill: isDark ? '#10b981' : '#43e97b', 
+                  strokeWidth: 2, 
+                  stroke: isDark ? '#0f172a' : '#fff' 
+                }}
+                activeDot={{ 
+                  r: 6, 
+                  fill: isDark ? '#10b981' : '#43e97b', 
+                  strokeWidth: 3, 
+                  stroke: isDark ? '#0f172a' : '#fff' 
+                }}
               />
               <Line
                 type="monotone"
                 dataKey="admins"
                 name="Admins"
-                stroke="#fa709a"
+                stroke={isDark ? '#d946ef' : '#fa709a'}
                 strokeWidth={3}
-                dot={{ r: 4, fill: '#fa709a', strokeWidth: 2, stroke: '#fff' }}
-                activeDot={{ r: 6, fill: '#fa709a', strokeWidth: 3, stroke: '#fff' }}
+                dot={{ 
+                  r: 4, 
+                  fill: isDark ? '#d946ef' : '#fa709a', 
+                  strokeWidth: 2, 
+                  stroke: isDark ? '#0f172a' : '#fff' 
+                }}
+                activeDot={{ 
+                  r: 6, 
+                  fill: isDark ? '#d946ef' : '#fa709a', 
+                  strokeWidth: 3, 
+                  stroke: isDark ? '#0f172a' : '#fff' 
+                }}
               />
               
               <Legend 
@@ -433,7 +514,7 @@ const DashboardView: React.FC = () => {
                 wrapperStyle={{
                   fontSize: '14px',
                   fontWeight: 500,
-                  color: '#475569'
+                  color: isDark ? '#94a3b8' : '#475569'
                 }}
               />
             </LineChart>

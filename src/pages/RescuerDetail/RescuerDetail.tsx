@@ -32,6 +32,7 @@ import {
   Image as ImageIcon,
   ArrowBack as BackIcon,
   CheckCircle as CheckCircleIcon,
+  Cancel as CancelIcon,
   MoreVert as MoreIcon
 } from '@mui/icons-material';
 
@@ -50,6 +51,7 @@ const RescuerDetail = () => {
   const [imageRejection, setImageRejection] = useState<{ [key: string]: { reason: string; dialogOpen: boolean } }>({});
   const [expandedImage, setExpandedImage] = useState<{ url: string; label: string } | null>(null);
   const [approvedImages, setApprovedImages] = useState<Record<string, boolean>>({});
+  const [rejectedImages, setRejectedImages] = useState<Record<string, string>>({});
   const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
 
   useEffect(() => {
@@ -62,6 +64,7 @@ const RescuerDetail = () => {
           const data = docSnap.data();
           setRescuer(data);
           setApprovedImages(data.approvedImages || {});
+          setRejectedImages(data.rejectedImages || {});
         } else {
           setMessage({ type: 'error', text: 'Rescuer not found.' });
         }
@@ -94,9 +97,15 @@ const RescuerDetail = () => {
     if (!id) return;
     try {
       await updateDoc(doc(db, 'users', id), {
-        [`approvedImages.${key}`]: true
+        [`approvedImages.${key}`]: true,
+        [`rejectedImages.${key}`]: null // Clear rejection if previously rejected
       });
       setApprovedImages(prev => ({ ...prev, [key]: true }));
+      setRejectedImages(prev => {
+        const updated = { ...prev };
+        delete updated[key];
+        return updated;
+      });
       setMessage({ type: 'success', text: `Approved ${key} image.` });
     } catch (error) {
       setMessage({ type: 'error', text: `Failed to approve image.` });
@@ -111,6 +120,7 @@ const RescuerDetail = () => {
         [`approvedImages.${key}`]: false
       });
       setApprovedImages(prev => ({ ...prev, [key]: false }));
+      setRejectedImages(prev => ({ ...prev, [key]: imageRejection[key].reason }));
       setMessage({ type: 'success', text: `Rejected ${key} image.` });
       setImageRejection(prev => ({ ...prev, [key]: { ...prev[key], dialogOpen: false } }));
     } catch (error) {
@@ -130,6 +140,55 @@ const RescuerDetail = () => {
     { label: 'Vehicle Licence (Front)', url: rescuer.vehicleLicenceFrontUrl, key: 'vehicleLicenceFrontUrl' },
     { label: 'Vehicle Licence (Back)', url: rescuer.vehicleLicenceBackUrl, key: 'vehicleLicenceBackUrl' }
   ];
+
+  const getCardBorderStyle = (key: string) => {
+    if (approvedImages[key]) {
+      return `2px solid ${theme.palette.success.main}`;
+    } else if (rejectedImages[key]) {
+      return `2px solid ${theme.palette.error.main}`;
+    } else {
+      return `1px solid ${alpha(theme.palette.divider, 0.2)}`;
+    }
+  };
+
+  const getStatusIcon = (key: string) => {
+    if (approvedImages[key]) {
+      return (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            zIndex: 1,
+            bgcolor: theme.palette.success.main,
+            color: theme.palette.success.contrastText,
+            borderRadius: '50%',
+            p: 0.5
+          }}
+        >
+          <CheckCircleIcon fontSize="small" />
+        </Box>
+      );
+    } else if (rejectedImages[key]) {
+      return (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            zIndex: 1,
+            bgcolor: theme.palette.error.main,
+            color: theme.palette.error.contrastText,
+            borderRadius: '50%',
+            p: 0.5
+          }}
+        >
+          <CancelIcon fontSize="small" />
+        </Box>
+      );
+    }
+    return null;
+  };
 
   return (
     <Box sx={{ 
@@ -227,10 +286,12 @@ const RescuerDetail = () => {
                 Application Status
               </Typography>
               <Chip
-                label={rescuer.status === 1 ? 'Approved' : rescuer.status === -1 ? 'Rejected' : 'Pending'}
+                label={rescuer.status === 1 ? 'Approved' : rescuer.status === -1 ? 'Rejected' :rescuer.status === -2 ? 'Incomplete' : rescuer.status === 0 ? 'pending': 'default'}
                 color={
                   rescuer.status === 1 ? 'success' : 
-                  rescuer.status === -1 ? 'error' : 'warning'
+                  rescuer.status === -1 ? 'error' :
+                  rescuer.status === -2 ? 'warning':
+                  rescuer.status === 0 ? 'info' : 'default'
                 }
                 sx={{ fontWeight: 600 }}
               />
@@ -390,29 +451,12 @@ const RescuerDetail = () => {
                 display: 'flex', 
                 flexDirection: 'column',
                 borderRadius: '16px',
-                border: approvedImages[key] 
-                  ? `2px solid ${theme.palette.success.main}`
-                  : `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+                border: getCardBorderStyle(key),
                 overflow: 'hidden',
                 position: 'relative'
               }}
             >
-              {approvedImages[key] && (
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    top: 8,
-                    right: 8,
-                    zIndex: 1,
-                    bgcolor: theme.palette.success.main,
-                    color: theme.palette.success.contrastText,
-                    borderRadius: '50%',
-                    p: 0.5
-                  }}
-                >
-                  <CheckCircleIcon fontSize="small" />
-                </Box>
-              )}
+              {getStatusIcon(key)}
               
               <Box sx={{ p: isSmallScreen ? 1 : 2, flexGrow: 1 }}>
                 <Typography 
@@ -467,7 +511,23 @@ const RescuerDetail = () => {
                 )}
               </Box>
               
-              {url && !approvedImages[key] && (
+              {/* Show rejection reason if image is rejected */}
+              {rejectedImages[key] && (
+                <Box sx={{ 
+                  p: isSmallScreen ? 1 : 2,
+                  bgcolor: alpha(theme.palette.error.main, 0.1),
+                  borderTop: `1px solid ${alpha(theme.palette.error.main, 0.2)}`
+                }}>
+                  <Typography variant="caption" color="error" sx={{ fontWeight: 600 }}>
+                    Rejection Reason:
+                  </Typography>
+                  <Typography variant="body2" color="error" sx={{ mt: 0.5 }}>
+                    {rejectedImages[key]}
+                  </Typography>
+                </Box>
+              )}
+              
+              {url && !approvedImages[key] && !rejectedImages[key] && (
                 <Box sx={{ 
                   p: isSmallScreen ? 1 : 2, 
                   borderTop: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
@@ -510,6 +570,32 @@ const RescuerDetail = () => {
                       {isSmallScreen ? <RejectIcon fontSize="small" /> : 'Reject'}
                     </Button>
                   </Stack>
+                </Box>
+              )}
+
+              {/* Show re-approve button for rejected images */}
+              {rejectedImages[key] && (
+                <Box sx={{ 
+                  p: isSmallScreen ? 1 : 2, 
+                  borderTop: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                  bgcolor: alpha(theme.palette.background.default, 0.6)
+                }}>
+                  <Button
+                    size={isSmallScreen ? "small" : "medium"}
+                    variant="contained"
+                    color="success"
+                    startIcon={<ApproveIcon />}
+                    onClick={() => handleImageApproval(key)}
+                    fullWidth
+                    sx={{
+                      borderRadius: '8px',
+                      textTransform: 'none',
+                      fontWeight: 500,
+                      fontSize: isSmallScreen ? '0.75rem' : '0.875rem'
+                    }}
+                  >
+                    Re-approve
+                  </Button>
                 </Box>
               )}
             </Card>
