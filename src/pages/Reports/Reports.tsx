@@ -502,7 +502,6 @@ const Reports: React.FC = () => {
                     <TableCell align="center">Reason</TableCell>
                     <TableCell align="center">Priority</TableCell>
                     <TableCell align="center">Status</TableCell>
-                    <TableCell align="center">Date</TableCell>
                     <TableCell align="center">Actions</TableCell>
                   </TableRow>
                 </TableHead>
@@ -771,32 +770,7 @@ const Reports: React.FC = () => {
                           />
                         </Box>
                       </TableCell>
-                      <TableCell align="center">
-                        <Box
-                          sx={{
-                            px: 2,
-                            py: 1,
-                            borderRadius: 2,
-                            background: isDark
-                              ? 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)'
-                              : 'linear-gradient(135deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.05) 100%)',
-                            border: isDark
-                              ? '1px solid rgba(255,255,255,0.08)'
-                              : '1px solid rgba(0,0,0,0.06)'
-                          }}
-                        >
-                          <Typography 
-                            variant="body2" 
-                            fontWeight="600"
-                            sx={{ 
-                              color: isDark ? '#94a3b8' : '#64748b',
-                              fontSize: '0.85rem'
-                            }}
-                          >
-                            {formatDate(r.reportDate)}
-                          </Typography>
-                        </Box>
-                      </TableCell>
+                     
                       <TableCell align="center">
                         <Tooltip title="More actions" arrow>
                           <IconButton 
@@ -1156,6 +1130,12 @@ const Reports: React.FC = () => {
                           size="small"
                           color={getStatusColor(users[selectedReport.reportedUserId]?.role || '')}
                         />
+                         <Typography 
+                          fontWeight="600"
+                          sx={{ color: isDark ? '#fff' : 'inherit' }}
+                        >
+                          {users[selectedReport.reportedUserId]?.phone}
+                        </Typography>
                       </Box>
                     </Box>
                   </Card>
@@ -1194,6 +1174,12 @@ const Reports: React.FC = () => {
                           size="small"
                           color={getStatusColor(users[selectedReport.reporterId]?.role || '')}
                         />
+                         <Typography 
+                          fontWeight="600"
+                          sx={{ color: isDark ? '#fff' : 'inherit' }}
+                        >
+                          {users[selectedReport.reporterId]?.phone}
+                        </Typography>
                       </Box>
                     </Box>
                   </Card>
@@ -1215,7 +1201,7 @@ const Reports: React.FC = () => {
                 >
                   Report Information
                 </Typography>
-                <Grid container spacing={2}>
+                <Grid container spacing={14}>
                   <Grid item xs={12} sm={6}>
                     <Typography 
                       color={isDark ? "rgba(255,255,255,0.7)" : "text.secondary"} 
@@ -1233,23 +1219,7 @@ const Reports: React.FC = () => {
                       {selectedReport.report || selectedReport.reason}
                     </Typography>
                   </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <Typography 
-                      color={isDark ? "rgba(255,255,255,0.7)" : "text.secondary"} 
-                      variant="body2" 
-                      textAlign="center"
-                    >
-                      Report Date
-                    </Typography>
-                    <Typography 
-                      fontWeight="600" 
-                      mb={2} 
-                      textAlign="center"
-                      sx={{ color: isDark ? '#fff' : 'inherit' }}
-                    >
-                      {formatDate(selectedReport.reportDate)}
-                    </Typography>
-                  </Grid>
+               
                   <Grid item xs={12} sm={6}>
                     <Typography 
                       color={isDark ? "rgba(255,255,255,0.7)" : "text.secondary"} 
