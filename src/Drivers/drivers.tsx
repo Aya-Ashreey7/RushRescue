@@ -5,10 +5,6 @@ import {
   Paper,
   Typography,
   IconButton,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
   Table,
   TableBody,
   TableCell,
@@ -50,7 +46,6 @@ interface User {
 }
 
 export default function Drivers() {
-  const [filterDate, setFilterDate] = useState("");
   const [page, setPage] = useState(1);
   const [drivers, setDrivers] = useState<User[]>([]);
   const [filteredDrivers, setFilteredDrivers] = useState<User[]>([]);
@@ -187,48 +182,7 @@ export default function Drivers() {
           </Typography>
 
           <Stack direction="row" spacing={2}>
-            <FormControl
-              sx={{
-                minWidth: 160,
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": {
-                    borderColor: isDark ? "#444a5a" : "#0F3460",
-                  },
-                  "&:hover fieldset": {
-                    borderColor: isDark ? "#5a6a8a" : "#0d2f50",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: isDark ? "#b0b8d1" : "#0F3460",
-                  },
-                  backgroundColor: isDark ? "#23243a" : "#fff",
-                  color: isDark ? "#fff" : "#222",
-                },
-                "& .MuiInputLabel-root": {
-                  color: isDark ? "#b0b8d1" : "#777",
-                },
-                "& .MuiInputLabel-root.Mui-focused": {
-                  color: isDark ? "#ffd700" : "#0F3460",
-                  fontWeight: 500,
-                },
-              }}
-              size="small"
-            >
-              <InputLabel id="create-date-label">Create Date</InputLabel>
-              <Select
-                labelId="create-date-label"
-                label="Create Date"
-                value={filterDate}
-                onChange={(e) => setFilterDate(e.target.value)}
-                sx={{
-                  color: isDark ? "#fff" : "#222",
-                  backgroundColor: isDark ? "#23243a" : "#fff",
-                }}
-              >
-                <MenuItem value="7">Last 7 days</MenuItem>
-                <MenuItem value="30">Last 30 days</MenuItem>
-                <MenuItem value="90">Last 90 days</MenuItem>
-              </Select>
-            </FormControl>
+
 
 
             <Button
@@ -253,69 +207,74 @@ export default function Drivers() {
             </Button>
           </Stack>
         </Stack>
+        <Box sx={{ overflowX: "auto" }}>
+          <TableContainer component={Paper} variant="outlined">
+            <Table size="small">
+              <TableHead>
+                <TableRow sx={{ bgcolor: "#f2f6fc" }}>
+                  {["", "Name", "Email", "Phone", "Actions"].map((header) => (
+                    <TableCell
+                      key={header}
+                      sx={{
+                        color: "#0F3460",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {header}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
 
-        <TableContainer component={Paper} variant="outlined">
-          <Table size="small">
-            <TableHead>
-              <TableRow sx={{ bgcolor: "#f2f6fc" }}>
-                {["", "Name", "Email", "Phone", "Actions"].map((header) => (
-                  <TableCell
-                    key={header}
-                    sx={{
-                      color: "#0F3460",
-                      fontWeight: "bold",
-                    }}
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={5} align="center" sx={{
+                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                    whiteSpace: "nowrap"
+                  }}
                   >
-                    {header}
+                    <Box sx={{ py: 2 }}>
+                      <BeatLoader
+                        color={isDark ? "#f2f6fc" : "#0F3460"}
+                        size={12}
+                      />
+                    </Box>
                   </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={5} align="center">
-                  <Box sx={{ py: 2 }}>
-                    <BeatLoader
-                      color={isDark ? "#f2f6fc" : "#0F3460"}
-                      size={12}
-                    />
-                  </Box>
-                </TableCell>
-              </TableRow>
-            ) : (
-              <TableBody>
-                {paginatedDrivers.map((driver, index) => (
-                  <TableRow key={driver.id} hover>
-                    <TableCell>{startIndex + index + 1}</TableCell>
-                    <TableCell>
-                      {driver.fName} {driver.lName}
-                    </TableCell>
-                    <TableCell>{driver.email}</TableCell>
-                    <TableCell>{driver.phone}</TableCell>
-                    <TableCell>
-                      <Stack direction="row" spacing={1}>
-                        <IconButton
-                          color="info"
-                          onClick={() => driverDetialsNavigate(driver.id)}
-                        >
-                          <Visibility />
-                        </IconButton>
-                        <IconButton
-                          onClick={() => deleteDriver(driver.id)}
-                          color="error"
-                        >
-                          <Delete />
-                        </IconButton>
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            )}
-          </Table>
-        </TableContainer>
-
+                </TableRow>
+              ) : (
+                <TableBody>
+                  {paginatedDrivers.map((driver, index) => (
+                    <TableRow key={driver.id} hover>
+                      <TableCell sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" }, whiteSpace: "nowrap" }}>
+                        {startIndex + index + 1}</TableCell>
+                      <TableCell sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" }, whiteSpace: "nowrap" }}>
+                        {driver.fName} {driver.lName}
+                      </TableCell>
+                      <TableCell sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" }, whiteSpace: "nowrap" }}>{driver.email}</TableCell>
+                      <TableCell sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" }, whiteSpace: "nowrap" }}>{driver.phone}</TableCell>
+                      <TableCell sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" }, whiteSpace: "nowrap" }}>
+                        <Stack direction="row" spacing={1}>
+                          <IconButton
+                            color="info"
+                            onClick={() => driverDetialsNavigate(driver.id)}
+                          >
+                            <Visibility />
+                          </IconButton>
+                          <IconButton
+                            onClick={() => deleteDriver(driver.id)}
+                            color="error"
+                          >
+                            <Delete />
+                          </IconButton>
+                        </Stack>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              )}
+            </Table>
+          </TableContainer>
+        </Box>
         <Stack
           direction="row"
           justifyContent="space-between"
