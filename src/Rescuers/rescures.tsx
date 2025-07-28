@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
-  Box, Button, Paper, Typography, IconButton, MenuItem, Select,
-  FormControl, InputLabel, Table, TableBody, TableCell, TableContainer,
+  Box, Button, Paper, Typography, IconButton, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Pagination, Stack,
 } from "@mui/material";
 import { Visibility, Delete, Download } from "@mui/icons-material";
@@ -31,7 +30,6 @@ interface User {
 
 export default function Rescures() {
   const [rescures, setRescures] = useState<User[]>([]);
-  const [filterDate, setFilterDate] = useState("");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const theme = useTheme();
@@ -165,7 +163,7 @@ export default function Rescures() {
           </Typography>
 
           <Stack direction="row" spacing={2}>
-            <FormControl
+            {/* <FormControl
               sx={{
                 minWidth: 160,
                 "& .MuiOutlinedInput-root": {
@@ -206,7 +204,7 @@ export default function Rescures() {
                 <MenuItem value="30">Last 30 days</MenuItem>
                 <MenuItem value="90">Last 90 days</MenuItem>
               </Select>
-            </FormControl>
+            </FormControl> */}
 
 
             <Button
