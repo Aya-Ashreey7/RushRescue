@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useEffect, useState } from 'react';
 import {
@@ -46,10 +46,9 @@ const RescuerDetail = () => {
   const [rejectionFeedback, setRejectionFeedback] = useState('');
   const isDark = theme.palette.mode === "dark";
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
-  const isMediumScreen = useMediaQuery(theme.breakpoints.down('md'));
 
   const [imageRejection, setImageRejection] = useState<{ [key: string]: { reason: string; dialogOpen: boolean } }>({});
-  const [expandedImage, setExpandedImage] = useState<{ url: string; label: string } | null>(null);
+  const [, setExpandedImage] = useState<{ url: string; label: string } | null>(null);
   const [approvedImages, setApprovedImages] = useState<Record<string, boolean>>({});
   const [rejectedImages, setRejectedImages] = useState<Record<string, string>>({});
   const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
@@ -160,13 +159,18 @@ const RescuerDetail = () => {
             top: 8,
             right: 8,
             zIndex: 1,
+            width: 28,
+            height: 28,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             bgcolor: theme.palette.success.main,
             color: theme.palette.success.contrastText,
             borderRadius: '50%',
-            p: 0.5
+            boxShadow: theme.shadows[2],
           }}
         >
-          <CheckCircleIcon fontSize="small" />
+          <CheckCircleIcon sx={{ fontSize: 18 }} />
         </Box>
       );
     } else if (rejectedImages[key]) {
@@ -177,13 +181,18 @@ const RescuerDetail = () => {
             top: 8,
             right: 8,
             zIndex: 1,
+            width: 28,
+            height: 28,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             bgcolor: theme.palette.error.main,
             color: theme.palette.error.contrastText,
             borderRadius: '50%',
-            p: 0.5
+            boxShadow: theme.shadows[2],
           }}
         >
-          <CancelIcon fontSize="small" />
+          <CancelIcon sx={{ fontSize: 18 }} />
         </Box>
       );
     }
@@ -226,12 +235,11 @@ const RescuerDetail = () => {
       )}
 
       {/* Rescuer Profile Section */}
-      <Paper elevation={0} sx={{ 
-        p: isSmallScreen ? 2 : 4, 
-        mb: 4, 
-        borderRadius: '16px',
-        background: theme.palette.background.paper,
-        boxShadow: theme.shadows[2]
+      <Paper sx={{ 
+        p: isSmallScreen ? 2 : 3.5, 
+        mb: 3.5, 
+        borderRadius: 3,
+        bgcolor: 'background.paper',
       }}>
         <Box display="flex" alignItems="center" mb={4} flexDirection={isSmallScreen ? 'column' : 'row'} textAlign={isSmallScreen ? 'center' : 'left'}>
           <Avatar sx={{ 
@@ -255,7 +263,7 @@ const RescuerDetail = () => {
         </Box>
 
         <Grid container spacing={3} mb={3}>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card variant="outlined" sx={{ 
               p: isSmallScreen ? 2 : 3,
               borderRadius: '12px',
@@ -276,7 +284,7 @@ const RescuerDetail = () => {
               </Stack>
             </Card>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card variant="outlined" sx={{ 
               p: isSmallScreen ? 2 : 3,
               borderRadius: '12px',
@@ -443,7 +451,7 @@ const RescuerDetail = () => {
 
       <Grid container spacing={isSmallScreen ? 2 : 3}>
         {docFields.map(({ label, url, key }) => (
-          <Grid item xs={12} sm={6} md={3} key={key}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }} key={key}>
             <Card 
               elevation={0}
               sx={{ 

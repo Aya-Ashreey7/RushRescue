@@ -26,6 +26,8 @@ import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase';
+import { alpha } from '@mui/material/styles';
+import type { SvgIconComponent } from '@mui/icons-material';
 
 interface ChartItem {
   month: string;
@@ -109,31 +111,27 @@ const DashboardView: React.FC = () => {
     fetchCounts();
   }, []);
 
-  const CustomTooltip: React.FC<CustomTooltipProps> = ({ 
-    active, 
-    payload, 
-    label 
+  const chartColors = {
+    drivers: theme.palette.primary.main,
+    rescuers: theme.palette.secondary.main,
+    admins: theme.palette.warning.main,
+  };
+
+  const CustomTooltip: React.FC<CustomTooltipProps> = ({
+    active,
+    payload,
+    label,
   }) => {
     if (active && payload && payload.length) {
       return (
         <Paper
-          elevation={8}
           sx={{
             p: 2,
-            borderRadius: 3,
-            border: 'none',
-            background: isDark 
-              ? 'linear-gradient(145deg, rgba(30,41,59,0.95) 0%, rgba(15,23,42,0.95) 100%)'
-              : 'linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
-            backdropFilter: 'blur(10px)',
-            boxShadow: isDark ? '0 8px 32px rgba(0,0,0,0.3)' : '0 8px 32px rgba(0,0,0,0.1)',
+            borderRadius: 2,
+            bgcolor: 'background.paper',
           }}
         >
-          <Typography variant="subtitle2" sx={{ 
-            fontWeight: 600, 
-            mb: 1, 
-            color: isDark ? '#e2e8f0' : '#1e293b' 
-          }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
             {label}
           </Typography>
           {payload.map((entry, index) => (
@@ -142,12 +140,15 @@ const DashboardView: React.FC = () => {
                 sx={{
                   width: 8,
                   height: 8,
-                  borderRadius: '50%',
+                  borderRadius: 0.5,
                   backgroundColor: entry.color,
                 }}
               />
-              <Typography variant="body2" sx={{ color: isDark ? '#94a3b8' : '#475569' }}>
-                {entry.name}: <strong style={{ color: isDark ? '#f8fafc' : '#1e293b' }}>{entry.value}</strong>
+              <Typography variant="body2" color="text.secondary">
+                {entry.name}:{' '}
+                <Box component="strong" sx={{ color: 'text.primary' }}>
+                  {entry.value}
+                </Box>
               </Typography>
             </Box>
           ))}
@@ -159,34 +160,20 @@ const DashboardView: React.FC = () => {
 
   if (loading) {
     return (
-      <Box 
-        display="flex" 
-        justifyContent="center" 
-        alignItems="center" 
-        minHeight="70vh"
-        sx={{
-          background: isDark 
-            ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
-            : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        }}
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="55vh"
       >
         <Box textAlign="center">
-          <CircularProgress 
-            size={60} 
+          <CircularProgress
+            size={48}
             thickness={4}
-            sx={{ 
-              color: isDark ? '#38bdf8' : '#ffffff',
-              mb: 2,
-              '& .MuiCircularProgress-circle': {
-                strokeLinecap: 'round',
-              }
-            }} 
+            sx={{ color: 'primary.main', mb: 2 }}
           />
-          <Typography variant="h6" sx={{ 
-            color: isDark ? '#e2e8f0' : '#ffffff', 
-            fontWeight: 300 
-          }}>
-            Loading Dashboard...
+          <Typography variant="body1" color="text.secondary" fontWeight={500}>
+            Loading dashboard…
           </Typography>
         </Box>
       </Box>
@@ -195,326 +182,171 @@ const DashboardView: React.FC = () => {
 
   const totalUsers = totals.drivers + totals.rescuers + totals.admins;
 
+  const statCards: Array<{
+    label: string;
+    value: number;
+    icon: SvgIconComponent;
+    color: string;
+  }> = [
+    { label: 'Total Users', value: totalUsers, icon: TrendingUpIcon, color: theme.palette.primary.main },
+    { label: 'Drivers', value: totals.drivers, icon: DriveEtaIcon, color: theme.palette.info.main },
+    { label: 'Rescuers', value: totals.rescuers, icon: ReportProblemIcon, color: theme.palette.secondary.main },
+    { label: 'Admins', value: totals.admins, icon: AdminPanelSettingsIcon, color: theme.palette.warning.main },
+  ];
+
   return (
-    <Box 
-      sx={{ 
-        minHeight: '100vh',
-        background: isDark
-          ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
-          : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-        p: 4,
-      }}
-    >
-      {/* Header */}
-      <Box textAlign="center" mb={6}>
-        <Typography 
-          variant="h3" 
-          sx={{ 
-            fontWeight: 700,
-            background: isDark
-              ? 'linear-gradient(135deg, #e2e8f0 0%, #94a3b8 100%)'
-              : 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            mb: 1,
-          }}
-        >
-          Dashboard Analytics
+    <Box sx={{ pb: 2 }}>
+      <Box mb={3.5}>
+        <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.02em', mb: 0.5 }}>
+          Operations overview
         </Typography>
-        <Typography variant="h6" sx={{ 
-          color: isDark ? '#94a3b8' : '#64748b', 
-          fontWeight: 400 
-        }}>
-          Real-time user insights and trends
+        <Typography variant="body1" color="text.secondary">
+          Live counts and registration trends across RushRescue
         </Typography>
       </Box>
 
-      {/* Stats Cards */}
-      <Grid container spacing={3} mb={6} justifyContent="center">
-        <Grid item xs={12} sm={6} md={3}>
-          <Card 
-            elevation={0}
-            sx={{ 
-              borderRadius: 4,
-              background: isDark
-                ? 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)'
-                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              color: 'white',
-              transition: 'all 0.3s ease',
-              cursor: 'pointer',
-              '&:hover': {
-                transform: 'translateY(-8px)',
-                boxShadow: isDark
-                  ? '0 20px 40px rgba(124, 58, 237, 0.3)'
-                  : '0 20px 40px rgba(102, 126, 234, 0.3)',
-              }
-            }}
-          >
-            <CardContent sx={{ p: 3 }}>
-              <Box display="flex" alignItems="center" justifyContent="space-between">
-                <Box>
-                  <Typography variant="body2" sx={{ opacity: 0.8, mb: 1 }}>
-                    Total Users
-                  </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                    {totalUsers.toLocaleString()}
-                  </Typography>
+      <Grid container spacing={2.5} mb={3.5}>
+        {statCards.map(({ label, value, icon: Icon, color }) => (
+          <Grid key={label} size={{ xs: 12, sm: 6, md: 3 }}>
+            <Card
+              sx={{
+                borderRadius: 3,
+                height: '100%',
+                transition: 'transform 0.25s ease, border-color 0.25s ease',
+                borderColor: alpha(color, isDark ? 0.35 : 0.2),
+                background: isDark
+                  ? `linear-gradient(160deg, ${alpha(color, 0.12)} 0%, ${alpha('#fff', 0.02)} 100%)`
+                  : `linear-gradient(160deg, ${alpha(color, 0.08)} 0%, #fff 70%)`,
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  borderColor: alpha(color, 0.45),
+                },
+              }}
+            >
+              <CardContent sx={{ p: 2.75, '&:last-child': { pb: 2.75 } }}>
+                <Box display="flex" alignItems="flex-start" justifyContent="space-between">
+                  <Box>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 0.75, fontWeight: 600 }}>
+                      {label}
+                    </Typography>
+                    <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.03em' }}>
+                      {value.toLocaleString()}
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 2,
+                      display: 'grid',
+                      placeItems: 'center',
+                      bgcolor: alpha(color, isDark ? 0.2 : 0.12),
+                      color,
+                    }}
+                  >
+                    <Icon sx={{ fontSize: 24 }} />
+                  </Box>
                 </Box>
-                <TrendingUpIcon sx={{ fontSize: 40, opacity: 0.8 }} />
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={3}>
-          <Card 
-            elevation={0}
-            sx={{ 
-              borderRadius: 4,
-              background: isDark
-                ? 'linear-gradient(135deg, #0891b2 0%, #06b6d4 100%)'
-                : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-              color: 'white',
-              transition: 'all 0.3s ease',
-              cursor: 'pointer',
-              '&:hover': {
-                transform: 'translateY(-8px)',
-                boxShadow: isDark
-                  ? '0 20px 40px rgba(8, 145, 178, 0.3)'
-                  : '0 20px 40px rgba(79, 172, 254, 0.3)',
-              }
-            }}
-          >
-            <CardContent sx={{ p: 3 }}>
-              <Box display="flex" alignItems="center" justifyContent="space-between">
-                <Box>
-                  <Typography variant="body2" sx={{ opacity: 0.8, mb: 1 }}>
-                    Drivers
-                  </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                    {totals.drivers.toLocaleString()}
-                  </Typography>
-                </Box>
-                <DriveEtaIcon sx={{ fontSize: 40, opacity: 0.8 }} />
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={3}>
-          <Card 
-            elevation={0}
-            sx={{ 
-              borderRadius: 4,
-              background: isDark
-                ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)'
-                : 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-              color: 'white',
-              transition: 'all 0.3s ease',
-              cursor: 'pointer',
-              '&:hover': {
-                transform: 'translateY(-8px)',
-                boxShadow: isDark
-                  ? '0 20px 40px rgba(5, 150, 105, 0.3)'
-                  : '0 20px 40px rgba(67, 233, 123, 0.3)',
-              }
-            }}
-          >
-            <CardContent sx={{ p: 3 }}>
-              <Box display="flex" alignItems="center" justifyContent="space-between">
-                <Box>
-                  <Typography variant="body2" sx={{ opacity: 0.8, mb: 1 }}>
-                    Rescuers
-                  </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                    {totals.rescuers.toLocaleString()}
-                  </Typography>
-                </Box>
-                <ReportProblemIcon sx={{ fontSize: 40, opacity: 0.8 }} />
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={3}>
-          <Card 
-            elevation={0}
-            sx={{ 
-              borderRadius: 4,
-              background: isDark
-                ? 'linear-gradient(135deg, #c026d3 0%, #d946ef 100%)'
-                : 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-              color: 'white',
-              transition: 'all 0.3s ease',
-              cursor: 'pointer',
-              '&:hover': {
-                transform: 'translateY(-8px)',
-                boxShadow: isDark
-                  ? '0 20px 40px rgba(192, 38, 211, 0.3)'
-                  : '0 20px 40px rgba(250, 112, 154, 0.3)',
-              }
-            }}
-          >
-            <CardContent sx={{ p: 3 }}>
-              <Box display="flex" alignItems="center" justifyContent="space-between">
-                <Box>
-                  <Typography variant="body2" sx={{ opacity: 0.8, mb: 1 }}>
-                    Admins
-                  </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                    {totals.admins.toLocaleString()}
-                  </Typography>
-                </Box>
-                <AdminPanelSettingsIcon sx={{ fontSize: 40, opacity: 0.8 }} />
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
       </Grid>
 
-      {/* User Registration Chart */}
       <Paper
-        elevation={0}
         sx={{
-          borderRadius: 6,
-          p: 4,
-          mb: 4,
-          background: isDark
-            ? 'rgba(15, 23, 42, 0.95)'
-            : 'rgba(255, 255, 255, 0.95)',
-          backdropFilter: 'blur(20px)',
-          border: isDark
-            ? '1px solid rgba(255, 255, 255, 0.1)'
-            : '1px solid rgba(255, 255, 255, 0.2)',
-          boxShadow: isDark
-            ? '0 25px 50px rgba(0, 0, 0, 0.3)'
-            : '0 25px 50px rgba(0, 0, 0, 0.1)',
+          borderRadius: 3,
+          p: { xs: 2.5, md: 3.5 },
+          bgcolor: 'background.paper',
         }}
       >
-        <Typography 
-          variant="h5" 
-          sx={{ 
-            fontWeight: 600, 
-            mb: 4, 
-            textAlign: 'center',
-            color: isDark ? '#e2e8f0' : '#1e293b'
-          }}
+        <Box
+          display="flex"
+          alignItems={{ xs: 'flex-start', sm: 'center' }}
+          justifyContent="space-between"
+          flexDirection={{ xs: 'column', sm: 'row' }}
+          gap={1}
+          mb={3}
         >
-          User Registration Trends ({new Date().getFullYear()})
-        </Typography>
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              Registration trends
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Monthly new users · {new Date().getFullYear()}
+            </Typography>
+          </Box>
+        </Box>
 
-        <Box sx={{ height: 400 }}>
+        <Box sx={{ height: 380 }}>
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart 
-              data={chartData} 
-              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            <LineChart
+              data={chartData}
+              margin={{ top: 12, right: 16, left: 0, bottom: 8 }}
             >
-              <defs>
-                <linearGradient id="driversGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={isDark ? '#0891b2' : '#4facfe'} stopOpacity={0.6}/>
-                  <stop offset="100%" stopColor={isDark ? '#0891b2' : '#4facfe'} stopOpacity={0.05}/>
-                </linearGradient>
-                <linearGradient id="rescuersGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={isDark ? '#059669' : '#43e97b'} stopOpacity={0.6}/>
-                  <stop offset="100%" stopColor={isDark ? '#059669' : '#43e97b'} stopOpacity={0.05}/>
-                </linearGradient>
-              </defs>
-              
-              <XAxis 
-                dataKey="month" 
+              <XAxis
+                dataKey="month"
                 axisLine={false}
                 tickLine={false}
-                tick={{ 
-                  fill: isDark ? '#94a3b8' : '#64748b', 
-                  fontSize: 12, 
-                  fontWeight: 500 
+                tick={{
+                  fill: theme.palette.text.secondary,
+                  fontSize: 12,
+                  fontWeight: 500,
                 }}
               />
-              <YAxis 
+              <YAxis
                 axisLine={false}
                 tickLine={false}
-                tick={{ 
-                  fill: isDark ? '#94a3b8' : '#64748b', 
-                  fontSize: 12, 
-                  fontWeight: 500 
+                tick={{
+                  fill: theme.palette.text.secondary,
+                  fontSize: 12,
+                  fontWeight: 500,
                 }}
                 domain={[0, 'dataMax + 3']}
               />
-              <CartesianGrid 
-                strokeDasharray="3 3" 
-                stroke={isDark ? '#1e293b' : '#e2e8f0'} 
+              <CartesianGrid
+                strokeDasharray="4 4"
+                stroke={theme.palette.divider}
                 vertical={false}
-                opacity={0.5}
               />
               <Tooltip content={<CustomTooltip />} />
-              
+
               <Line
                 type="monotone"
                 dataKey="drivers"
                 name="Drivers"
-                stroke={isDark ? '#06b6d4' : '#4facfe'}
-                strokeWidth={3}
-                dot={{ 
-                  r: 4, 
-                  fill: isDark ? '#06b6d4' : '#4facfe', 
-                  strokeWidth: 2, 
-                  stroke: isDark ? '#0f172a' : '#fff' 
-                }}
-                activeDot={{ 
-                  r: 6, 
-                  fill: isDark ? '#06b6d4' : '#4facfe', 
-                  strokeWidth: 3, 
-                  stroke: isDark ? '#0f172a' : '#fff' 
-                }}
+                stroke={chartColors.drivers}
+                strokeWidth={2.5}
+                dot={{ r: 3, fill: chartColors.drivers, strokeWidth: 0 }}
+                activeDot={{ r: 5, fill: chartColors.drivers, strokeWidth: 0 }}
               />
               <Line
                 type="monotone"
                 dataKey="rescuers"
                 name="Rescuers"
-                stroke={isDark ? '#10b981' : '#43e97b'}
-                strokeWidth={3}
-                dot={{ 
-                  r: 4, 
-                  fill: isDark ? '#10b981' : '#43e97b', 
-                  strokeWidth: 2, 
-                  stroke: isDark ? '#0f172a' : '#fff' 
-                }}
-                activeDot={{ 
-                  r: 6, 
-                  fill: isDark ? '#10b981' : '#43e97b', 
-                  strokeWidth: 3, 
-                  stroke: isDark ? '#0f172a' : '#fff' 
-                }}
+                stroke={chartColors.rescuers}
+                strokeWidth={2.5}
+                dot={{ r: 3, fill: chartColors.rescuers, strokeWidth: 0 }}
+                activeDot={{ r: 5, fill: chartColors.rescuers, strokeWidth: 0 }}
               />
               <Line
                 type="monotone"
                 dataKey="admins"
                 name="Admins"
-                stroke={isDark ? '#d946ef' : '#fa709a'}
-                strokeWidth={3}
-                dot={{ 
-                  r: 4, 
-                  fill: isDark ? '#d946ef' : '#fa709a', 
-                  strokeWidth: 2, 
-                  stroke: isDark ? '#0f172a' : '#fff' 
-                }}
-                activeDot={{ 
-                  r: 6, 
-                  fill: isDark ? '#d946ef' : '#fa709a', 
-                  strokeWidth: 3, 
-                  stroke: isDark ? '#0f172a' : '#fff' 
-                }}
+                stroke={chartColors.admins}
+                strokeWidth={2.5}
+                dot={{ r: 3, fill: chartColors.admins, strokeWidth: 0 }}
+                activeDot={{ r: 5, fill: chartColors.admins, strokeWidth: 0 }}
               />
-              
-              <Legend 
-                verticalAlign="top" 
+
+              <Legend
+                verticalAlign="top"
                 height={36}
                 iconType="circle"
                 wrapperStyle={{
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  color: isDark ? '#94a3b8' : '#475569'
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  color: theme.palette.text.secondary,
                 }}
               />
             </LineChart>

@@ -1,13 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Box, Typography, Paper, Divider, Avatar, TextField, Button, Alert, Stack } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
 import { onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
 import { auth } from "../firebase";
 
 const SettingsPage: React.FC = () => {
-  const theme = useTheme();
-  const isDark = theme.palette.mode === "dark";
-
   const [userEmail, setUserEmail] = useState("Loading...");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -80,50 +76,42 @@ const SettingsPage: React.FC = () => {
 
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        bgcolor: isDark ? "#181c2a" : "#f2f6fc",
-        pt: 6,
-        transition: "background 0.3s",
-      }}
-    >
-      <Box sx={{ maxWidth: 1300, mx: "auto", px: 3 }}>
+    <Box>
         <Paper
           sx={{
-            p: 4,
+            p: { xs: 2.5, md: 4 },
             borderRadius: 3,
-            boxShadow: 2,
-            bgcolor: isDark ? "#23243a" : "#fff",
-            transition: "background 0.3s",
+            bgcolor: "background.paper",
+            maxWidth: 640,
           }}
         >
           <Typography
-            variant="h4"
-            sx={{ mb: 2, color: isDark ? "#fff" : "#0F3460", fontWeight: 700 }}
+            variant="h5"
+            sx={{ mb: 1, fontWeight: 800, letterSpacing: "-0.02em" }}
           >
-            Settings
+            Account settings
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
+            Manage your admin profile and password
           </Typography>
           <Divider sx={{ mb: 3 }} />
 
           <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
             <Avatar
               sx={{
-                bgcolor: "#0F3460",
-                color: "white",
+                bgcolor: "primary.main",
+                color: "primary.contrastText",
                 mr: 2,
                 width: 56,
                 height: 56,
                 fontSize: 24,
+                fontWeight: 700,
               }}
             >
               {userEmail && userEmail[0] ? userEmail[0].toUpperCase() : "?"}
             </Avatar>
             <Box>
-              <Typography
-                variant="subtitle1"
-                sx={{ color: isDark ? "#fff" : "#222" }}
-              >
+              <Typography variant="subtitle1" fontWeight={600}>
                 {userEmail}
               </Typography>
               <Typography variant="body2" color="text.secondary">
@@ -137,11 +125,11 @@ const SettingsPage: React.FC = () => {
             variant="h6"
             sx={{
               mb: 2,
-              color: isDark ? "#b0b8d1" : "primary.main",
-              fontWeight: 600,
+              color: "text.primary",
+              fontWeight: 700,
             }}
           >
-            Change Password
+            Change password
           </Typography>
 
           <form onSubmit={handleChangePassword} autoComplete="off">
@@ -153,15 +141,6 @@ const SettingsPage: React.FC = () => {
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 fullWidth
                 required
-                InputLabelProps={{
-                  style: { color: isDark ? "#b0b8d1" : undefined },
-                }}
-                InputProps={{
-                  style: {
-                    color: isDark ? "#fff" : undefined,
-                    background: isDark ? "#181c2a" : undefined,
-                  },
-                }}
               />
               <TextField
                 label="New Password"
@@ -170,15 +149,6 @@ const SettingsPage: React.FC = () => {
                 onChange={(e) => setNewPassword(e.target.value)}
                 fullWidth
                 required
-                InputLabelProps={{
-                  style: { color: isDark ? "#b0b8d1" : undefined },
-                }}
-                InputProps={{
-                  style: {
-                    color: isDark ? "#fff" : undefined,
-                    background: isDark ? "#181c2a" : undefined,
-                  },
-                }}
               />
               <TextField
                 label="Confirm New Password"
@@ -187,15 +157,6 @@ const SettingsPage: React.FC = () => {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 fullWidth
                 required
-                InputLabelProps={{
-                  style: { color: isDark ? "#b0b8d1" : undefined },
-                }}
-                InputProps={{
-                  style: {
-                    color: isDark ? "#fff" : undefined,
-                    background: isDark ? "#181c2a" : undefined,
-                  },
-                }}
               />
               {error && <Alert severity="error">{error}</Alert>}
               {success && <Alert severity="success">{success}</Alert>}
@@ -208,7 +169,6 @@ const SettingsPage: React.FC = () => {
                   fontWeight: 600,
                   py: 1.2,
                   mt: 1,
-                  bgcolor: isDark ? "#0F3460" : undefined,
                 }}
               >
                 {loading ? "Saving..." : "Save Password"}
@@ -216,7 +176,6 @@ const SettingsPage: React.FC = () => {
             </Stack>
           </form>
         </Paper>
-      </Box>
     </Box>
   );
 };

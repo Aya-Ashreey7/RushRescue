@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -25,18 +25,15 @@ import {
   Delete as TrashIcon,
 } from "@mui/icons-material";
 
-import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
 import { db } from "../../firebase";
 
 export default function DriverRequests() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [page, setPage] = useState(1);
+  const [searchQuery] = useState("");
+  const [page] = useState(1);
   const [drivers, setDrivers] = useState<any[]>([]);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
-  const theme = useTheme();
-  const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
 
   const fetchDrivers = async () => {
@@ -97,29 +94,19 @@ const formatStatusLabel = (status: any) => {
   );
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        bgcolor: isDark ? "#181c2a" : "#f2f6fc",
-        pt: 6,
-        transition: "background 0.3s",
-      }}
-    >
-      <Box sx={{ maxWidth: 1300, mx: "auto" }}>
-        
-      
-        <Paper sx={{ p: 4, mb: 4, bgcolor: isDark ? "#23243a" : "#fff", boxShadow: isDark ? 3 : 1 }}>
+    <Box>
+        <Paper sx={{ p: { xs: 2.5, md: 3.5 }, mb: 3, borderRadius: 3, bgcolor: "background.paper" }}>
           {/* Filters */}
           <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>
             <Box sx={{ display: "flex", gap: 2 }}>
-              <Button variant="contained" sx={{ backgroundColor: "#0F3460" }}>
+              <Button variant="contained" color="primary">
                 All Driver Requests
               </Button>
             </Box>
           </Stack>
 
           {/* Table */}
-          <TableContainer component={Paper} variant="outlined">
+          <TableContainer sx={{ borderRadius: 2, border: 1, borderColor: "divider" }}>
             <Table size="small">
               <TableHead>
                 <TableRow>
@@ -127,7 +114,6 @@ const formatStatusLabel = (status: any) => {
                     <TableCell
                       key={head}
                       align="center"
-                      sx={{ fontWeight: "bold", textAlign: "center" }}
                     >
                       {head}
                     </TableCell>
@@ -183,7 +169,6 @@ const formatStatusLabel = (status: any) => {
             <Pagination page={page} count={1} variant="outlined" shape="rounded" />
           </Stack>
         </Paper>
-      </Box>
 
       {message && (
         <Snackbar open autoHideDuration={3000} onClose={() => setMessage(null)}>

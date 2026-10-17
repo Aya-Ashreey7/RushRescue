@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { DollarSign, MapPin, Phone, User as UserIcon } from "lucide-react";
+import { MapPin, Phone, User as UserIcon } from "lucide-react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import { db } from ".././firebase";
@@ -133,18 +133,29 @@ const AllRequestsPage = () => {
   };
 
   return (
-    <Box className="p-4">
-      <Typography variant="h4" gutterBottom>
-        All Requests
+    <Box>
+      <Typography variant="body1" color="text.secondary" sx={{ mb: 2.5 }}>
+        Track active rescue requests, drivers, and offers
       </Typography>
 
       {loading ? (
         <Loader />
       ) : (
         requests.map((request) => (
-          <Card key={request.id} className="mb-4">
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
+          <Card
+            key={request.id}
+            sx={{
+              mb: 2.5,
+              borderRadius: 3,
+              transition: "border-color 0.2s ease, transform 0.2s ease",
+              "&:hover": {
+                borderColor: "primary.main",
+                transform: "translateY(-2px)",
+              },
+            }}
+          >
+            <CardContent sx={{ p: { xs: 2.25, md: 3 } }}>
+              <Typography variant="h6" gutterBottom fontWeight={700}>
                 Request #{request.id}
               </Typography>
 
@@ -152,7 +163,7 @@ const AllRequestsPage = () => {
                 label={statusText[request.status] || "Unknown"}
                 color={statusColors[request.status] || "default"}
                 variant="outlined"
-                sx={{ mb: 1 }}
+                sx={{ mb: 1.5 }}
               />
 
               <Typography variant="body1" color="text.secondary">

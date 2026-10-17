@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useEffect, useState } from 'react';
 import {
@@ -49,8 +49,6 @@ const DriverDetail = () => {
   
   // Responsive breakpoints
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
-  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
 
   useEffect(() => {
     const fetchDriver = async () => {
@@ -157,13 +155,18 @@ const DriverDetail = () => {
             top: 8,
             right: 8,
             zIndex: 1,
+            width: 28,
+            height: 28,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             bgcolor: theme.palette.success.main,
             color: theme.palette.success.contrastText,
             borderRadius: '50%',
-            p: 0.5
+            boxShadow: theme.shadows[2],
           }}
         >
-          <CheckCircleIcon fontSize="small" />
+          <CheckCircleIcon sx={{ fontSize: 18 }} />
         </Box>
       );
     } else if (rejectedImages[key]) {
@@ -174,13 +177,18 @@ const DriverDetail = () => {
             top: 8,
             right: 8,
             zIndex: 1,
+            width: 28,
+            height: 28,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             bgcolor: theme.palette.error.main,
             color: theme.palette.error.contrastText,
             borderRadius: '50%',
-            p: 0.5
+            boxShadow: theme.shadows[2],
           }}
         >
-          <CancelIcon fontSize="small" />
+          <CancelIcon sx={{ fontSize: 18 }} />
         </Box>
       );
     }
@@ -223,12 +231,11 @@ const DriverDetail = () => {
       )}
 
       {/* Driver Profile Section */}
-      <Paper elevation={0} sx={{ 
-        p: isMobile ? 2 : 4, 
-        mb: 4, 
-        borderRadius: '16px',
-        background: theme.palette.background.paper,
-        boxShadow: theme.shadows[2]
+      <Paper sx={{ 
+        p: isMobile ? 2 : 3.5, 
+        mb: 3.5, 
+        borderRadius: 3,
+        bgcolor: 'background.paper',
       }}>
         <Box display="flex" alignItems="center" mb={4} flexDirection={isMobile ? 'column' : 'row'}>
           <Avatar sx={{ 
@@ -252,7 +259,7 @@ const DriverDetail = () => {
         </Box>
 
         <Grid container spacing={3} mb={3}>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card variant="outlined" sx={{ 
               p: 3,
               borderRadius: '12px',
@@ -273,7 +280,7 @@ const DriverDetail = () => {
               </Stack>
             </Card>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card variant="outlined" sx={{ 
               p: 3,
               borderRadius: '12px',
@@ -366,7 +373,7 @@ const DriverDetail = () => {
 
       <Grid container spacing={3}>
         {docFields.map(({ label, url, key }) => (
-          <Grid item xs={12} sm={6} md={3} key={key}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }} key={key}>
             <Card 
               elevation={0}
               sx={{ 

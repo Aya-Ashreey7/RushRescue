@@ -7,34 +7,20 @@ import {
   Typography,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import { useState, useEffect } from "react";
+import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
+import type { FC } from "react";
 import { auth } from "../firebase";
 import { Link, useNavigate } from "react-router-dom";
-import { onAuthStateChanged } from "firebase/auth";
-import { useTheme } from "@mui/material/styles";
+import { alpha, useTheme } from "@mui/material/styles";
 
 interface NavBarProps {
   onMenuToggle: () => void;
 }
 
-const NavBar: React.FC<NavBarProps> = ({ onMenuToggle }) => {
-  const [userEmail, setUserEmail] = useState<string>("Loading...");
+const NavBar: FC<NavBarProps> = ({ onMenuToggle }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
-
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserEmail(user.email || "No Email");
-      } else {
-        setUserEmail("Unknown");
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
 
   const handleLogout = async () => {
     await auth.signOut();
@@ -43,70 +29,101 @@ const NavBar: React.FC<NavBarProps> = ({ onMenuToggle }) => {
   };
 
   return (
-    <>
-      <AppBar
-        position="fixed"
-        elevation={isDark ? 4 : 1}
-        sx={{
-          zIndex: (theme) => theme.zIndex.drawer + 1,
-          bgcolor: isDark ? "#23243a" : "#0F3460",
-          color: isDark ? "#fff" : "#FFFFFF",
-          transition: "background 0.3s",
-        }}
-      >
-        <Toolbar sx={{ justifyContent: "space-between", minHeight: 64 }}>
-          <Box display="flex" alignItems="center">
-            <IconButton
-              color="inherit"
-              onClick={onMenuToggle}
-              sx={{ color: isDark ? "#ffd700" : "#fff" }}
-            >
-              <MenuIcon />
-            </IconButton>
-            {/* <Box
-                            component="img"
-                            src="./icon.png"
-                            alt="RushRescue"
-                            sx={{ height: 40, mr: 2 }}
-                        /> */}
-            <Typography
-              component={Link}
-              to="/dashboard"
-              variant="h6"
-              ml={1}
-              sx={{
-                color: isDark ? "#ffd700" : "#fff",
-                fontWeight: 700,
-                letterSpacing: 1,
-              }}
-            >
-              RushRescue
-            </Typography>
-          </Box>
-          <Box display="flex" alignItems="center" gap={2}>
-            <Button
-              variant="outlined"
-              sx={{
-                color: isDark ? "#ffd700" : "#fff",
-                borderColor: isDark ? "#ffd700" : "#fff",
-                fontWeight: 600,
-                transition: "all 0.3s",
-                "&:hover": {
-                  borderColor: isDark ? "#fff" : "#ffd700",
-                  color: isDark ? "#fff" : "#ffd700",
-                  background: isDark
-                    ? "rgba(255,255,255,0.04)"
-                    : "rgba(255,215,0,0.04)",
-                },
-              }}
-              onClick={handleLogout}
-            >
-              Logout
-            </Button>
-          </Box>
-        </Toolbar>
-      </AppBar>
-    </>
+    <AppBar
+      position="fixed"
+      elevation={0}
+      sx={{
+        zIndex: (t) => t.zIndex.drawer + 1,
+        bgcolor: isDark ? "background.paper" : "primary.main",
+        color: isDark ? "text.primary" : "primary.contrastText",
+        borderBottom: `1px solid ${
+          isDark ? alpha("#fff", 0.08) : alpha("#000", 0.08)
+        }`,
+        backdropFilter: "blur(10px)",
+      }}
+    >
+      <Toolbar sx={{ justifyContent: "space-between", minHeight: 64, px: { xs: 1.5, md: 2.5 } }}>
+        <Box display="flex" alignItems="center" gap={0.5}>
+          <IconButton
+            color="inherit"
+            onClick={onMenuToggle}
+            aria-label="Open navigation"
+            sx={{
+              mr: 0.5,
+              color: isDark ? "secondary.light" : "inherit",
+              "&:hover": {
+                bgcolor: isDark ? alpha("#fff", 0.06) : alpha("#fff", 0.12),
+              },
+            }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Box
+            sx={{
+              width: 8,
+              height: 8,
+              borderRadius: 1,
+              bgcolor: isDark ? "secondary.main" : alpha("#fff", 0.85),
+              mr: 1,
+            }}
+          />
+          <Typography
+            component={Link}
+            to="/dashboard"
+            variant="h6"
+            sx={{
+              color: "inherit",
+              fontWeight: 800,
+              letterSpacing: "-0.03em",
+              textDecoration: "none",
+              fontSize: { xs: "1.1rem", sm: "1.25rem" },
+            }}
+          >
+            RushRescue
+          </Typography>
+          <Typography
+            variant="caption"
+            sx={{
+              ml: 1.25,
+              display: { xs: "none", sm: "inline-flex" },
+              px: 1,
+              py: 0.25,
+              borderRadius: 1,
+              fontWeight: 600,
+              letterSpacing: "0.04em",
+              color: isDark ? "secondary.light" : alpha("#fff", 0.85),
+              border: `1px solid ${
+                isDark ? alpha(theme.palette.secondary.main, 0.4) : alpha("#fff", 0.25)
+              }`,
+            }}
+          >
+            ADMIN
+          </Typography>
+        </Box>
+
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<LogoutRoundedIcon />}
+          onClick={handleLogout}
+          sx={{
+            color: "inherit",
+            borderColor: isDark
+              ? alpha(theme.palette.secondary.main, 0.5)
+              : alpha("#fff", 0.45),
+            px: 1.75,
+            "&:hover": {
+              borderColor: isDark ? "secondary.light" : "#fff",
+              bgcolor: isDark
+                ? alpha(theme.palette.secondary.main, 0.1)
+                : alpha("#fff", 0.08),
+            },
+          }}
+        >
+          Logout
+        </Button>
+      </Toolbar>
+    </AppBar>
   );
 };
 

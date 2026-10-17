@@ -11,7 +11,6 @@ interface PageHeaderProps {
 
 const PageHeader: React.FC<PageHeaderProps> = ({ title, rightActions }) => {
   const theme = useTheme();
-  const isDark = theme.palette.mode === "dark";
   const location = useLocation();
 
   const pathSegments = location.pathname.split("/").filter(Boolean);
@@ -35,25 +34,42 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title, rightActions }) => {
     <Box
       sx={{
         display: "flex",
-        alignItems: "center",
+        alignItems: { xs: "stretch", md: "center" },
         justifyContent: "space-between",
-        mb: 4,
+        flexDirection: { xs: "column", md: "row" },
+        gap: 2,
+        mb: 3.5,
       }}
+      className="rr-page-enter"
     >
       <Box>
         <Typography
           variant="body2"
-          color={isDark ? "#b0b8d1" : "#888"}
-          sx={{ mb: 0.5 }}
+          color="text.secondary"
+          sx={{ mb: 0.5, fontWeight: 500, letterSpacing: "0.02em" }}
         >
           {breadcrumb}
         </Typography>
         <Typography
           variant="h4"
-          sx={{ fontWeight: 700, color: isDark ? "#fff" : "#1A1A2E" }}
+          sx={{
+            fontWeight: 800,
+            letterSpacing: "-0.03em",
+            color: "text.primary",
+            fontSize: { xs: "1.6rem", md: "2rem" },
+          }}
         >
           {displayTitle}
         </Typography>
+        <Box
+          sx={{
+            mt: 1.25,
+            width: 44,
+            height: 3,
+            borderRadius: 2,
+            background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+          }}
+        />
       </Box>
       {rightActions}
     </Box>
