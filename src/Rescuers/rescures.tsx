@@ -5,7 +5,6 @@ import {
 } from "@mui/material";
 import { Visibility, Delete, Download } from "@mui/icons-material";
 import { useNavigate, useOutletContext } from "react-router-dom";
-import { useTheme } from "@mui/material/styles";
 import { db } from "../firebase";
 import {
   collection, deleteDoc, doc, getDocs, query, where
@@ -32,8 +31,6 @@ export default function Rescures() {
   const [rescures, setRescures] = useState<User[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const theme = useTheme();
-  const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
 
   const { searchQuery } = useOutletContext<{ searchQuery: string }>();
@@ -127,114 +124,52 @@ export default function Rescures() {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        bgcolor: isDark ? "#181c2a" : "#f2f6fc",
-        transition: "background 0.3s",
-        maxWidth: 1300,
-        mx: "auto",
-        pt: 4,
-      }}
-    >
-
-
+    <Box>
       <Paper
         sx={{
-          p: 4,
-          mb: 4,
-          bgcolor: isDark ? "#23243a" : "#fff",
-          boxShadow: isDark ? 3 : 1,
-          transition: "background 0.3s",
+          p: { xs: 2.5, md: 3.5 },
+          mb: 3,
+          bgcolor: "background.paper",
+          borderRadius: 3,
         }}
       >
         {/* Filter + Export */}
-        <Stack direction="row" justifyContent="space-between" mb={3}>
+        <Stack direction="row" justifyContent="space-between" mb={3} flexWrap="wrap" gap={2}>
           <Typography
             sx={{
-              backgroundColor: isDark ? "#e5e7eb" : "#0F3460",
-              color: isDark ? "#0F3460" : "#e5e7eb",
+              backgroundColor: (t) =>
+                t.palette.mode === "dark"
+                  ? "rgba(13, 148, 136, 0.15)"
+                  : "rgba(15, 52, 96, 0.08)",
+              color: "primary.main",
               px: 2,
               py: 1,
-              borderRadius: 1,
+              borderRadius: 2,
+              fontWeight: 600,
+              border: 1,
+              borderColor: "divider",
             }}
           >
-            All Rescues
+            All Rescuers
           </Typography>
 
           <Stack direction="row" spacing={2}>
-            {/* <FormControl
-              sx={{
-                minWidth: 160,
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": {
-                    borderColor: isDark ? "#444a5a" : "#0F3460",
-                  },
-                  "&:hover fieldset": {
-                    borderColor: isDark ? "#5a6a8a" : "#0d2f50",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: isDark ? "#b0b8d1" : "#0F3460",
-                  },
-                  backgroundColor: isDark ? "#23243a" : "#fff",
-                  color: isDark ? "#fff" : "#222",
-                },
-                "& .MuiInputLabel-root": {
-                  color: isDark ? "#b0b8d1" : "#777",
-                },
-                "& .MuiInputLabel-root.Mui-focused": {
-                  color: isDark ? "#ffd700" : "#0F3460",
-                  fontWeight: 500,
-                },
-              }}
-              size="small"
-            >
-              <InputLabel id="create-date-label">Create Date</InputLabel>
-              <Select
-                labelId="create-date-label"
-                label="Create Date"
-                value={filterDate}
-                onChange={(e) => setFilterDate(e.target.value)}
-                sx={{
-                  color: isDark ? "#fff" : "#222",
-                  backgroundColor: isDark ? "#23243a" : "#fff",
-                }}
-              >
-                <MenuItem value="7">Last 7 days</MenuItem>
-                <MenuItem value="30">Last 30 days</MenuItem>
-                <MenuItem value="90">Last 90 days</MenuItem>
-              </Select>
-            </FormControl> */}
-
-
             <Button
               onClick={exportToExcel}
               variant="outlined"
+              color="primary"
               startIcon={<Download />}
-              sx={{
-                ...(isDark && {
-                  color: "#ffd700",
-                  borderColor: "#ffd700",
-                  "&:hover": {
-                    borderColor: "#ffdf00",
-                    backgroundColor: "rgba(255, 215, 0, 0.08)",
-                  },
-                  "& .MuiButton-startIcon": {
-                    color: "#ffd700",
-                  },
-                }),
-              }}
             >
-              Export Rescues
+              Export Rescuers
             </Button>
           </Stack>
         </Stack>
 
         {/* Table */}
-        <TableContainer component={Paper} variant="outlined">
-          <Table size="small">
+        <TableContainer sx={{ borderRadius: 2, border: 1, borderColor: "divider" }}>
+            <Table size="small">
             <TableHead>
-              <TableRow sx={{ bgcolor: "#f2f6fc" }}>
+              <TableRow>
                 {["", "Name", "Email", "Phone", "Actions"].map((header) => (
                   <TableCell
                     key={header}

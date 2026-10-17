@@ -1,15 +1,12 @@
-// components/HeaderActions.tsx
 import React from "react";
 import {
-  Box, IconButton, TextField, Avatar, Badge,
+  Box, IconButton, TextField, Avatar, Badge, Tooltip,
 } from "@mui/material";
 import {
-  Search, NotificationsNone, DarkModeOutlined, InfoOutlined,
+  Search, NotificationsNone, DarkModeOutlined, LightModeOutlined, SettingsOutlined,
 } from "@mui/icons-material";
-import { useTheme } from "@mui/material/styles";
+import { alpha, useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
-// import { collection, onSnapshot, query, where } from "firebase/firestore";
-// import { db } from "../firebase";
 
 interface HeaderActionsProps {
   searchQuery: string;
@@ -34,24 +31,6 @@ const HeaderActions: React.FC<HeaderActionsProps> = ({
   const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
 
-  // const [driverPending, setDriverPending] = useState(0);
-  // const [rescuerPending, setRescuerPending] = useState(0);
-
-  // useEffect(() => {
-  //   const unsubDrivers = onSnapshot(
-  //     query(collection(db, "users"), where("role", "==", "driver"), where("status", "==", 0)),
-  //     (snap) => setDriverPending(snap.size)
-  //   );
-  //   const unsubRescuers = onSnapshot(
-  //     query(collection(db, "users"), where("role", "==", "rescuer"), where("status", "==", 0)),
-  //     (snap) => setRescuerPending(snap.size)
-  //   );
-  //   return () => {
-  //     unsubDrivers();
-  //     unsubRescuers();
-  //   };
-  // }, []);
-
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
@@ -59,58 +38,97 @@ const HeaderActions: React.FC<HeaderActionsProps> = ({
   };
 
   const settingNavigate = () => navigate("/dashboard/settings");
+  const pendingTotal = driverPending + rescuerPending;
 
   return (
-    <Box sx={{
-      display: "flex", alignItems: "center", bgcolor: isDark ? "#23243a" : "#fff", borderRadius: 8,
-      boxShadow: isDark ? 3 : 1, pr: 2, gap: 1, transition: "background 0.3s",
-    }}>
-      <Box sx={{
-        display: "flex", alignItems: "center", bgcolor: isDark ? "#23243a" : "#f5f6fa",
-        borderRadius: 8, px: 2, py: 0.5, mr: 1, boxShadow: isDark ? 1 : 0,
-      }}>
-        <Search sx={{ color: isDark ? "#b0b8d1" : "#888", mr: 1 }} />
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        flexWrap: "wrap",
+        gap: 0.75,
+        bgcolor: "background.paper",
+        borderRadius: 3,
+        border: `1px solid ${theme.palette.divider}`,
+        px: 1.25,
+        py: 0.75,
+      }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          bgcolor: isDark ? alpha("#fff", 0.04) : alpha(theme.palette.primary.main, 0.04),
+          borderRadius: 2,
+          px: 1.5,
+          py: 0.35,
+          minWidth: { xs: 140, sm: 200 },
+          border: `1px solid ${theme.palette.divider}`,
+        }}
+      >
+        <Search sx={{ color: "text.secondary", mr: 1, fontSize: 20 }} />
         <TextField
           variant="standard"
-          placeholder="Search"
+          placeholder="Search…"
           value={searchQuery}
           onChange={handleSearchChange}
           InputProps={{
             disableUnderline: true,
-            style: { background: "transparent", color: isDark ? "#fff" : "#222" },
+            sx: {
+              fontSize: "0.9rem",
+              color: "text.primary",
+            },
           }}
-          sx={{ width: 120, bgcolor: "transparent" }}
+          sx={{ flex: 1, bgcolor: "transparent" }}
         />
       </Box>
 
-      <IconButton onClick={onOpenDrawer}>
-        <Badge
-          badgeContent={driverPending + rescuerPending}
-          color="error"
-          overlap="circular"
-          sx={{
-            "& .MuiBadge-badge": {
-              fontSize: "0.75rem",
-              fontWeight: "bold",
-              minWidth: 20,
-              height: 20,
-            },
-          }}
-        >
-          <NotificationsNone sx={{ color: isDark ? "#b0b8d1" : "#888" }} />
-        </Badge>
-      </IconButton>
+      <Tooltip title="Pending requests">
+        <IconButton onClick={onOpenDrawer} size="small">
+          <Badge
+            badgeContent={pendingTotal}
+            color="error"
+            overlap="circular"
+            sx={{
+              "& .MuiBadge-badge": {
+                fontSize: "0.7rem",
+                fontWeight: 700,
+                minWidth: 18,
+                height: 18,
+              },
+            }}
+          >
+            <NotificationsNone sx={{ color: "text.secondary" }} />
+          </Badge>
+        </IconButton>
+      </Tooltip>
 
-      <IconButton onClick={toggleDarkMode}>
-        <DarkModeOutlined sx={{ color: isDark ? "#ffd700" : "#888" }} />
-      </IconButton>
+      <Tooltip title={isDark ? "Light mode" : "Dark mode"}>
+        <IconButton onClick={toggleDarkMode} size="small">
+          {isDark ? (
+            <LightModeOutlined sx={{ color: "secondary.light" }} />
+          ) : (
+            <DarkModeOutlined sx={{ color: "text.secondary" }} />
+          )}
+        </IconButton>
+      </Tooltip>
 
-      <IconButton onClick={settingNavigate}>
-        <InfoOutlined sx={{ color: isDark ? "#b0b8d1" : "#888" }} />
-      </IconButton>
+      <Tooltip title="Settings">
+        <IconButton onClick={settingNavigate} size="small">
+          <SettingsOutlined sx={{ color: "text.secondary" }} />
+        </IconButton>
+      </Tooltip>
 
       <Avatar
-        sx={{ width: 30, height: 30, ml: 1, boxShadow: isDark ? 2 : 0 }}
+        sx={{
+          width: 34,
+          height: 34,
+          ml: 0.5,
+          border: `2px solid ${alpha(theme.palette.secondary.main, 0.45)}`,
+          fontSize: "0.85rem",
+          fontWeight: 700,
+          bgcolor: "primary.main",
+        }}
         src="/admin.webp"
       />
     </Box>

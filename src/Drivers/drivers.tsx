@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import { Visibility, Delete, Download } from "@mui/icons-material";
 import { useNavigate, useOutletContext } from "react-router-dom";
-import { useTheme } from "@mui/material/styles";
+import { alpha, useTheme } from "@mui/material/styles";
 import {
   collection,
   deleteDoc,
@@ -143,83 +143,53 @@ export default function Drivers() {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        bgcolor: isDark ? "#181c2a" : "#f2f6fc",
-        transition: "background 0.3s",
-        maxWidth: 1300,
-        mx: "auto",
-        pt: 4,
-      }}
-    >
-
+    <Box>
       <Paper
         sx={{
-          p: 4,
-          mb: 4,
-          bgcolor: isDark ? "#23243a" : "#fff",
-          boxShadow: isDark ? 3 : 1,
-          transition: "background 0.3s",
-          borderRadius: 2,
+          p: { xs: 2.5, md: 3.5 },
+          mb: 3,
+          bgcolor: "background.paper",
+          borderRadius: 3,
         }}
       >
-
-
-
         {/* Filter + Export */}
-        <Stack direction="row" justifyContent="space-between" mb={3}>
+        <Stack direction="row" justifyContent="space-between" mb={3} flexWrap="wrap" gap={2}>
           <Typography
             sx={{
-              backgroundColor: isDark ? "#e5e7eb" : "#0F3460",
-              color: isDark ? "#0F3460" : "#e5e7eb",
+              backgroundColor: (t) =>
+                t.palette.mode === "dark"
+                  ? alpha(t.palette.secondary.main, 0.15)
+                  : alpha(t.palette.primary.main, 0.08),
+              color: "primary.main",
               px: 2,
               py: 1,
-              borderRadius: 1,
+              borderRadius: 2,
+              fontWeight: 600,
+              border: 1,
+              borderColor: "divider",
             }}
           >
             All Drivers
           </Typography>
 
           <Stack direction="row" spacing={2}>
-
-
-
             <Button
               onClick={exportToExcel}
               variant="outlined"
+              color="primary"
               startIcon={<Download />}
-              sx={{
-                ...(isDark && {
-                  color: "#ffd700",
-                  borderColor: "#ffd700",
-                  "&:hover": {
-                    borderColor: "#ffdf00",
-                    backgroundColor: "rgba(255, 215, 0, 0.08)",
-                  },
-                  "& .MuiButton-startIcon": {
-                    color: "#ffd700",
-                  },
-                }),
-              }}
             >
-              Export Rescues
+              Export Drivers
             </Button>
           </Stack>
         </Stack>
         <Box sx={{ overflowX: "auto" }}>
-          <TableContainer component={Paper} variant="outlined">
+          <TableContainer sx={{ borderRadius: 2, border: 1, borderColor: "divider" }}>
             <Table size="small">
               <TableHead>
-                <TableRow sx={{ bgcolor: "#f2f6fc" }}>
+                <TableRow>
                   {["", "Name", "Email", "Phone", "Actions"].map((header) => (
-                    <TableCell
-                      key={header}
-                      sx={{
-                        color: "#0F3460",
-                        fontWeight: "bold",
-                      }}
-                    >
+                    <TableCell key={header}>
                       {header}
                     </TableCell>
                   ))}

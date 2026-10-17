@@ -198,39 +198,35 @@ const Reports: React.FC = () => {
   };
 
   const StatCard = ({ title, value, icon, color, trend }: any) => (
-    <Card 
-      sx={{ 
-        background: isDark 
-          ? `linear-gradient(135deg, ${color}25 0%, ${color}10 100%)`
-          : `linear-gradient(135deg, ${color}15 0%, ${color}05 100%)`,
-        border: isDark 
-          ? `1px solid ${color}40`
-          : `1px solid ${color}30`,
-        backgroundColor: isDark ? "#23243a" : "#fff",
-        transition: 'all 0.3s ease',
+    <Card
+      sx={{
+        height: '100%',
+        borderRadius: 3,
+        borderColor: `${color}40`,
+        background: isDark
+          ? `linear-gradient(160deg, ${color}22 0%, transparent 75%)`
+          : `linear-gradient(160deg, ${color}14 0%, #fff 70%)`,
+        transition: 'transform 0.25s ease, border-color 0.25s ease',
         '&:hover': {
-          transform: 'translateY(-2px)',
-          boxShadow: isDark 
-            ? `0 8px 25px ${color}30`
-            : `0 8px 25px ${color}20`
-        }
+          transform: 'translateY(-3px)',
+          borderColor: `${color}70`,
+        },
       }}
     >
-      <CardContent sx={{ p: 3 }}>
+      <CardContent sx={{ p: 2.75, '&:last-child': { pb: 2.75 } }}>
         <Box display="flex" alignItems="center" justifyContent="space-between">
           <Box>
-            <Typography 
-              variant="h4" 
-              fontWeight="700" 
-              color={color}
-              sx={{ color: isDark ? '#fff' : color }}
+            <Typography
+              variant="h4"
+              fontWeight={800}
+              sx={{ color: isDark ? 'text.primary' : color, letterSpacing: '-0.03em' }}
             >
               {value}
             </Typography>
-            <Typography 
-              variant="body2" 
-              color={isDark ? "rgba(255,255,255,0.7)" : "text.secondary"} 
-              fontWeight="500"
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              fontWeight={600}
             >
               {title}
             </Typography>
@@ -243,12 +239,12 @@ const Reports: React.FC = () => {
               </Box>
             )}
           </Box>
-          <Box 
-            sx={{ 
-              p: 2, 
-              borderRadius: '12px', 
-              backgroundColor: isDark ? `${color}30` : `${color}20`,
-              color: color
+          <Box
+            sx={{
+              p: 1.5,
+              borderRadius: 2,
+              backgroundColor: isDark ? `${color}30` : `${color}18`,
+              color: color,
             }}
           >
             {icon}
@@ -259,16 +255,7 @@ const Reports: React.FC = () => {
   );
 
   return (
-    <Box sx={{ 
-      maxWidth: 1300, 
-      mx: "auto",
-      backgroundColor: isDark ? "#1a1b2e" : '#f8fafc',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      p: 3,
-      minHeight: '100vh'
-    }}>
+    <Box sx={{ width: '100%' }}>
       {/* Statistics Cards */}
       <Grid container spacing={3} mb={4} width="100%">
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -508,8 +495,8 @@ const Reports: React.FC = () => {
                           : 'transparent',
                         '&:hover': { 
                           background: isDark 
-                            ? 'linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(168,85,247,0.1) 100%)'
-                            : 'linear-gradient(135deg, rgba(59,130,246,0.05) 0%, rgba(168,85,247,0.05) 100%)',
+                            ? 'linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(13,148,136,0.1) 100%)'
+                            : 'linear-gradient(135deg, rgba(59,130,246,0.05) 0%, rgba(13,148,136,0.05) 100%)',
                           transform: 'translateY(-1px)',
                           boxShadow: isDark 
                             ? '0 8px 25px rgba(0,0,0,0.3)'
@@ -541,8 +528,8 @@ const Reports: React.FC = () => {
                                     borderRadius: '50%',
                                     padding: 2,
                                     background: isDark
-                                      ? 'linear-gradient(135deg, rgba(59,130,246,0.3), rgba(168,85,247,0.3))'
-                                      : 'linear-gradient(135deg, rgba(59,130,246,0.1), rgba(168,85,247,0.1))',
+                                      ? 'linear-gradient(135deg, rgba(59,130,246,0.3), rgba(13,148,136,0.3))'
+                                      : 'linear-gradient(135deg, rgba(59,130,246,0.1), rgba(13,148,136,0.1))',
                                     WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
                                     WebkitMaskComposite: 'xor',
                                     maskComposite: 'exclude'
@@ -556,8 +543,8 @@ const Reports: React.FC = () => {
                                     width: 45, 
                                     height: 45,
                                     background: isDark
-                                      ? 'linear-gradient(135deg, #4c4c6d, #3e3e56)'
-                                      : 'linear-gradient(135deg, #667eea, #764ba2)',
+                                      ? 'linear-gradient(135deg, #1B2233, #0F3460)'
+                                      : 'linear-gradient(135deg, #0F3460, #0D9488)',
                                     boxShadow: isDark 
                                       ? '0 4px 15px rgba(0,0,0,0.4)' 
                                       : '0 4px 15px rgba(0,0,0,0.1)',
@@ -660,8 +647,8 @@ const Reports: React.FC = () => {
                               transition: 'all 0.2s ease',
                               '&:hover': {
                                 background: isDark
-                                  ? 'linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(168,85,247,0.1) 100%)'
-                                  : 'linear-gradient(135deg, rgba(59,130,246,0.05) 0%, rgba(168,85,247,0.05) 100%)',
+                                  ? 'linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(13,148,136,0.1) 100%)'
+                                  : 'linear-gradient(135deg, rgba(59,130,246,0.05) 0%, rgba(13,148,136,0.05) 100%)',
                                 transform: 'translateY(-1px)'
                               }
                             }}
@@ -771,8 +758,8 @@ const Reports: React.FC = () => {
                               width: 44,
                               height: 44,
                               background: isDark
-                                ? 'linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(168,85,247,0.15) 100%)'
-                                : 'linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(168,85,247,0.08) 100%)',
+                                ? 'linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(13,148,136,0.15) 100%)'
+                                : 'linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(13,148,136,0.08) 100%)',
                               color: isDark ? '#e2e8f0' : '#475569',
                               border: isDark
                                 ? '1px solid rgba(255,255,255,0.1)'
@@ -781,8 +768,8 @@ const Reports: React.FC = () => {
                               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                               '&:hover': { 
                                 background: isDark
-                                  ? 'linear-gradient(135deg, #3b82f6 0%, #a855f7 100%)'
-                                  : 'linear-gradient(135deg, #3b82f6 0%, #a855f7 100%)',
+                                  ? 'linear-gradient(135deg, #3b82f6 0%, #0d9488 100%)'
+                                  : 'linear-gradient(135deg, #3b82f6 0%, #0d9488 100%)',
                                 color: 'white',
                                 transform: 'translateY(-2px) scale(1.05)',
                                 boxShadow: isDark 

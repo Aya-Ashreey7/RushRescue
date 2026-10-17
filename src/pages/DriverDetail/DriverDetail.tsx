@@ -155,13 +155,18 @@ const DriverDetail = () => {
             top: 8,
             right: 8,
             zIndex: 1,
+            width: 28,
+            height: 28,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             bgcolor: theme.palette.success.main,
             color: theme.palette.success.contrastText,
             borderRadius: '50%',
-            p: 0.5
+            boxShadow: theme.shadows[2],
           }}
         >
-          <CheckCircleIcon fontSize="small" />
+          <CheckCircleIcon sx={{ fontSize: 18 }} />
         </Box>
       );
     } else if (rejectedImages[key]) {
@@ -172,13 +177,18 @@ const DriverDetail = () => {
             top: 8,
             right: 8,
             zIndex: 1,
+            width: 28,
+            height: 28,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             bgcolor: theme.palette.error.main,
             color: theme.palette.error.contrastText,
             borderRadius: '50%',
-            p: 0.5
+            boxShadow: theme.shadows[2],
           }}
         >
-          <CancelIcon fontSize="small" />
+          <CancelIcon sx={{ fontSize: 18 }} />
         </Box>
       );
     }
@@ -221,12 +231,11 @@ const DriverDetail = () => {
       )}
 
       {/* Driver Profile Section */}
-      <Paper elevation={0} sx={{ 
-        p: isMobile ? 2 : 4, 
-        mb: 4, 
-        borderRadius: '16px',
-        background: theme.palette.background.paper,
-        boxShadow: theme.shadows[2]
+      <Paper sx={{ 
+        p: isMobile ? 2 : 3.5, 
+        mb: 3.5, 
+        borderRadius: 3,
+        bgcolor: 'background.paper',
       }}>
         <Box display="flex" alignItems="center" mb={4} flexDirection={isMobile ? 'column' : 'row'}>
           <Avatar sx={{ 

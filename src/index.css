@@ -3,8 +3,26 @@
 @tailwind utilities;
 
 :root {
-  --light-blue: #0F3460;
-  --dark-blue: #1A1A2E;
+  --rr-navy: #0f3460;
+  --rr-navy-deep: #0b2748;
+  --rr-teal: #0d9488;
+  --rr-amber: #d4a017;
+  --rr-surface: #f4f7fb;
+  --rr-ink: #0f172a;
+  font-family: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+  color-scheme: light dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 input:-webkit-autofill,
@@ -17,15 +35,23 @@ select:-webkit-autofill,
 select:-webkit-autofill:hover,
 select:-webkit-autofill:focus {
   border: none;
-  -webkit-text-fill-color: #FFFFFF;
+  -webkit-text-fill-color: #ffffff;
   -webkit-box-shadow: 0 0 0px 1000px #9191911f inset;
   transition: background-color 5000s ease-in-out 0s;
 }
 
-.MuiBox-root .css-5sspxz {
-    padding-top: 64px;
-    padding-left: 0;
-    padding-right: 0;
-    width: 100%;
+/* Smooth content entrance for dashboard panels */
+@keyframes rr-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
+.rr-page-enter {
+  animation: rr-fade-up 0.45s ease both;
+}

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Box } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
 import { useLocation, Outlet, useNavigate } from "react-router-dom";
 import PageHeader from "../PageHeader";
 import HeaderActions from "../HeaderActions";
@@ -18,15 +17,11 @@ const DashboardLayout = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { toggleDarkMode } = useThemeToggle();
-    const theme = useTheme();
-    const isDark = theme.palette.mode === "dark";
     const pathSegments = location.pathname.split("/").filter(Boolean);
     const breadcrumb = pathSegments.slice(1).map(
         (seg) => seg.charAt(0).toUpperCase() + seg.slice(1)
     ).join(" / ");
-    // const title = pathSegments[pathSegments.length - 1]
-    //     ?.replace("-", " ")
-    //     ?.replace(/\b\w/g, (char) => char.toUpperCase()) || "Dashboard";
+
     let title = "Dashboard";
 
     if (location.pathname.includes("driver/")) {
@@ -39,7 +34,6 @@ const DashboardLayout = () => {
             ?.replace("-", " ")
             ?.replace(/\b\w/g, (char) => char.toUpperCase()) || "Dashboard";
     }
-
 
     useEffect(() => {
         const unsubDrivers = onSnapshot(
@@ -60,14 +54,15 @@ const DashboardLayout = () => {
         setDrawerOpen((prev) => !prev);
     };
 
-
     return (
-        <Box sx={{
-            minHeight: "100vh",
-            bgcolor: isDark ? "#181c2a" : "#f2f6fc",
-            pt: 10,
-            transition: "background 0.3s"
-        }}>
+        <Box
+            sx={{
+                minHeight: "100vh",
+                bgcolor: "transparent",
+                pt: { xs: 9, md: 10 },
+                pb: 5,
+            }}
+        >
             <Sidebar
                 open={isDrawerOpen}
                 onClose={() => setDrawerOpen(false)}
@@ -76,7 +71,7 @@ const DashboardLayout = () => {
                 driverPendingCount={driverPending}
                 rescuerPendingCount={rescuerPending}
             />
-            <Box sx={{ maxWidth: 1300, mx: "auto", px: 2 }}>
+            <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 2, md: 3 } }}>
                 <PageHeader
                     breadcrumb={breadcrumb}
                     title={title}
@@ -92,7 +87,9 @@ const DashboardLayout = () => {
                         />
                     }
                 />
-                <Outlet context={{ searchQuery, setSearchQuery, toggleDarkMode }} />
+                <Box className="rr-page-enter" key={location.pathname}>
+                    <Outlet context={{ searchQuery, setSearchQuery, toggleDarkMode }} />
+                </Box>
             </Box>
         </Box>
     );
