@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useEffect, useState } from 'react';
 import {
@@ -46,10 +46,9 @@ const RescuerDetail = () => {
   const [rejectionFeedback, setRejectionFeedback] = useState('');
   const isDark = theme.palette.mode === "dark";
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
-  const isMediumScreen = useMediaQuery(theme.breakpoints.down('md'));
 
   const [imageRejection, setImageRejection] = useState<{ [key: string]: { reason: string; dialogOpen: boolean } }>({});
-  const [expandedImage, setExpandedImage] = useState<{ url: string; label: string } | null>(null);
+  const [, setExpandedImage] = useState<{ url: string; label: string } | null>(null);
   const [approvedImages, setApprovedImages] = useState<Record<string, boolean>>({});
   const [rejectedImages, setRejectedImages] = useState<Record<string, string>>({});
   const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
@@ -255,7 +254,7 @@ const RescuerDetail = () => {
         </Box>
 
         <Grid container spacing={3} mb={3}>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card variant="outlined" sx={{ 
               p: isSmallScreen ? 2 : 3,
               borderRadius: '12px',
@@ -276,7 +275,7 @@ const RescuerDetail = () => {
               </Stack>
             </Card>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card variant="outlined" sx={{ 
               p: isSmallScreen ? 2 : 3,
               borderRadius: '12px',
@@ -443,7 +442,7 @@ const RescuerDetail = () => {
 
       <Grid container spacing={isSmallScreen ? 2 : 3}>
         {docFields.map(({ label, url, key }) => (
-          <Grid item xs={12} sm={6} md={3} key={key}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }} key={key}>
             <Card 
               elevation={0}
               sx={{ 

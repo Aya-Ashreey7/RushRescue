@@ -7,34 +7,20 @@ import {
   Typography,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import { useState, useEffect } from "react";
+import type { FC } from "react";
 import { auth } from "../firebase";
 import { Link, useNavigate } from "react-router-dom";
-import { onAuthStateChanged } from "firebase/auth";
 import { useTheme } from "@mui/material/styles";
 
 interface NavBarProps {
   onMenuToggle: () => void;
 }
 
-const NavBar: React.FC<NavBarProps> = ({ onMenuToggle }) => {
-  const [userEmail, setUserEmail] = useState<string>("Loading...");
+const NavBar: FC<NavBarProps> = ({ onMenuToggle }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserEmail(user.email || "No Email");
-      } else {
-        setUserEmail("Unknown");
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
 
   const handleLogout = async () => {
     await auth.signOut();

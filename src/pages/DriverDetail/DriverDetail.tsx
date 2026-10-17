@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useEffect, useState } from 'react';
 import {
@@ -49,8 +49,6 @@ const DriverDetail = () => {
   
   // Responsive breakpoints
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
-  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
 
   useEffect(() => {
     const fetchDriver = async () => {
@@ -252,7 +250,7 @@ const DriverDetail = () => {
         </Box>
 
         <Grid container spacing={3} mb={3}>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card variant="outlined" sx={{ 
               p: 3,
               borderRadius: '12px',
@@ -273,7 +271,7 @@ const DriverDetail = () => {
               </Stack>
             </Card>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card variant="outlined" sx={{ 
               p: 3,
               borderRadius: '12px',
@@ -366,7 +364,7 @@ const DriverDetail = () => {
 
       <Grid container spacing={3}>
         {docFields.map(({ label, url, key }) => (
-          <Grid item xs={12} sm={6} md={3} key={key}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }} key={key}>
             <Card 
               elevation={0}
               sx={{ 

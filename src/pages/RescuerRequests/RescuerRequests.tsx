@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -32,7 +32,7 @@ import { db } from "../../firebase";
 
 export default function RescuerRequests() {
   const [rescuers, setRescuers] = useState<any[]>([]);
-  const [page, setPage] = useState(1);
+  const [page] = useState(1);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";

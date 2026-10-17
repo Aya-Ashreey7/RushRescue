@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { DollarSign, MapPin, Phone, User as UserIcon } from "lucide-react";
+import { MapPin, Phone, User as UserIcon } from "lucide-react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import { db } from ".././firebase";

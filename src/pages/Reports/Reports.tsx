@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   TablePagination, Typography, TextField, InputAdornment, Tooltip, Avatar,
   Chip, IconButton, Menu, MenuItem, Dialog, DialogTitle, DialogContent,
   DialogActions, Button, CircularProgress, Select, MenuItem as SelectItem,
@@ -117,14 +117,6 @@ const Reports: React.FC = () => {
   useEffect(() => {
     fetchReports();
   }, []);
-
-  const formatDate = (ts?: Timestamp|string) => {
-    if (!ts) return 'N/A';
-    try {
-      const date = typeof ts === 'string' ? new Date(ts) : ts.toDate();
-      return date.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
-    } catch { return 'Invalid date'; }
-  };
 
   const getStatusColor = (v: string) => {
     switch (v.toLowerCase()) {
@@ -279,7 +271,7 @@ const Reports: React.FC = () => {
     }}>
       {/* Statistics Cards */}
       <Grid container spacing={3} mb={4} width="100%">
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard 
             title="Total Reports" 
             value={stats.total} 
@@ -288,7 +280,7 @@ const Reports: React.FC = () => {
             trend="+12% this month"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard 
             title="Pending" 
             value={stats.pending} 
@@ -296,7 +288,7 @@ const Reports: React.FC = () => {
             color="#f59e0b"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard 
             title="Resolved" 
             value={stats.resolved} 
@@ -305,7 +297,7 @@ const Reports: React.FC = () => {
             trend="+8% this week"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard 
             title="High Priority" 
             value={stats.highPriority} 
@@ -717,14 +709,14 @@ const Reports: React.FC = () => {
                                 textTransform: 'uppercase',
                                 fontSize: '0.75rem',
                                 borderRadius: '8px',
-                                background: (theme) => {
+                                background: (() => {
                                   const colors = {
                                     high: isDark ? 'linear-gradient(135deg, #dc2626, #b91c1c)' : 'linear-gradient(135deg, #fca5a5, #f87171)',
                                     medium: isDark ? 'linear-gradient(135deg, #d97706, #b45309)' : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                                     low: isDark ? 'linear-gradient(135deg, #059669, #047857)' : 'linear-gradient(135deg, #6ee7b7, #34d399)'
                                   };
                                   return colors[r.priority as keyof typeof colors] || colors.low;
-                                },
+                                })(),
                                 boxShadow: isDark ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.1)',
                                 '& .MuiChip-label': {
                                   color: '#fff',
@@ -1091,7 +1083,7 @@ const Reports: React.FC = () => {
           ) : selectedReport ? (
             <Stack spacing={3}>
               <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <Card sx={{ 
                     p: 3, 
                     backgroundColor: isDark ? '#1a1b2e' : '#f8fafc', 
@@ -1140,7 +1132,7 @@ const Reports: React.FC = () => {
                     </Box>
                   </Card>
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <Card sx={{ 
                     p: 3, 
                     backgroundColor: isDark ? '#1a1b2e' : '#f8fafc', 
@@ -1202,7 +1194,7 @@ const Reports: React.FC = () => {
                   Report Information
                 </Typography>
                 <Grid container spacing={14}>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Typography 
                       color={isDark ? "rgba(255,255,255,0.7)" : "text.secondary"} 
                       variant="body2" 
@@ -1220,7 +1212,7 @@ const Reports: React.FC = () => {
                     </Typography>
                   </Grid>
                
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Typography 
                       color={isDark ? "rgba(255,255,255,0.7)" : "text.secondary"} 
                       variant="body2" 

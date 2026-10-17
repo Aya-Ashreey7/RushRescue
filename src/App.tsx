@@ -5,7 +5,7 @@ import DashBoard from './Dashboard/DashBoard';
 import NotFound from './notFound/NotFound';
 import DriverRequests from './pages/DriverRequests/DriverRequests';
 import RescuerRequests from './pages/RescuerRequests/RescuerRequests';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './components/protectedRoute';
 import DashboardView from './pages/view/view';
 import DriverDetail from './pages/DriverDetail/DriverDetail';
 import RescuerDetail from './pages/RescuerDetail/RescuerDetail';
